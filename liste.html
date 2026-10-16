@@ -379,6 +379,7 @@ function badCount(an){return Object.keys(an.issues).filter(function(id){return a
 
 /* ================= Plan-SVG ================= */
 function bounds(list){var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;list.forEach(function(r){x0=Math.min(x0,r.x);y0=Math.min(y0,r.y);x1=Math.max(x1,r.x+r.w);y1=Math.max(y1,r.y+r.h)});return list.length?[x0,y0,x1-x0,y1-y0]:[0,0,800,800]}
+function compass(cx,cy,deg){return '<g class="compass" transform="translate('+cx+','+cy+') rotate('+(+deg||0)+')" pointer-events="none"><circle r="26" fill="none" stroke="var(--ink2)" stroke-width="1"/><path d="M0 -22 L7 6 L0 1 L-7 6Z" fill="var(--ink)"/><path d="M0 22 L7 6 L0 1 L-7 6Z" fill="none" stroke="var(--ink)" stroke-width="1"/><text y="-30" font-size="13" text-anchor="middle" font-weight="700" fill="var(--ink)" transform="rotate('+(-(+deg||0))+',0,-36)">N</text></g>'}
 function planSVG(o){
   var an=o.an,R=rooms(),rf=o.room?R.filter(function(r){return r.id===o.room})[0]:null;
   var b=rf?[rf.x,rf.y,rf.w,rf.h]:bounds(R),pad=rf?45:35,vb=[b[0]-pad,b[1]-pad,b[2]+2*pad,b[3]+2*pad];
@@ -413,6 +414,7 @@ function planSVG(o){
     if(UI.pins&&n){s+='<g class="pin" data-room="'+r.id+'" style="cursor:pointer"><circle cx="'+cx+'" cy="'+(r.y+22)+'" r="14"/><text x="'+cx+'" y="'+(r.y+27)+'" text-anchor="middle">'+n+'</text></g>';cx-=34}
     if(ph)s+='<g class="cam" data-photo-room="'+r.id+'" style="cursor:pointer"><circle cx="'+cx+'" cy="'+(r.y+22)+'" r="14"/><path d="M'+(cx-7)+' '+(r.y+18)+'h4l2-3h4l2 3h2v10h-14z" fill="none" stroke="#1d1f20" stroke-width="1.5"/><circle cx="'+cx+'" cy="'+(r.y+23)+'" r="3" fill="none" stroke="#1d1f20" stroke-width="1.5"/></g>'});
   if(UI.edit&&!rf&&UI.room){var r=get("rooms",UI.room);if(r)s+='<rect class="handle" data-handle="'+r.id+'" x="'+(r.x+r.w-11)+'" y="'+(r.y+r.h-11)+'" width="22" height="22" rx="4"/>'}
+  if(!rf&&S.plan.north!=null)s+=compass(b[0]+b[2]-45,b[1]+b[3]-45,S.plan.north);
   return s+'</svg>';
 }
 
