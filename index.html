@@ -28,7 +28,8 @@ button{font:inherit;color:inherit;cursor:pointer}
   background-color:var(--bg);
   background-image:linear-gradient(var(--grid2) 1px,transparent 1px),linear-gradient(90deg,var(--grid2) 1px,transparent 1px),linear-gradient(var(--grid1) 1px,transparent 1px),linear-gradient(90deg,var(--grid1) 1px,transparent 1px)}
 #board.panning{cursor:grabbing}
-#world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+#world{position:absolute;left:0;top:0;transform-origin:0 0}
+body.moving #world{will-change:transform}
 .el{position:absolute}
 .sel{outline:2px solid var(--blau);outline-offset:3px}
 
@@ -502,7 +503,9 @@ function elHTML(e){var c=e.id===selId?" sel":"";
 function rot(id){var h=0;for(var i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))|0;return ((h%5)+5)%5-2}
 
 /* ---------- Ansicht ---------- */
-function applyView(){world.style.transform="translate("+V.x+"px,"+V.y+"px) scale("+V.k+")";
+var sharpT;function applyView(){world.style.transform="translate("+V.x+"px,"+V.y+"px) scale("+V.k+")";
+  /* Während des Bewegens als Bild verschieben (flüssig), danach neu und scharf zeichnen */
+  document.body.classList.add("moving");clearTimeout(sharpT);sharpT=setTimeout(function(){document.body.classList.remove("moving")},180);
   var g1=20*V.k,g2=100*V.k,bp=V.x+"px "+V.y+"px";
   var layers=document.body.dataset.skin==="tafel"?["auto","auto",g2,g2,g1,g1]:[g2,g2,g1,g1];
   board.style.backgroundSize=layers.map(function(v){return v==="auto"?"100% 100%":v+"px "+v+"px"}).join(",");
@@ -643,7 +646,7 @@ function guessFromLink(url){var u;try{u=new URL(url.trim())}catch(e){return null
   if(dm){out.w=+dm[1];out.d=+dm[2];if(dm[3])out.h=+dm[3];out.src="Link"}
   else{var n=out.name.toLowerCase(),hit=CAT.filter(function(c){return c[0].split(" ").every(function(x){return n.indexOf(x)>=0})})[0];if(hit){out.w=hit[1];out.d=hit[2];out.h=hit[3];out.src="IKEA-Katalog"}}
   return out}
-function fetchProduct(url){var api=window.UMZUG_LINK_API;if(window.UMZUG_LINK_FN)return window.UMZUG_LINK_FN(url).then(function(d){var g=guessFromLink(url)||{};if(!d)return g;Object.keys(d).forEach(function(k){if(d[k]==null||d[k]==="")delete d[k]});return Object.assign(g,d,{src:"Shop"})}).catch(function(){return guessFromLink(url)});
+function fetchProduct(url){var api=window.UMZUG_LINK_API;if(window.UMZUG_LINK_FN)return window.UMZUG_LINK_FN(url).then(function(d){var g=guessFromLink(url)||{};if(!d)return g;Object.keys(d).forEach(function(k){if(d[k]==null||d[k]==="")delete d[k]});return Object.assign(g,d,{src:"Shop"})}).catch(function(e){var g=guessFromLink(url)||{};g.err=(e&&e.message)||String(e||"unbekannter Fehler");return g});
   if(api)return fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:url})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){var g=guessFromLink(url)||{};return Object.assign(g,d,{src:"Shop"})}).catch(function(){return guessFromLink(url)});
   return Promise.resolve(guessFromLink(url))}
 function itemForm(id){var it=id?Object.assign({},I[id]):{dec:"kaufen",her:"Neu",prio:2},img=it.img||"";
@@ -662,8 +665,9 @@ function itemForm(id){var it=id?Object.assign({},I[id]):{dec:"kaufen",her:"Neu",
     fetchProduct(url).then(function(d){if(!d){msg("Das ist kein gültiger Link.");return}
       if(d.name&&!$("#f-name").value)$("#f-name").value=d.name;else if(d.name&&!id)$("#f-name").value=d.name;
       ["w","d","h"].forEach(function(k){if(d[k])$("#f-"+k).value=d[k]});if(d.preis)$("#f-preis").value=d.preis;
-      if(d.image){var im=new Image();im.onload=function(){var c=document.createElement("canvas"),sc=Math.min(1,500/Math.max(im.width,im.height));c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);setImg(c.toDataURL("image/jpeg",.8))};im.src=d.image}
-      msg(d.w?("Maße übernommen ("+d.src+"). Bitte kurz prüfen."+(d.image?"":" Ein Foto kann ich hier im Entwurf nicht laden, in der Web-App kommt es automatisch.")):"Name übernommen. Die Maße fehlen im Link, bitte eintragen.")})};
+      if(d.image){var im=new Image();if(/^https?:/.test(d.image))im.crossOrigin="anonymous";im.onload=function(){try{var c=document.createElement("canvas"),sc=Math.min(1,900/Math.max(im.width,im.height));c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);setImg(c.toDataURL("image/jpeg",.85))}catch(e){setImg(d.image)}};im.onerror=function(){if(/^https?:/.test(d.image))setImg(d.image)};im.src=d.image}
+      var fehlt=[];if(!d.w||!d.d||!d.h)fehlt.push("Maße");if(!d.image)fehlt.push("Foto");
+      msg(d.err?("Der Shop-Abruf hat nicht geklappt ("+d.err+"). Name aus dem Link geraten, Maße und Foto bitte von Hand."):fehlt.length?("Übernommen. Es fehlt: "+fehlt.join(" und ")+". Bitte ergänzen, Foto geht auch per Einfügen."):"Name, Maße und Foto übernommen. Bitte kurz prüfen.")})};
   $("#f-file").onchange=function(){if(this.files[0])shrink(this.files[0],function(u){setImg(u)})};
   $("#itf").addEventListener("paste",function(e){Array.prototype.forEach.call((e.clipboardData&&e.clipboardData.items)||[],function(x){if(x.type.indexOf("image")===0){e.preventDefault();shrink(x.getAsFile(),setImg)}})});
   $("#f-x").onclick=function(){$("#modal").innerHTML=""};
@@ -727,7 +731,7 @@ function load(session){if(started)return;started=true;$("#modal").innerHTML='<di
     window.TAFEL_STORE={
       put:function(c,id,data){return sb.from("docs").upsert({coll:c,id:id,data:data,updated_at:new Date().toISOString()}).then(function(x){if(x.error)toast("Speichern hat nicht geklappt: "+x.error.message)})},
       del:function(c,id){return sb.from("docs").delete().eq("coll",c).eq("id",id).then(function(x){if(x.error)toast("Löschen hat nicht geklappt.")})}};
-    window.UMZUG_LINK_FN=function(url){return sb.functions.invoke("produkt",{body:{url:url}}).then(function(x){if(x.error||!x.data||x.data.error)throw x.error||x.data.error;return x.data})};
+    window.UMZUG_LINK_FN=function(url){return sb.functions.invoke("produkt",{body:{url:url}}).then(function(x){if(x.error){var c=x.error.context;return (c&&c.json?c.json().catch(function(){return {}}):Promise.resolve({})).then(function(j){throw new Error(j.error||(c&&c.status?"Status "+c.status:x.error.message))})}if(!x.data||x.data.error)throw new Error((x.data&&x.data.error)||"keine Antwort");return x.data})};
     $("#modal").innerHTML="";window.startTafel();
     var acct=$("#acct");acct.hidden=false;acct.innerHTML=(session.user.email||"")+' · <a href="#" id="logout">abmelden</a>';$("#to-list").hidden=false;
     $("#logout").onclick=function(e){e.preventDefault();sb.auth.signOut().then(function(){location.reload()})};
