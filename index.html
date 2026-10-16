@@ -125,6 +125,24 @@ body.lod0 .l0b{display:flex}
 .col{border-top:3px solid var(--neu);padding-top:8px;min-width:0}
 .col h4{margin:0 0 8px;font:600 12px var(--sans);text-transform:lowercase;letter-spacing:.05em;display:flex;justify-content:space-between}
 .col .card{padding:7px 8px;margin-bottom:8px;cursor:default}
+.vt{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,280px);gap:14px;height:100%;overflow-x:auto;align-items:start}
+.vt .col{border-top-color:var(--blau);height:100%;overflow-y:auto}
+.vt .col.ok{border-top-color:#2e8b57}
+.vt .col h4 small{font:500 10px var(--mono);letter-spacing:0;color:var(--ink2)}
+.vc{background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--line);padding:8px 9px;margin-bottom:8px;font-size:12px;cursor:pointer;position:relative}
+.vc:hover{border-color:var(--blau)}
+.vc b{display:block;font-weight:600;line-height:1.2;padding-right:56px}
+.vc .pr{font:600 15px var(--sans);margin-top:4px}.vc .pr small{font:500 10px var(--mono);color:var(--ink2)}
+.vc .m{font:10px var(--mono);color:var(--ink2);margin-top:2px}
+.vc .st{position:absolute;right:7px;top:7px;font:600 9px var(--sans);padding:2px 5px;border:1.5px solid var(--line)}
+.vc.ok{border-left-color:#2e8b57}.vc.ok .st{border-color:#2e8b57;color:#2e8b57}
+.vc.best:not(.ok) .st{border-color:var(--blau);color:var(--blau)}
+.vc.weg{opacity:.5}
+.vc.kd{border-left-color:var(--neu)}.vc.kd .st{border-color:var(--neu);color:var(--neu)}
+.vadd{display:block;width:100%;padding:7px;border:1px dashed var(--line);background:none;font:500 12px var(--sans);color:var(--ink2);cursor:pointer;text-transform:lowercase}
+.vadd:hover{border-color:var(--blau);color:var(--blau)}
+.vt .newcol{border-top:3px dashed var(--line);padding-top:8px}
+.tl .tag.vtr{border-left-color:#2e8b57;cursor:pointer}.tl .tag.vtr.kd{border-left-color:var(--neu)}
 .tl{position:absolute;inset:18px}
 .tl .ax{position:absolute;right:0;top:34px;border-top:1.5px solid var(--ink)}
 .tl .nd{position:absolute;left:0;top:0;bottom:0;width:220px;border-right:1px dashed var(--line);padding-right:12px;overflow:auto}
@@ -260,7 +278,7 @@ var st=null;try{st=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
 if(STORE){var pr={};try{pr=JSON.parse(localStorage.getItem("umzug-tafel-prefs")||"{}")}catch(e){}var df=defaults();st={v:1,view:pr.view||null,color:pr.color||"gelb",input:pr.input||"touchpad",itemPos:{},itemData:{},els:(SEED.board||[]).slice(),frames:Object.assign(df.frames,SEED.layout||{})};st.frames.user=st.frames.user||{}}
 if(!st||st.v!==1)st=defaults();st.skin="zeichentisch";st.tasks=st.tasks||null;st.itemData=st.itemData||{};st.input=st.input||"touchpad";
 function defaults(){return {v:1,skin:"zeichentisch",view:null,color:"gelb",itemPos:{},
-  frames:{plan:{x:-70,y:-90},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:300},user:{}},
+  frames:{plan:{x:-70,y:-90},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:300},vertraege:{x:2020,y:-90,w:1100,h:620},user:{}},
   els:[
     {id:"n1",type:"note",x:1110,y:-20,color:"gelb",text:"Küche: Edelstahl-Arbeitsplatte + offene Regale aus Eiche?"},
     {id:"n2",type:"note",x:1330,y:10,color:"rosa",text:"Pendelleuchte am Kabel über den Esstisch"},
@@ -273,8 +291,8 @@ var save=(function(){var t;return function(){clearTimeout(t);t=setTimeout(functi
   if(STORE){try{localStorage.setItem("umzug-tafel-prefs",JSON.stringify({view:st.view,color:st.color,input:st.input}))}catch(e){}sync();return}
   try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){toast("Im Browser ist kein Platz mehr für weitere Bilder.")}},250)}})();
 /* Abgleich mit der Datenbank: nur geänderte Einträge schreiben */
-var last={els:{},items:{},tasks:{},frames:""};
-function snap(){last.els={};st.els.forEach(function(e){last.els[e.id]=JSON.stringify(e)});last.items={};Object.keys(I).forEach(function(k){last.items[k]=JSON.stringify(I[k])});last.tasks={};Object.keys(T).forEach(function(k){last.tasks[k]=JSON.stringify(T[k])});last.frames=JSON.stringify(st.frames)}
+var last={els:{},items:{},tasks:{},contracts:{},frames:""};
+function snap(){last.els={};st.els.forEach(function(e){last.els[e.id]=JSON.stringify(e)});last.items={};Object.keys(I).forEach(function(k){last.items[k]=JSON.stringify(I[k])});last.tasks={};Object.keys(T).forEach(function(k){last.tasks[k]=JSON.stringify(T[k])});last.contracts={};Object.keys(C).forEach(function(k){last.contracts[k]=JSON.stringify(C[k])});last.frames=JSON.stringify(st.frames)}
 function sync(){if(!STORE)return;var now={};
   st.els.forEach(function(e){var j=JSON.stringify(e);now[e.id]=1;if(last.els[e.id]!==j){last.els[e.id]=j;STORE.put("board",e.id,e)}});
   Object.keys(last.els).forEach(function(id){if(!now[id]){delete last.els[id];STORE.del("board",id)}});
@@ -282,6 +300,8 @@ function sync(){if(!STORE)return;var now={};
   Object.keys(last.items).forEach(function(k){if(!I[k]){var o=JSON.parse(last.items[k]);delete last.items[k];o.deleted=new Date().toISOString();STORE.put("items",k,o)}});
   Object.keys(T).forEach(function(k){var j=JSON.stringify(T[k]);if(last.tasks[k]!==j){last.tasks[k]=j;STORE.put("tasks",k,T[k])}});
   Object.keys(last.tasks).forEach(function(k){if(!T[k]){var o=JSON.parse(last.tasks[k]);delete last.tasks[k];o.deleted=new Date().toISOString();STORE.put("tasks",k,o)}});
+  Object.keys(C).forEach(function(k){var j=JSON.stringify(C[k]);if(last.contracts[k]!==j){last.contracts[k]=j;STORE.put("contracts",k,C[k])}});
+  Object.keys(last.contracts).forEach(function(k){if(!C[k]){var o=JSON.parse(last.contracts[k]);delete last.contracts[k];o.deleted=new Date().toISOString();STORE.put("contracts",k,o)}});
   var fj=JSON.stringify(st.frames);if(fj!==last.frames){last.frames=fj;STORE.put("meta","board",st.frames)}}
 function busy(){return !!(drag||pinch||document.querySelector('[contenteditable="true"]')||$("#modal").innerHTML)}
 var pending=false;
@@ -290,6 +310,7 @@ window.TAFEL_APPLY=function(c,id,data){var j=data?JSON.stringify(data):null;
   if(c==="board"){if(!data){st.els=st.els.filter(function(e){return e.id!==id});delete last.els[id]}else{var ex=getEl(id);if(ex)Object.assign(ex,data);else st.els.push(data);last.els[id]=j}}
   else if(c==="items"){if(!data||data.deleted){delete I[id];delete last.items[id]}else{I[id]=data;last.items[id]=JSON.stringify(data)}}
   else if(c==="tasks"){if(!data||data.deleted){delete T[id];delete last.tasks[id]}else{if(last.tasks[id]===j)return;T[id]=data;last.tasks[id]=j}}
+  else if(c==="contracts"){if(!data||data.deleted){delete C[id];delete last.contracts[id]}else{if(last.contracts[id]===j)return;C[id]=data;last.contracts[id]=j}}
   else if(c==="rooms"){if(!data||data.deleted)delete R[id];else R[id]=data}
   else if(c==="meta"&&id==="plan"&&data)P=data;
   else if(c==="meta"&&id==="board"&&data){st.frames=Object.assign(defaults().frames,data);st.frames.user=st.frames.user||{};last.frames=JSON.stringify(st.frames)}
@@ -297,11 +318,11 @@ window.TAFEL_APPLY=function(c,id,data){var j=data?JSON.stringify(data):null;
   if(busy())pending=true;else render()};
 setInterval(function(){if(pending&&!busy()){pending=false;render()}},700);
 
-var R=SEED.rooms||{},P=SEED.plan||{doors:[],windows:[],fixed:[]},I=SEED.items||{},T=SEED.tasks||{};
-[R,I,T].forEach(function(m){Object.keys(m).forEach(function(k){if(m[k]&&m[k].deleted)delete m[k]})});
+var R=SEED.rooms||{},P=SEED.plan||{doors:[],windows:[],fixed:[]},I=SEED.items||{},T=SEED.tasks||{},C=SEED.contracts||{};
+[R,I,T,C].forEach(function(m){Object.keys(m).forEach(function(k){if(m[k]&&m[k].deleted)delete m[k]})});
 Object.keys(st.itemData).forEach(function(id){if(st.itemData[id]===null)delete I[id];else I[id]=Object.assign({},I[id]||{},st.itemData[id])});
 Object.keys(st.itemPos).forEach(function(id){if(I[id])Object.assign(I[id],st.itemPos[id])});
-if(!STORE&&st.tasks)T=st.tasks;if(!STORE)st.tasks=T;
+if(!STORE&&st.tasks)T=st.tasks;if(!STORE)st.tasks=T;if(!STORE&&st.contracts)C=st.contracts;if(!STORE)st.contracts=C;
 
 /* ---------- Helfer ---------- */
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -387,18 +408,61 @@ function tlX(f,d){return TLL+(d-TL0)/864e5/((TL1-TL0)/864e5)*tlW(f)}
 function tlDate(f,x){var n=Math.round((x-TLL)/tlW(f)*((TL1-TL0)/864e5)),d=new Date(TL0);d.setDate(d.getDate()+n);return isoD(d)}
 function isoD(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function fmtD(s){var d=pd(s);return d?String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0")+".":""}
+function vtrLab(v){return (v.status==="kuendigen"?"kündigen: ":v.status==="gekuendigt"?"endet: ":"")+(v.kat||"Vertrag")+(v.anbieter?" · "+v.anbieter:"")}
 function tasksAll(){return Object.keys(T).map(function(k){return Object.assign({id:k},T[k])})}
 function zeitHTML(f){var s='<div class="tl"><div class="nd"><h5>ohne datum</h5>';
   tasksAll().filter(function(t){return !t.due&&!t.done}).forEach(function(t){s+='<div class="tag nd-t" data-task="'+t.id+'" title="'+esc(t.title)+'">'+esc(t.title||"Ohne Titel")+'</div>'});
+  vtrAll().filter(function(v){return !v.ab&&(v.status==="abgeschlossen"||v.status==="kuendigen")}).forEach(function(v){s+='<div class="tag nd-t vtr'+(v.status==="kuendigen"?' kd':'')+'" data-vtr="'+v.id+'">'+esc(vtrLab(v))+'</div>'});
   s+='<p class="tlh">Zum Planen auf die Leiste ziehen.</p></div><div class="ax" style="left:'+TLL+'px"></div>';
   for(var d=new Date(TL0);d<=TL1;d.setDate(d.getDate()+1)){var x=tlX(f,d);if(d.getDate()===1)s+='<div class="mo" style="left:'+x+'px">'+MON[d.getMonth()].toLowerCase()+' '+String(d.getFullYear()).slice(2)+'</div><div class="tick" style="left:'+x+'px"></div>';else if(d.getDay()===1)s+='<div class="tick wk" style="left:'+x+'px"></div>'}
   s+='<div class="td" style="left:'+tlX(f,today())+'px"><span>heute</span></div><div class="mv" style="left:'+tlX(f,pd(MOVE))+'px"><span>umzug 15.12.</span></div>';
   var rows=tasksAll().filter(function(t){return t.due}).map(function(t){return {k:"t",o:t,d:t.due}});
+  vtrAll().forEach(function(v){if(v.ab&&v.status&&v.status!=="vergleich")rows.push({k:"v",o:v,d:v.ab})});
   st.els.forEach(function(e){if(e.type!=="note"||!e.due)return;var lx=e.x-f.x,ly=e.y-f.y;if(lx>0&&lx<f.w&&ly>-60&&ly<f.h)return;rows.push({k:"n",o:e,d:e.due})});
   var lanes=[];rows.sort(function(x,y){return x.d<y.d?-1:1}).forEach(function(r){var x=tlX(f,pd(r.d)),l=0;while(lanes[l]!=null&&lanes[l]>x-4)l++;lanes[l]=x+176;
     if(r.k==="t"){var t=r.o;s+='<div class="tag'+(t.done?' done':'')+(!t.done&&days(t.due)<0?' late':'')+'" data-task="'+t.id+'" style="left:'+x+'px;top:'+(52+l*34)+'px" title="'+esc(t.title)+' · '+fmtD(t.due)+'">'+esc(t.title||"Ohne Titel")+'</div>'}
+    else if(r.k==="v")s+='<div class="tag vtr'+(r.o.status==="abgeschlossen"?'':' kd')+'" data-vtr="'+r.o.id+'" style="left:'+x+'px;top:'+(52+l*34)+'px" title="'+esc(vtrLab(r.o))+' · '+fmtD(r.d)+'">'+esc(vtrLab(r.o))+'</div>';
     else s+='<div class="tag nt n-'+(r.o.color||"gelb")+'" data-tnote="'+r.o.id+'" style="left:'+x+'px;top:'+(52+l*34)+'px" title="Post-it · '+fmtD(r.d)+'">'+esc((r.o.text||"Post-it").split("\n")[0])+'</div>'});
   return s+'<p class="tlh tlh2">Doppelklick auf die Leiste legt einen Eintrag an. Einträge und Post-its lassen sich auf ein Datum ziehen.</p></div>'}
+/* ---------- Verträge ---------- */
+var VST={vergleich:"Angebot",abgeschlossen:"Abgeschlossen",kuendigen:"Alt: kündigen",gekuendigt:"Alt: gekündigt"};
+var VKAT=["Strom","Internet","Hausrat","Haftpflicht","Gas","Rundfunkbeitrag","Handy","Umzugsfirma","Transporter","Halteverbot"];
+function vtrAll(){return Object.keys(C).map(function(k){return Object.assign({id:k},C[k])})}
+function euro(n){return (Math.round(n*100)/100).toLocaleString("de-DE",{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})+" €"}
+function jahr(v){var m=parseFloat(String(v.preis||"").replace(",",".")),e=parseFloat(String(v.einmal||"").replace(",","."));if(isNaN(m)&&isNaN(e))return null;return (isNaN(m)?0:m*12)+(isNaN(e)?0:e)}
+function vtrKats(){var m={},o=[];vtrAll().forEach(function(v){var k=(v.kat||"Sonstiges").trim();if(!m[k]){m[k]={kat:k,list:[]};o.push(m[k])}m[k].list.push(v)});
+  o.forEach(function(g){var neu=g.list.filter(function(v){return v.status!=="kuendigen"&&v.status!=="gekuendigt"});g.ok=neu.filter(function(v){return v.status==="abgeschlossen"})[0]||null;
+    var pr=neu.filter(function(v){return jahr(v)!=null}).sort(function(a,b){return jahr(a)-jahr(b)});g.best=pr.length>1?pr[0].id:null;
+    g.list.sort(function(a,b){var r=function(v){return v.status==="abgeschlossen"?0:v.status==="vergleich"||!v.status?1:2};return r(a)-r(b)||((jahr(a)==null?1e9:jahr(a))-(jahr(b)==null?1e9:jahr(b)))})});
+  return o.sort(function(a,b){return a.kat.localeCompare(b.kat,"de")})}
+function vertraegeHTML(){var g=vtrKats();
+  return '<div class="vt">'+g.map(function(k){return '<div class="col'+(k.ok?' ok':'')+'"><h4>'+esc(k.kat)+'<small>'+(k.ok?(k.ok.ab?'ab '+fmtD(k.ok.ab):'abgeschlossen'):k.list.length+' im vergleich')+'</small></h4>'+
+    k.list.map(function(v){var j=jahr(v),st0=v.status||"vergleich",kd=st0==="kuendigen"||st0==="gekuendigt",weg=k.ok&&k.ok.id!==v.id&&!kd;
+      var lab=st0==="abgeschlossen"?(v.ab?'ab '+fmtD(v.ab):'ab wann?'):st0==="kuendigen"?(v.ab?'kündigen bis '+fmtD(v.ab):'kündigen'):st0==="gekuendigt"?(v.ab?'endet '+fmtD(v.ab):'gekündigt'):(k.best===v.id?'günstigstes':'angebot');
+      return '<div class="vc'+(st0==="abgeschlossen"?' ok':'')+(kd?' kd':'')+(weg?' weg':'')+(k.best===v.id?' best':'')+'" data-vtr="'+v.id+'"><span class="st">'+lab+'</span><b>'+esc(v.anbieter||"Ohne Namen")+'</b>'+
+        (v.preis?'<div class="pr">'+euro(parseFloat(String(v.preis).replace(",",".")))+' <small>/ monat</small></div>':'')+
+        '<div class="m">'+[j!=null?euro(j)+' im 1. jahr':'',v.laufzeit?v.laufzeit+' mon. laufzeit':'',v.einmal?'einmalig '+euro(parseFloat(String(v.einmal).replace(",","."))):''].filter(Boolean).join(' · ')+'</div>'+
+        (v.notiz?'<div class="m" style="font-family:var(--hand);font-size:11px;color:var(--ink)">'+esc(v.notiz)+'</div>':'')+'</div>'}).join("")+
+    '<button class="vadd" data-vadd="'+esc(k.kat)+'">+ angebot</button></div>'}).join("")+
+    '<div class="newcol"><button class="vadd" data-vadd="">+ neuer vertrag</button><p class="tlh" style="position:static;margin-top:10px">Pro Thema mehrere Angebote eintragen, das günstigste im ersten Jahr wird markiert. Abgeschlossene Verträge und Kündigungen erscheinen mit Datum auf der Zeitleiste.</p></div></div>'}
+function vtrForm(id,preset){var v=id?Object.assign({},C[id]):Object.assign({kat:"",status:"vergleich"},preset||{});
+  $("#modal").innerHTML='<div class="bg"><form id="vtf" autocomplete="off"><h2>'+(id?'vertrag bearbeiten':'neuer vertrag')+'</h2>'+
+  '<div class="row"><label>Thema<input id="v-kat" list="v-kats" required value="'+esc(v.kat||"")+'" placeholder="z. B. Strom"><datalist id="v-kats">'+VKAT.map(function(k){return '<option value="'+k+'">'}).join("")+'</datalist></label><label>Anbieter / Tarif<input id="v-anb" required value="'+esc(v.anbieter||"")+'"></label></div>'+
+  '<div class="row"><label>Preis pro Monat (€)<input id="v-preis" inputmode="decimal" value="'+esc(v.preis||"")+'"></label><label>Einmalig (€, Bonus mit Minus)<input id="v-einmal" inputmode="decimal" value="'+esc(v.einmal||"")+'"></label></div>'+
+  '<div class="row"><label>Laufzeit (Monate)<input id="v-lz" inputmode="numeric" value="'+esc(v.laufzeit||"")+'"></label><label>Status<select id="v-st">'+Object.keys(VST).map(function(k){return '<option value="'+k+'"'+((v.status||"vergleich")===k?' selected':'')+'>'+VST[k]+'</option>'}).join("")+'</select></label></div>'+
+  '<div class="row"><label><span id="v-dl">Ab wann</span><input id="v-ab" type="date" value="'+esc(v.ab||"")+'"></label><label>Link<input id="v-link" type="url" value="'+esc(v.link||"")+'" placeholder="https://"></label></div>'+
+  '<label>Notiz<input id="v-notiz" value="'+esc(v.notiz||"")+'" placeholder="Kundennummer, Kündigungsfrist …"></label>'+
+  (v.link?'<p class="note2"><a href="'+esc(v.link)+'" target="_blank" rel="noopener">Angebot öffnen</a></p>':'')+
+  '<div class="foot">'+(id?'<button type="button" class="btn del" id="v-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="v-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
+  var lab=function(){var x=$("#v-st").value;$("#v-dl").textContent=x==="kuendigen"?"Kündigen bis":x==="gekuendigt"?"Endet am":x==="abgeschlossen"?"Beginnt am":"Ab wann (geplant)"};lab();$("#v-st").onchange=lab;
+  $("#v-x").onclick=function(){$("#modal").innerHTML=""};
+  $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
+  if(id)$("#v-del").onclick=function(){delete C[id];save();$("#modal").innerHTML="";render();toast("Vertrag gelöscht")};
+  $("#vtf").addEventListener("submit",function(e){e.preventDefault();var nid=id||("v"+Date.now().toString(36));
+    var o=Object.assign({},v,{kat:$("#v-kat").value.trim(),anbieter:$("#v-anb").value.trim(),preis:$("#v-preis").value.trim(),einmal:$("#v-einmal").value.trim(),laufzeit:$("#v-lz").value.trim(),status:$("#v-st").value,ab:$("#v-ab").value,link:$("#v-link").value.trim(),notiz:$("#v-notiz").value.trim(),updated:new Date().toISOString()});
+    if(o.status==="abgeschlossen")Object.keys(C).forEach(function(k){if(k!==nid&&C[k].kat===o.kat&&C[k].status==="abgeschlossen"){C[k].status="vergleich"}});
+    C[nid]=o;save();$("#modal").innerHTML="";render();toast(o.status==="abgeschlossen"?(o.ab?o.kat+" läuft ab "+fmtD(o.ab):"Abgeschlossen. Trag noch ein, ab wann."):"Gespeichert")});
+  setTimeout(function(){$(id||preset&&preset.kat?"#v-anb":"#v-kat").focus()},30)}
 function nowHTML(){var d=days(MOVE),open=Object.keys(T).map(function(k){return T[k]}).filter(function(t){return !t.done&&t.due}).sort(function(a,b){return a.due<b.due?-1:1}).slice(0,5);
   return '<div style="display:grid;grid-template-columns:220px 1fr;gap:28px;height:100%"><div><div style="font:800 110px/0.9 var(--sans);color:var(--neu);letter-spacing:-.04em" class="cdn">'+d+'</div><div style="font:500 13px var(--mono);margin-top:10px">Tage bis zum Umzug am 15.12.</div></div><ol class="now" style="margin:0;padding-left:20px">'+open.map(function(t){var dd=pd(t.due);return '<li><span>'+String(dd.getDate()).padStart(2,"0")+'.'+String(dd.getMonth()+1).padStart(2,"0")+'.</span>'+esc(t.title)+'</li>'}).join("")+'</ol></div>'}
 function geldHTML(){var aus=0,ein=0;Object.keys(I).forEach(function(k){var it=I[k];if((it.dec==="kaufen"||it.dec==="fest")&&it.preis)aus+=+it.preis;if(it.dec==="verkaufen"&&it.preis)ein+=+it.preis});
@@ -420,6 +484,7 @@ function render(){PB=bounds();var F=st.frames,s="";
   s+=frameDiv("zeit","Zeitplan","Okt bis Jan",F.zeit,zeitHTML(F.zeit),openT+" Aufgaben offen");
   s+=frameDiv("mood","Moodboard","Bilder reinziehen oder einfügen",F.mood,"",null);
   s+=frameDiv("geld","Geld","",F.geld,geldHTML(),null);
+  var vk=vtrKats();s+=frameDiv("vertraege","Verträge","vergleichen und abschließen",F.vertraege,vertraegeHTML(),vk.filter(function(k){return k.ok}).length+" / "+vk.length+" abgeschlossen");
   Object.keys(F.user||{}).forEach(function(id){var f=F.user[id];s+=frameDiv(id,f.title||"Rahmen","",f,"")});
   st.els.forEach(function(e){s+=elHTML(e)});
   world.innerHTML=s;applyView();}
@@ -449,14 +514,14 @@ function zoomAt(sx,sy,f){var k=Math.max(.08,Math.min(4,V.k*f));var wx=(sx-V.x)/V
 function fit(b,pad){var W=innerWidth,H=innerHeight,k=Math.min((W-pad*2)/b.w,(H-pad*2-60)/b.h,2.5);V.k=k;V.x=W/2-(b.x+b.w/2)*k;V.y=(H+40)/2-(b.y+b.h/2)*k;applyView()}
 function planBox(){var f=st.frames.plan;return {x:f.x,y:f.y,w:PB.w+2*PAD+70,h:PB.h+2*PAD+190}}
 function allBox(){var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9,add=function(x,y,w,h){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x+w);y1=Math.max(y1,y+h)};
-  var pb=planBox();add(pb.x,pb.y-40,pb.w,pb.h+40);["now","moebel","verkauf","zeit","mood","geld"].forEach(function(k){var f=st.frames[k];add(f.x,f.y-44,f.w,f.h+44)});
+  var pb=planBox();add(pb.x,pb.y-40,pb.w,pb.h+40);["now","moebel","verkauf","zeit","mood","geld","vertraege"].forEach(function(k){var f=st.frames[k];add(f.x,f.y-44,f.w,f.h+44)});
   Object.keys(st.frames.user).forEach(function(k){var f=st.frames.user[k];add(f.x,f.y,f.w,f.h)});st.els.forEach(function(e){add(e.x,e.y,e.w||190,e.h||170)});return {x:x0,y:y0,w:x1-x0,h:y1-y0}}
 function toWorld(sx,sy){return {x:(sx-V.x)/V.k,y:(sy-V.y)/V.k}}
 
 /* ---------- Übersichtskarte ---------- */
 function drawMini(){var c=$("#mini");if(!c||getComputedStyle(c).display==="none")return;var g=c.getContext("2d"),b=allBox(),W=c.width,H=c.height,k=Math.min(W/b.w,H/b.h)*.9,ox=(W-b.w*k)/2-b.x*k,oy=(H-b.h*k)/2-b.y*k;
   var cs=getComputedStyle(document.body);g.clearRect(0,0,W,H);g.fillStyle=cs.getPropertyValue("--ink2");g.globalAlpha=.25;
-  ["now","moebel","verkauf","zeit","mood","geld"].forEach(function(n){var f=st.frames[n];g.fillRect(ox+f.x*k,oy+f.y*k,f.w*k,f.h*k)});
+  ["now","moebel","verkauf","zeit","mood","geld","vertraege"].forEach(function(n){var f=st.frames[n];g.fillRect(ox+f.x*k,oy+f.y*k,f.w*k,f.h*k)});
   g.globalAlpha=.6;var pb=planBox();g.fillRect(ox+pb.x*k,oy+pb.y*k,pb.w*k,pb.h*k);
   g.globalAlpha=1;st.els.forEach(function(e){g.fillStyle=e.type==="note"?"#f2c94c":cs.getPropertyValue("--ink2");g.fillRect(ox+e.x*k,oy+e.y*k,(e.w||190)*k,(e.h||170)*k)});
   g.strokeStyle=cs.getPropertyValue("--neu");g.lineWidth=3;var tl=toWorld(0,0),br=toWorld(innerWidth,innerHeight);g.strokeRect(ox+tl.x*k,oy+tl.y*k,(br.x-tl.x)*k,(br.y-tl.y)*k);
@@ -485,6 +550,7 @@ board.addEventListener("pointerdown",function(e){if(e.target.closest('[contented
   if(res){var el=getEl(res.dataset.res);drag={kind:"res",el:el,sx:w.x,sy:w.y,w0:el.w,h0:el.h};}
   else if(fres){var fk=fres.dataset.fres,f=st.frames[fk]||st.frames.user[fk];drag={kind:"res",el:f,sx:w.x,sy:w.y,w0:f.w,h0:f.h,frame:fk}}
   else if(t.closest(".x,button,img[data-lb],.due")){return}
+  else if(t.closest("[data-vtr]")){drag={kind:"vtr",id:t.closest("[data-vtr]").dataset.vtr}}
   else if(t.closest("[data-task]")){drag={kind:"task",id:t.closest("[data-task]").dataset.task,sx:e.clientX,sy:e.clientY}}
   else if(t.closest("[data-tnote]")){var ne=getEl(t.closest("[data-tnote]").dataset.tnote);if(ne){V.x=innerWidth/2-(ne.x+95)*V.k;V.y=innerHeight/2-(ne.y+85)*V.k;applyView();selId=ne.id;render()}return}
   else if(t.closest("[data-el]")){var id=t.closest("[data-el]").dataset.el,el2=getEl(id);drag={kind:"el",el:el2,ox:w.x-el2.x,oy:w.y-el2.y,node:t.closest("[data-el]")};if(selId!==id){selId=id;world.querySelectorAll(".sel").forEach(function(n){n.classList.remove("sel")});drag.node.classList.add("sel")}}
@@ -513,6 +579,7 @@ function end(e){delete pts[e.pointerId];if(pinch&&Object.keys(pts).length<2){pin
   if(d.kind==="furn"&&d.nx!=null){var it=I[d.id];it.x=d.nx;it.y=d.ny;st.itemPos[d.id]={x:it.x,y:it.y,rot:it.rot||0};save();render();return}
   if(d.kind==="furn"&&!moved){var it2=I[d.id];it2.rot=it2.rot===90?0:90;st.itemPos[d.id]={x:it2.x,y:it2.y,rot:it2.rot};save();render();toast("Gedreht");return}
   if(d.kind==="card"&&!d.g){itemForm(d.id);return}
+  if(d.kind==="vtr"){vtrForm(d.id);return}
   if(d.kind==="task"){if(!d.g){taskForm(d.id);return}d.g.remove();var wz=toWorld(e.clientX,e.clientY),fz=st.frames.zeit,lx=wz.x-fz.x-18,ly=wz.y-fz.y;
     if(lx<-20||ly<-40||lx>fz.w||ly>fz.h){toast("Zum Planen auf die Zeitleiste ziehen.");return}
     T[d.id].due=lx>=TLL?tlDate(fz,lx):"";save();render();toast(T[d.id].due?"Geplant für "+fmtD(T[d.id].due):"Datum entfernt");return}
@@ -524,7 +591,8 @@ function end(e){delete pts[e.pointerId];if(pinch&&Object.keys(pts).length<2){pin
   if(moved)save()}
 board.addEventListener("pointerup",end);board.addEventListener("pointercancel",end);
 board.addEventListener("dblclick",function(e){var t=document.elementFromPoint(e.clientX,e.clientY)||e.target;
-  var zf=t.closest('[data-frame="zeit"]');if(zf&&!t.closest("[data-task],[data-tnote],.fhead")){var w0=toWorld(e.clientX,e.clientY),fz=st.frames.zeit,lx=w0.x-fz.x-18;taskForm(null,{due:lx>=TLL?tlDate(fz,lx):""});return}if(t.closest("[data-el]")){editEl(t.closest("[data-el]").dataset.el);return}
+  var zf=t.closest('[data-frame="zeit"]');if(zf&&!t.closest("[data-task],[data-tnote],[data-vtr],.fhead")){var w0=toWorld(e.clientX,e.clientY),fz=st.frames.zeit,lx=w0.x-fz.x-18;taskForm(null,{due:lx>=TLL?tlDate(fz,lx):""});return}if(t.closest("[data-el]")){editEl(t.closest("[data-el]").dataset.el);return}
+  if(t.closest('[data-frame="vertraege"]')&&!t.closest(".fhead")){if(!t.closest("[data-vtr]"))vtrForm(null);return}
   if(t.closest(".fhead,.card,[data-furn],.tblock,.rinfo"))return;var w=toWorld(e.clientX,e.clientY);addNote(w.x,w.y)});
 board.addEventListener("wheel",function(e){if(e.target.closest("#modal"))return;e.preventDefault();
   var dy=e.deltaMode===1?e.deltaY*16:e.deltaY,dx=e.deltaMode===1?e.deltaX*16:e.deltaX;
@@ -544,6 +612,7 @@ document.addEventListener("click",function(e){var t=e.target,b;
   if((b=t.closest("[data-z]"))){var z=b.dataset.z;if(z==="in")zoomAt(innerWidth/2,innerHeight/2,1.3);if(z==="out")zoomAt(innerWidth/2,innerHeight/2,1/1.3);if(z==="plan")fit(planBox(),40);if(z==="all")fit(allBox(),30);if(z==="input"){st.input=st.input==="maus"?"touchpad":"maus";save();syncTop();toast(st.input==="maus"?"Mausrad zoomt jetzt.":"Zwei Finger schieben, Kneifen zoomt.")}return}
   if((b=t.closest("[data-del]"))){st.els=st.els.filter(function(x){return x.id!==b.dataset.del});selId=null;save();render();return}
   if((b=t.closest("[data-fdel]"))){delete st.frames.user[b.dataset.fdel];save();render();return}
+  if((b=t.closest("[data-vadd]"))){vtrForm(null,b.dataset.vadd?{kat:b.dataset.vadd}:null);return}
   if((b=t.closest("[data-sheet]"))){openSheet(b.dataset.sheet);return}
   if((b=t.closest("[data-undue]"))){var ue=getEl(b.dataset.undue);if(ue){delete ue.due;save();render();toast("Datum entfernt")}return}
   if((b=t.closest("[data-lb]"))){var p=b.dataset.lb.split(":");$("#lb img").src=R[p[0]].photos[+p[1]];$("#lb").classList.add("open");return}
@@ -652,8 +721,8 @@ function login(){$("#modal").innerHTML='<div class="bg"><form id="lg"><h2>anmeld
 function toast(t){var e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display="none"},3000)}
 function load(session){if(started)return;started=true;$("#modal").innerHTML='<div class="bg"><form><h2>lade tafel …</h2></form></div>';
   sb.from("docs").select("coll,id,data").then(function(r){if(r.error){$("#modal").innerHTML='<div class="bg"><form><h2>datenbank antwortet nicht</h2><p class="note2">'+r.error.message+'</p></form></div>';return}
-    var S={rooms:{},items:{},tasks:{},plan:null,board:[],layout:null};
-    r.data.forEach(function(x){if(x.coll==="rooms"||x.coll==="items"||x.coll==="tasks")S[x.coll][x.id]=x.data;else if(x.coll==="board")S.board.push(x.data);else if(x.coll==="meta"&&x.id==="plan")S.plan=x.data;else if(x.coll==="meta"&&x.id==="board")S.layout=x.data});
+    var S={rooms:{},items:{},tasks:{},contracts:{},plan:null,board:[],layout:null};
+    r.data.forEach(function(x){if(x.coll==="rooms"||x.coll==="items"||x.coll==="tasks"||x.coll==="contracts")S[x.coll][x.id]=x.data;else if(x.coll==="board")S.board.push(x.data);else if(x.coll==="meta"&&x.id==="plan")S.plan=x.data;else if(x.coll==="meta"&&x.id==="board")S.layout=x.data});
     window.SEED=S;
     window.TAFEL_STORE={
       put:function(c,id,data){return sb.from("docs").upsert({coll:c,id:id,data:data,updated_at:new Date().toISOString()}).then(function(x){if(x.error)toast("Speichern hat nicht geklappt: "+x.error.message)})},
