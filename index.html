@@ -28,6 +28,16 @@ button{font:inherit;color:inherit;cursor:pointer}
   background-color:var(--bg);
   background-image:linear-gradient(var(--grid2) 1px,transparent 1px),linear-gradient(90deg,var(--grid2) 1px,transparent 1px),linear-gradient(var(--grid1) 1px,transparent 1px),linear-gradient(90deg,var(--grid1) 1px,transparent 1px)}
 #board.panning{cursor:grabbing}
+#board,#board *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#board [contenteditable="true"],#board [contenteditable="true"] *{-webkit-user-select:text;user-select:text}
+#board img{-webkit-user-drag:none}
+.ui,#hint,#mini,#ftool{-webkit-user-select:none;user-select:none}
+#hint{pointer-events:none}
+#ftool{position:fixed;z-index:25;display:none;gap:2px;background:var(--ink);padding:4px;border-radius:10px;box-shadow:0 8px 20px -8px rgba(0,0,0,.4);transform:translate(-50%,calc(-100% - 10px))}
+#ftool.on{display:flex}
+#ftool button{border:0;background:transparent;color:#fff;font:500 13px var(--sans);padding:6px 10px;border-radius:7px;cursor:pointer;white-space:nowrap}
+#ftool button:hover{background:rgba(255,255,255,.14)}
+#ftool b{color:#fff;font:600 12px var(--sans);padding:6px 8px 6px 6px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #world{position:absolute;left:0;top:0;transform-origin:0 0}
 body.moving #world{will-change:transform}
 .el{position:absolute}
@@ -52,7 +62,7 @@ body.moving #world{will-change:transform}
 .rs{position:absolute;right:-8px;bottom:-8px;width:16px;height:16px;background:var(--blau);border:2px solid #fff;cursor:nwse-resize;display:none}
 .sel .rs,.frame:hover>.rs{display:block}
 .x{position:absolute;right:-12px;top:-12px;width:24px;height:24px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);font:600 13px var(--sans);display:none;line-height:24px;padding:0}
-.sel .x{display:block}
+.sel .x,.frame:hover>.x{display:block}
 
 /* Planblatt */
 .sheet{background:var(--paper);box-shadow:var(--shadow);border:1px solid var(--line)}
@@ -75,6 +85,13 @@ body.moving #world{will-change:transform}
 .axis circle{fill:var(--paper);stroke:var(--ink);stroke-width:1}.axis text{font:500 11px var(--mono);fill:var(--ink);text-anchor:middle;dominant-baseline:central}
 .axis line{stroke:var(--ink2);stroke-width:.6;stroke-dasharray:14 4 2 4}
 .furn{cursor:move}
+.furn.plant rect.b{fill:color-mix(in srgb,#4f8a3c 22%,transparent);stroke:#4f8a3c;stroke-dasharray:none}
+.furn.plant .d{stroke:#4f8a3c}
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
+.pcards .card img.pic{height:110px;object-fit:cover}
+.pcards .card .ph0{height:110px;display:grid;place-items:center;background:#eef3ea;color:#4f8a3c;font-size:34px;margin-bottom:6px}
+.furn.fsel rect.b{stroke:var(--blau)!important;stroke-width:3!important;stroke-dasharray:none!important}
+.furn.lift{opacity:.85}
 .furn rect.b{stroke-width:1.6}
 .furn.bestand rect.b{fill:color-mix(in srgb,var(--bestand) 14%,transparent);stroke:var(--bestand)}
 .furn.neu rect.b{fill:color-mix(in srgb,var(--neu) 14%,transparent);stroke:var(--neu)}
@@ -252,6 +269,7 @@ body.lod0 .l0b{display:flex}
   <span class="logo">umzug<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M9.6 1.8c5.2-.6 8.6 3.1 8.3 8.4-.3 5-3.4 8.3-7.6 8-4.6-.3-8.4-3.4-8.3-8.1.1-4.6 3.2-7.8 7.6-8.3z" fill="#2f4ee0"/></svg></span>
   <span class="sep"></span>
   <button data-add="moebel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7.5v5h12v-5"/><path d="M4 7.5V4.5h8v3"/><path d="M2 7.5h2.5v2.5h7V7.5H14"/></svg><span class="lab">möbel</span></button>
+  <button data-add="pflanze"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 10h6l-1 4H6z"/><path d="M8 10V6"/><path d="M8 7c-3 0-4-2-4-4 2 0 4 1 4 4z"/><path d="M8 6c0-2 1.5-3.5 4-3.5 0 2-1.5 3.5-4 3.5z"/></svg><span class="lab">pflanze</span></button>
   <button data-add="note"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 2.5h11v7l-4 4h-7z"/><path d="M13.5 9.5h-4v4"/></svg><span class="lab">post-it</span></button>
   <span class="sws"><button data-color="gelb" title="Gelb"><span class="sw n-gelb"></span></button><button data-color="rosa" title="Rosa"><span class="sw n-rosa"></span></button><button data-color="blau" title="Blau"><span class="sw n-blau"></span></button><button data-color="gruen" title="Grün"><span class="sw n-gruen"></span></button></span>
   <button data-add="text"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3.5h10M8 3.5v10"/></svg><span class="lab">text</span></button>
@@ -269,7 +287,8 @@ body.lod0 .l0b{display:flex}
 </div>
 <canvas id="mini" width="400" height="264" aria-label="Übersichtskarte"></canvas>
 <div id="lodtag"></div>
-<div id="hint">Zwei Finger schieben die Tafel, Kneifen zoomt. Doppelklick legt ein Post-it an. Nah am Grundriss erscheinen Fotos und Details der Räume. Möbelkarten lassen sich in einen Raum ziehen.</div>
+<div id="ftool" role="toolbar" aria-label="Möbel"></div>
+<div id="hint">Zwei Finger schieben die Tafel, Kneifen zoomt. Doppelklick legt ein Post-it an. Möbelkarten in einen Raum ziehen, Möbel im Plan antippen zum Drehen oder Bearbeiten, aus dem Grundriss ziehen legt sie zurück. Raum antippen öffnet das Raumblatt.</div>
 <div id="modal"></div>
 <aside id="rb" aria-label="Raumblatt"></aside>
 <div id="lb"><img alt=""></div>
@@ -292,7 +311,7 @@ var st=null;try{st=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
 if(STORE){var pr={};try{pr=JSON.parse(localStorage.getItem("umzug-tafel-prefs")||"{}")}catch(e){}var df=defaults();st={v:1,view:pr.view||null,color:pr.color||"gelb",input:pr.input||"touchpad",itemPos:{},itemData:{},els:(SEED.board||[]).slice(),frames:Object.assign(df.frames,SEED.layout||{})};st.frames.user=st.frames.user||{}}
 if(!st||st.v!==1)st=defaults();st.skin="zeichentisch";st.tasks=st.tasks||null;st.itemData=st.itemData||{};st.input=st.input||"touchpad";
 function defaults(){return {v:1,skin:"zeichentisch",view:null,color:"gelb",itemPos:{},
-  frames:{plan:{x:-70,y:-90},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:300},vertraege:{x:2020,y:-90,w:1100,h:620},user:{}},
+  frames:{plan:{x:-70,y:-90},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:300},vertraege:{x:2020,y:-90,w:1100,h:620},pflanzen:{x:-70,y:1010,w:1400,h:420},user:{}},
   els:[
     {id:"n1",type:"note",x:1110,y:-20,color:"gelb",text:"Küche: Edelstahl-Arbeitsplatte + offene Regale aus Eiche?"},
     {id:"n2",type:"note",x:1330,y:10,color:"rosa",text:"Pendelleuchte am Kabel über den Esstisch"},
@@ -355,7 +374,9 @@ var PB=bounds(),PAD=70;
 (function(){var f=st.frames,bottom=f.plan.y+PB.h+2*PAD+190;if(f.zeit.y<bottom+70&&f.zeit.x<f.plan.x+PB.w+2*PAD+70&&f.zeit.x+f.zeit.w>f.plan.x)f.zeit.y=bottom+80})();
 
 /* ---------- Draufsichten ---------- */
+function isPlant(it){return it&&it.typ==="pflanze"}
 function topView(it,x,y,w,h){var n=(it.name||"").toLowerCase(),s="";
+  if(isPlant(it)){var cx=x+w/2,cy=y+h/2,r=w/2;for(var a=0;a<6;a++){var g=a*Math.PI/3+.3;s+='<path class="d" d="M'+cx+' '+cy+' Q'+(cx+Math.cos(g+.5)*r*.7)+' '+(cy+Math.sin(g+.5)*r*.7)+' '+(cx+Math.cos(g)*r*.85)+' '+(cy+Math.sin(g)*r*.85)+'"/>'}return s}
   if(/sofa/.test(n)){s+='<rect class="d" x="'+x+'" y="'+y+'" width="'+w+'" height="'+Math.min(22,h*.25)+'"/><rect class="d" x="'+x+'" y="'+y+'" width="'+Math.min(18,w*.12)+'" height="'+h+'"/><rect class="d" x="'+(x+w-Math.min(18,w*.12))+'" y="'+y+'" width="'+Math.min(18,w*.12)+'" height="'+h+'"/>';var sw=(w-2*Math.min(18,w*.12))/3;for(var i=1;i<3;i++)s+='<line class="d" x1="'+(x+Math.min(18,w*.12)+sw*i)+'" y1="'+(y+Math.min(22,h*.25))+'" x2="'+(x+Math.min(18,w*.12)+sw*i)+'" y2="'+(y+h)+'"/>'}
   else if(/bett/.test(n)){s+='<rect class="d" x="'+(x+8)+'" y="'+(y+8)+'" width="'+(w/2-12)+'" height="'+Math.min(34,h*.18)+'" rx="6"/><rect class="d" x="'+(x+w/2+4)+'" y="'+(y+8)+'" width="'+(w/2-12)+'" height="'+Math.min(34,h*.18)+'" rx="6"/><line class="d" x1="'+x+'" y1="'+(y+h*.32)+'" x2="'+(x+w)+'" y2="'+(y+h*.32+12)+'"/>'}
   else if(/teppich/.test(n)){s+='<rect class="d" x="'+(x+6)+'" y="'+(y+6)+'" width="'+(w-12)+'" height="'+(h-12)+'"/>'}
@@ -396,7 +417,7 @@ function planSVG(){var b=PB,s='';
   if(P.north!=null)s+=compass(b.x+b.w-45,b.y+b.h-45,P.north);
   /* Möbel */
   Object.keys(I).forEach(function(id){var it=I[id];if(it.x==null||it.x==="")return;var d=dims(it),x=+it.x,y=+it.y;
-    s+='<g class="furn '+cls(it)+'" data-furn="'+id+'"><rect class="b" x="'+x+'" y="'+y+'" width="'+d.w+'" height="'+d.h+'"/>'+topView(it,x,y,d.w,d.h)+
+    s+='<g class="furn '+(isPlant(it)?'plant':cls(it))+'" data-furn="'+id+'"><rect class="b" x="'+x+'" y="'+y+'" width="'+d.w+'" height="'+d.h+'"'+(isPlant(it)?' rx="'+d.w/2+'"':'')+'/>'+topView(it,x,y,d.w,d.h)+
     '<text class="fl l2" x="'+(x+3)+'" y="'+(y+d.h+9)+'">'+esc((it.name||"").split(/[,(]/)[0].slice(0,28))+'</text><text class="fl2 l2" x="'+(x+3)+'" y="'+(y+d.h+17)+'">'+it.w+'×'+it.d+'×'+it.h+' · '+esc(DECL[it.dec]||"")+'</text></g>'});
   /* Raumbeschriftung */
   rooms().forEach(function(r){var a=(r.w*r.h/1e4).toFixed(1).replace(".",","),cx=r.x+r.w/2,cy=r.y+r.h/2,n=itemsIn(r.id).length,nt=tasksFor(r.id).length;
@@ -414,11 +435,15 @@ function roomInfo(){var s="";rooms().forEach(function(r){var its=itemsIn(r.id),t
   '<button data-sheet="'+r.id+'">Raumblatt</button></div>'});return s}
 
 /* ---------- Zonen-Inhalte ---------- */
-function moebelHTML(){var ids=Object.keys(I).sort(function(a,b){return (I[a].prio||2)-(I[b].prio||2)});
+function gehtWeg(it){return DEC[it.dec]==="abbruch"}
+function pflanzenHTML(){var ids=Object.keys(I).filter(function(k){return isPlant(I[k])}).sort(function(a,b){return String(I[a].name).localeCompare(String(I[b].name))});
+  return '<div class="pcards">'+ids.map(function(id){var it=I[id];return '<div class="card'+(it.x!=null&&it.x!==""?' placed':'')+'" data-card="'+id+'">'+(it.img?'<img class="pic" src="'+esc(it.img)+'" alt="">':'<div class="ph0">✿</div>')+'<b>'+esc(it.name||"Pflanze")+'</b><div class="m">⌀ '+(it.w||"?")+' cm'+(it.licht?' · '+esc(it.licht):'')+'</div></div>'}).join("")+
+  '<button class="card" data-addplant style="cursor:pointer;display:grid;place-items:center;min-height:150px;font:600 13px var(--sans);color:var(--ink2);border-style:dashed">+ Pflanze</button></div>'}
+function moebelHTML(){var ids=Object.keys(I).filter(function(k){return !gehtWeg(I[k])&&!isPlant(I[k])}).sort(function(a,b){return (I[a].prio||2)-(I[b].prio||2)});
   return '<div class="cards">'+ids.map(function(id){var it=I[id];return '<div class="card'+(it.x!=null&&it.x!==""?' placed':'')+'" data-card="'+id+'">'+(it.img?'<img class="pic" src="'+esc(it.img)+'" alt="">':iconSVG(it))+'<b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+it.w+' × '+it.d+' × '+it.h+' cm</div><span class="chip '+cls(it)+'">'+esc(DECL[it.dec]||it.dec)+'</span></div>'}).join("")+'</div>'}
-function verkaufHTML(){var cols=["Fotos machen","Online","Reserviert","Verkauft","Abgeholt"],m={};cols.forEach(function(c){m[c]=[]});
-  Object.keys(I).forEach(function(id){var it=I[id];if(it.dec!=="verkaufen")return;(m[it.status]||m["Fotos machen"]).push(it)});
-  return '<div class="pipe">'+cols.map(function(c){return '<div class="col"><h4>'+c+'<span>'+m[c].length+'</span></h4>'+m[c].map(function(it){return '<div class="card"><b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+(it.preis?it.preis+" €":"Preis fehlt")+'</div></div>'}).join("")+'</div>'}).join("")+'</div>'}
+function verkaufHTML(){var cols=["Fotos machen","Online","Reserviert","Verkauft","Abgeholt","Verschenken / Sperrmüll"],m={};cols.forEach(function(c){m[c]=[]});
+  Object.keys(I).forEach(function(id){var it=Object.assign({id:id},I[id]);if(!gehtWeg(it))return;if(it.dec!=="verkaufen"){m["Verschenken / Sperrmüll"].push(it);return}(m[it.status]||m["Fotos machen"]).push(it)});
+  return '<div class="pipe" style="grid-template-columns:repeat(6,1fr)">'+cols.map(function(c){return '<div class="col"><h4>'+c+'<span>'+m[c].length+'</span></h4>'+m[c].map(function(it){return '<div class="card" data-sell="'+esc(it.id)+'" style="cursor:pointer" title="Antippen zum Bearbeiten"><b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+(it.dec==="verkaufen"?(it.preis?it.preis+" €":"Preis fehlt"):esc(DECL[it.dec]||""))+'</div></div>'}).join("")+'</div>'}).join("")+'</div>'}
 var TL0=pd("2026-10-12"),TL1=pd("2027-01-10"),TLL=240;
 function tlW(f){return Math.max(300,f.w-36-TLL)}
 function tlX(f,d){return TLL+(d-TL0)/864e5/((TL1-TL0)/864e5)*tlW(f)}
@@ -487,7 +512,7 @@ function geldHTML(){var aus=0,ein=0;Object.keys(I).forEach(function(k){var it=I[
 
 /* ---------- Rendern ---------- */
 var world=$("#world"),board=$("#board"),V={x:0,y:0,k:.5},selId=null;
-function frameDiv(id,title,sub,f,inner,sum){return '<div class="el frame" data-frame="'+id+'" style="left:'+f.x+'px;top:'+f.y+'px;width:'+f.w+'px;height:'+f.h+'px"><div class="fhead" data-fdrag="'+id+'">'+esc(title)+(sub?' <small>'+esc(sub)+'</small>':'')+'</div><div class="fbody">'+inner+'</div>'+(sum!=null?'<div class="fsum l0b" data-fdrag="'+id+'"><span>'+esc(title)+'</span><b>'+sum+'</b></div>':'')+(id!=="plan"?'<div class="rs" data-fres="'+id+'"></div>':'')+(id.indexOf("u")===0?'<button class="x" data-fdel="'+id+'">×</button>':'')+'</div>'}
+function frameDiv(id,title,sub,f,inner,sum){return '<div class="el frame" data-frame="'+id+'" style="left:'+f.x+'px;top:'+f.y+'px;width:'+f.w+'px;height:'+f.h+'px"><div class="fhead" data-fdrag="'+id+'">'+esc(title)+(sub?' <small>'+esc(sub)+'</small>':'')+'</div><div class="fbody">'+inner+'</div>'+(sum!=null?'<div class="fsum l0b" data-fdrag="'+id+'"><span>'+esc(title)+'</span><b>'+sum+'</b></div>':'')+(id!=="plan"?'<div class="rs" data-fres="'+id+'"></div>':'')+(id!=="plan"?'<button class="x" data-fdel="'+id+'" title="Bereich entfernen" aria-label="Bereich entfernen">×</button>':'')+'</div>'}
 function render(){if(sheetId&&$("#rb").classList.contains("open")&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#rb")))setTimeout(drawSheet,0);PB=bounds();var F=st.frames,s="";
   var pf=F.plan,sw=PB.w+2*PAD+70,sh=PB.h+2*PAD+70+120;
   s+='<div class="el sheet" style="left:'+pf.x+'px;top:'+pf.y+'px;width:'+sw+'px;height:'+sh+'px"><div class="fhead sheethead" data-fdrag="plan" style="left:-1px;top:-34px">Grundriss · neue Wohnung <small>M 1:100 · Blatt 01</small></div>'+
@@ -495,16 +520,19 @@ function render(){if(sheetId&&$("#rb").classList.contains("open")&&!(document.ac
     '<div style="position:absolute;left:'+(PAD+70-PB.x)+'px;top:'+(PAD+70-PB.y)+'px">'+roomInfo()+'</div>'+
     titleBlock(sw,sh)+'</div>';
   var openT=Object.keys(T).filter(function(k){return !T[k].done}).length,sell=Object.keys(I).filter(function(k){return I[k].dec==="verkaufen"&&["Verkauft","Abgeholt"].indexOf(I[k].status)<0}).length,placedN=Object.keys(I).filter(function(k){return I[k].x!=null&&I[k].x!==""}).length;
-  s+=frameDiv("now","Jetzt dran","",F.now,nowHTML(),days(MOVE)+" Tage");
-  s+=frameDiv("moebel","Möbel","in einen Raum ziehen",F.moebel,moebelHTML(),placedN+" / "+Object.keys(I).length+" im Plan");
-  s+=frameDiv("verkauf","Verkauf","Kleinanzeigen",F.verkauf,verkaufHTML(),sell+" offen");
-  s+=frameDiv("zeit","Zeitplan","Okt bis Jan",F.zeit,zeitHTML(F.zeit),openT+" Aufgaben offen");
-  s+=frameDiv("mood","Moodboard","Bilder reinziehen oder einfügen",F.mood,"",null);
-  s+=frameDiv("geld","Geld","",F.geld,geldHTML(),null);
-  var vk=vtrKats();s+=frameDiv("vertraege","Verträge","vergleichen und abschließen",F.vertraege,vertraegeHTML(),vk.filter(function(k){return k.ok}).length+" / "+vk.length+" abgeschlossen");
+  if(!F.now.hidden)s+=frameDiv("now","Jetzt dran","",F.now,nowHTML(),days(MOVE)+" Tage");
+  var keepN=Object.keys(I).filter(function(k){return !gehtWeg(I[k])&&!isPlant(I[k])});placedN=keepN.filter(function(k){return I[k].x!=null&&I[k].x!==""}).length;
+  if(!F.moebel.hidden)s+=frameDiv("moebel","Möbel für die neue Wohnung","in einen Raum ziehen",F.moebel,moebelHTML(),placedN+" / "+keepN.length+" im Plan");
+  var plN=Object.keys(I).filter(function(k){return isPlant(I[k])}),plP=plN.filter(function(k){return I[k].x!=null&&I[k].x!==""}).length;
+  if(F.pflanzen&&!F.pflanzen.hidden)s+=frameDiv("pflanzen","Pflanzen","in einen Raum ziehen",F.pflanzen,pflanzenHTML(),plP+" / "+plN.length+" im Plan");
+  if(!F.verkauf.hidden)s+=frameDiv("verkauf","Verkaufen und weggeben","Kleinanzeigen, verschenken, Sperrmüll",F.verkauf,verkaufHTML(),sell+" offen");
+  if(!F.zeit.hidden)s+=frameDiv("zeit","Zeitplan","Okt bis Jan",F.zeit,zeitHTML(F.zeit),openT+" Aufgaben offen");
+  if(!F.mood.hidden)s+=frameDiv("mood","Moodboard","Bilder reinziehen oder einfügen",F.mood,"",null);
+  if(!F.geld.hidden)s+=frameDiv("geld","Geld","",F.geld,geldHTML(),null);
+  var vk=vtrKats();if(!F.vertraege.hidden)s+=frameDiv("vertraege","Verträge","vergleichen und abschließen",F.vertraege,vertraegeHTML(),vk.filter(function(k){return k.ok}).length+" / "+vk.length+" abgeschlossen");
   Object.keys(F.user||{}).forEach(function(id){var f=F.user[id];s+=frameDiv(id,f.title||"Rahmen","",f,"")});
   st.els.forEach(function(e){s+=elHTML(e)});
-  world.innerHTML=s;applyView();}
+  world.innerHTML=s;if(selFurn){var fn=world.querySelector('[data-furn="'+selFurn+'"]');if(fn)fn.classList.add("fsel");else{selFurn=null;tbReset()}}applyView();}
 function titleBlock(sw,sh){var d=days(MOVE),area=rooms().filter(function(r){return !r.outdoor}).reduce(function(a,r){return a+r.w*r.h/1e4},0);
   return '<div class="tblock" style="left:'+PAD+'px;right:'+PAD+'px;bottom:'+(PAD-20)+'px">'+
   '<div><small>Projekt</small><div class="mid">Umzug Altbau</div><div class="legend"><span><i style="border-color:var(--bestand)"></i>Bestand</span><span><i style="border-color:var(--neu)"></i>Neu</span><span><i style="border-color:var(--abbruch);border-style:dashed"></i>Geht weg</span></div></div>'+
@@ -519,7 +547,7 @@ function elHTML(e){var c=e.id===selId?" sel":"";
 function rot(id){var h=0;for(var i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))|0;return ((h%5)+5)%5-2}
 
 /* ---------- Ansicht ---------- */
-var sharpT;function applyView(){world.style.transform="translate("+V.x+"px,"+V.y+"px) scale("+V.k+")";
+var sharpT;function applyView(){if(typeof placeTool==="function"&&selFurn)placeTool();world.style.transform="translate("+V.x+"px,"+V.y+"px) scale("+V.k+")";
   /* Während des Bewegens als Bild verschieben (flüssig), danach neu und scharf zeichnen */
   document.body.classList.add("moving");clearTimeout(sharpT);sharpT=setTimeout(function(){document.body.classList.remove("moving")},180);
   var g1=20*V.k,g2=100*V.k,bp=V.x+"px "+V.y+"px";
@@ -574,9 +602,9 @@ board.addEventListener("pointerdown",function(e){if(e.target.closest('[contented
   else if(t.closest("[data-tnote]")){var ne=getEl(t.closest("[data-tnote]").dataset.tnote);if(ne){V.x=innerWidth/2-(ne.x+95)*V.k;V.y=innerHeight/2-(ne.y+85)*V.k;applyView();selId=ne.id;render()}return}
   else if(t.closest("[data-el]")){var id=t.closest("[data-el]").dataset.el,el2=getEl(id);drag={kind:"el",el:el2,ox:w.x-el2.x,oy:w.y-el2.y,node:t.closest("[data-el]")};if(selId!==id){selId=id;world.querySelectorAll(".sel").forEach(function(n){n.classList.remove("sel")});drag.node.classList.add("sel")}}
   else if(t.closest("[data-fdrag]")){var fid=t.closest("[data-fdrag]").dataset.fdrag,fr=st.frames[fid]||st.frames.user[fid];drag={kind:"frame",f:fr,ox:w.x-fr.x,oy:w.y-fr.y,node:t.closest("[data-fdrag]").parentNode}}
-  else if(t.closest("[data-furn]")){var fid2=t.closest("[data-furn]").dataset.furn,it=I[fid2];drag={kind:"furn",id:fid2,ox:w.x-(+it.x),oy:w.y-(+it.y),node:t.closest("[data-furn]")}}
+  else if(t.closest("[data-furn]")){var fid2=t.closest("[data-furn]").dataset.furn,it=I[fid2];drag={kind:"furn",id:fid2,ox:w.x-(+it.x),oy:w.y-(+it.y),node:t.closest("[data-furn]"),sx:e.clientX,sy:e.clientY};tbReset()}
   else if(t.closest("[data-card]")){drag={kind:"card",id:t.closest("[data-card]").dataset.card,sx:e.clientX,sy:e.clientY}}
-  else{drag={kind:"pan",sx:e.clientX,sy:e.clientY,vx:V.x,vy:V.y,room:t.closest("[data-room]")};board.classList.add("panning");if(selId){selId=null;world.querySelectorAll(".sel").forEach(function(n){n.classList.remove("sel")})}}
+  else{if(selFurn){selFurn=null;tbReset();world.querySelectorAll(".furn.fsel").forEach(function(n){n.classList.remove("fsel")})}drag={kind:"pan",sx:e.clientX,sy:e.clientY,vx:V.x,vy:V.y,room:t.closest("[data-room]")};board.classList.add("panning");if(selId){selId=null;world.querySelectorAll(".sel").forEach(function(n){n.classList.remove("sel")})}}
   board.setPointerCapture(e.pointerId)});
 board.addEventListener("pointermove",function(e){if(pts[e.pointerId])pts[e.pointerId]={x:e.clientX,y:e.clientY};
   if(pinch&&Object.keys(pts).length===2){var p=Object.values(pts),d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y),cx=(p[0].x+p[1].x)/2,cy=(p[0].y+p[1].y)/2;V.x+=cx-pinch.cx;V.y+=cy-pinch.cy;zoomAt(cx,cy,d/pinch.d);pinch={d:d,cx:cx,cy:cy};return}
@@ -585,7 +613,7 @@ board.addEventListener("pointermove",function(e){if(pts[e.pointerId])pts[e.point
   else if(drag.kind==="el"){moved=true;drag.el.x=Math.round(w.x-drag.ox);drag.el.y=Math.round(w.y-drag.oy);drag.node.style.left=drag.el.x+"px";drag.node.style.top=drag.el.y+"px"}
   else if(drag.kind==="frame"){moved=true;drag.f.x=Math.round((w.x-drag.ox)/10)*10;drag.f.y=Math.round((w.y-drag.oy)/10)*10;drag.node.style.left=drag.f.x+"px";drag.node.style.top=drag.f.y+"px"}
   else if(drag.kind==="res"){moved=true;drag.el.w=Math.max(drag.frame?300:120,Math.round(drag.w0+w.x-drag.sx));drag.el.h=Math.max(drag.frame?200:100,Math.round(drag.h0+w.y-drag.sy));var n=drag.frame?world.querySelector('[data-frame="'+drag.frame+'"]'):world.querySelector('[data-el="'+drag.el.id+'"]');if(n){n.style.width=drag.el.w+"px";n.style.height=drag.el.h+"px"}}
-  else if(drag.kind==="furn"){moved=true;var it=I[drag.id],nx=Math.round((w.x-drag.ox-planOff().x)/5)*5,ny=Math.round((w.y-drag.oy-planOff().y)/5)*5;
+  else if(drag.kind==="furn"){if(!moved&&Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<5)return;moved=true;drag.node.classList.add("lift");var it=I[drag.id],nx=Math.round((w.x-drag.ox-planOff().x)/5)*5,ny=Math.round((w.y-drag.oy-planOff().y)/5)*5;
     var dx=nx-(+it.x),dy=ny-(+it.y);drag.node.setAttribute("transform","translate("+dx+","+dy+")");drag.nx=nx;drag.ny=ny}
   else if(drag.kind==="task"){if(!drag.g&&Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>5){var tn=world.querySelector('[data-task="'+drag.id+'"]');drag.g=tn.cloneNode(true);drag.g.id="ghost";drag.g.style.cssText="position:fixed;max-width:220px;padding:5px 8px;background:#fff;border:1px solid #ccc;border-left:3px solid var(--eiche);font:13px var(--sans);transform:scale("+Math.max(.8,Math.min(1.4,V.k))+");transform-origin:0 0";document.body.appendChild(drag.g)}
     if(drag.g){moved=true;drag.g.style.left=e.clientX+"px";drag.g.style.top=(e.clientY-14)+"px";var fz=st.frames.zeit,lx=w.x-fz.x-18;drag.g.dataset.d=lx>=TLL?fmtD(tlDate(fz,lx)):"ohne datum";drag.g.setAttribute("data-label",drag.g.dataset.d)}}
@@ -595,8 +623,8 @@ function planOff(){var f=st.frames.plan;return {x:f.x+PAD+70-PB.x,y:f.y+PAD+70-P
 function end(e){delete pts[e.pointerId];if(pinch&&Object.keys(pts).length<2){pinch=null;return}
   if(!drag)return;board.classList.remove("panning");var d=drag;drag=null;
   if(d.kind==="pan"&&!moved&&d.room){openSheet(d.room.dataset.room);return}
-  if(d.kind==="furn"&&d.nx!=null){var it=I[d.id];it.x=d.nx;it.y=d.ny;st.itemPos[d.id]={x:it.x,y:it.y,rot:it.rot||0};save();render();return}
-  if(d.kind==="furn"&&!moved){var it2=I[d.id];it2.rot=it2.rot===90?0:90;st.itemPos[d.id]={x:it2.x,y:it2.y,rot:it2.rot};save();render();toast("Gedreht");return}
+  if(d.kind==="furn"&&moved&&d.nx!=null){var it=I[d.id],dd0=dims(it);if(!roomAt(d.nx+dd0.w/2,d.ny+dd0.h/2)){unplace(d.id);return}setPos(d.id,d.nx,d.ny);save();render();selectFurn(d.id);return}
+  if(d.kind==="furn"){if(!moved)selectFurn(selFurn===d.id?null:d.id);else{render();selectFurn(d.id)}return}
   if(d.kind==="card"&&!d.g){itemForm(d.id);return}
   if(d.kind==="vtr"){vtrForm(d.id);return}
   if(d.kind==="task"){if(!d.g){taskForm(d.id);return}d.g.remove();var wz=toWorld(e.clientX,e.clientY),fz=st.frames.zeit,lx=wz.x-fz.x-18,ly=wz.y-fz.y;
@@ -605,6 +633,7 @@ function end(e){delete pts[e.pointerId];if(pinch&&Object.keys(pts).length<2){pin
   if(d.kind==="el"&&moved&&d.el.type==="note"){var fz2=st.frames.zeit,nx=d.el.x+20-fz2.x-18,ny=d.el.y+40-fz2.y;
     if(nx>=TLL-30&&nx<=fz2.w&&ny>=0&&ny<=fz2.h){d.el.due=tlDate(fz2,Math.max(TLL,nx));save();render();toast("Post-it gilt jetzt für den "+fmtD(d.el.due));return}}
   if(d.kind==="card"){if(d.g){d.g.remove();var w=toWorld(e.clientX,e.clientY),po=planOff(),cx=w.x-po.x,cy=w.y-po.y,r=roomAt(cx,cy);
+      if(r&&gehtWeg(I[d.id])){toast("Das Möbel geht weg und kommt nicht in die neue Wohnung. Ändere sonst die Entscheidung.");return}
       if(r){var it3=I[d.id],dd=dims(it3);it3.x=Math.round((cx-dd.w/2)/5)*5;it3.y=Math.round((cy-dd.h/2)/5)*5;st.itemPos[d.id]={x:it3.x,y:it3.y,rot:it3.rot||0};save();render();toast(((it3.name||"").split(/[,(]/)[0])+" steht jetzt in: "+r.name)}
       else toast("Zum Einplanen auf einen Raum im Grundriss ziehen.")}return}
   if(moved)save()}
@@ -625,12 +654,18 @@ var space=false;addEventListener("keydown",function(e){if(e.code==="Space"&&!e.t
 
 /* ---------- Klicks ---------- */
 document.addEventListener("click",function(e){var t=e.target,b;
-  if((b=t.closest("[data-add]"))){var c=center();if(b.dataset.add==="note")addNote(c.x,c.y);else if(b.dataset.add==="text")addText(c.x-60,c.y);else if(b.dataset.add==="img")$("#file").click();else if(b.dataset.add==="moebel")itemForm(null);
-    else if(b.dataset.add==="frame"){var id="u"+Date.now().toString(36);st.frames.user[id]={x:Math.round(c.x-300),y:Math.round(c.y-200),w:600,h:400,title:prompt("Name für den Rahmen","Neuer Bereich")||"Neuer Bereich"};save();render()}return}
+  if((b=t.closest("[data-add]"))){var c=center();if(b.dataset.add==="note")addNote(c.x,c.y);else if(b.dataset.add==="text")addText(c.x-60,c.y);else if(b.dataset.add==="img")$("#file").click();else if(b.dataset.add==="moebel")itemForm(null);else if(b.dataset.add==="pflanze")plantForm(null);
+    else if(b.dataset.add==="frame")frameMenu(c);return}
   if((b=t.closest("[data-color]"))){st.color=b.dataset.color;var s=getEl(selId);if(s&&s.type==="note"){s.color=st.color;render()}save();syncTop();return}
   if((b=t.closest("[data-z]"))){var z=b.dataset.z;if(z==="in")zoomAt(innerWidth/2,innerHeight/2,1.3);if(z==="out")zoomAt(innerWidth/2,innerHeight/2,1/1.3);if(z==="plan")fit(planBox(),40);if(z==="all")fit(allBox(),30);if(z==="input"){st.input=st.input==="maus"?"touchpad":"maus";save();syncTop();toast(st.input==="maus"?"Mausrad zoomt jetzt.":"Zwei Finger schieben, Kneifen zoomt.")}return}
   if((b=t.closest("[data-del]"))){st.els=st.els.filter(function(x){return x.id!==b.dataset.del});selId=null;save();render();return}
-  if((b=t.closest("[data-fdel]"))){delete st.frames.user[b.dataset.fdel];save();render();return}
+  if((b=t.closest("[data-fdel]"))){var fk=b.dataset.fdel,uf=st.frames.user[fk],bf=st.frames[fk];
+    if(uf){if(!confirm("Bereich „"+(uf.title||"Rahmen")+"“ löschen?"))return;delete st.frames.user[fk]}
+    else if(bf){if(!confirm("Bereich ausblenden? Über „rahmen“ in der Leiste holst du ihn wieder zurück. Die Einträge darin bleiben erhalten."))return;bf.hidden=true}
+    save();render();toast("Bereich entfernt");return}
+  if((b=t.closest("[data-sell]"))){itemForm(b.dataset.sell);return}
+  if(t.closest("[data-addplant]")){plantForm(null);return}
+  if((b=t.closest("[data-ft]"))){furnAction(b.dataset.ft);return}
   if((b=t.closest("[data-vadd]"))){vtrForm(null,b.dataset.vadd?{kat:b.dataset.vadd}:null);return}
   if((b=t.closest("[data-sheet]"))){openSheet(b.dataset.sheet);return}
   if((b=t.closest("[data-undue]"))){var ue=getEl(b.dataset.undue);if(ue){delete ue.due;save();render();toast("Datum entfernt")}return}
@@ -642,7 +677,10 @@ document.addEventListener("click",function(e){var t=e.target,b;
   if(t.closest("[data-lnadd]")){addRoomLink();return}
   if(t.closest("[data-rbtask]")){taskForm(null,{raum:sheetId,bereich:"neu"});return}
   if((b=t.closest("[data-rbitem]"))){itemForm(b.dataset.rbitem);return}});
-document.addEventListener("keydown",function(e){if(e.target.isContentEditable||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("#modal").innerHTML){$("#modal").innerHTML="";return}if(e.target.isContentEditable||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+  if(selFurn&&(e.key==="r"||e.key==="R")){rotFurn(selFurn);return}
+  if(selFurn&&(e.key==="Delete"||e.key==="Backspace")){unplace(selFurn);return}
+  if(e.key==="Escape"&&selFurn){selFurn=null;tbReset();render()}
   if((e.key==="Delete"||e.key==="Backspace")&&selId){st.els=st.els.filter(function(x){return x.id!==selId});selId=null;save();render()}
   if(e.key==="Escape"){$("#rb").classList.remove("open");sheetId=null;$("#lb").classList.remove("open");$("#modal").innerHTML=""}
   if(e.key==="+"||e.key==="=")zoomAt(innerWidth/2,innerHeight/2,1.3);if(e.key==="-")zoomAt(innerWidth/2,innerHeight/2,1/1.3);if(e.key==="0")fit(allBox(),30);if(e.key==="1")fit(planBox(),40)});
@@ -670,7 +708,7 @@ function guessFromLink(url){var u;try{u=new URL(url.trim())}catch(e){return null
 function fetchProduct(url){var api=window.UMZUG_LINK_API;if(window.UMZUG_LINK_FN)return window.UMZUG_LINK_FN(url).then(function(d){var g=guessFromLink(url)||{};if(!d)return g;Object.keys(d).forEach(function(k){if(d[k]==null||d[k]==="")delete d[k]});return Object.assign(g,d,{src:"Shop"})}).catch(function(e){var g=guessFromLink(url)||{};g.err=(e&&e.message)||String(e||"unbekannter Fehler");return g});
   if(api)return fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:url})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){var g=guessFromLink(url)||{};return Object.assign(g,d,{src:"Shop"})}).catch(function(){return guessFromLink(url)});
   return Promise.resolve(guessFromLink(url))}
-function itemForm(id){var it=id?Object.assign({},I[id]):{dec:"kaufen",her:"Neu",prio:2},img=it.img||"";
+function itemForm(id){if(id&&isPlant(I[id]))return plantForm(id);var it=id?Object.assign({},I[id]):{dec:"kaufen",her:"Neu",prio:2},img=it.img||"";
   var opts=Object.keys(DECL).map(function(k){return '<option value="'+k+'"'+(it.dec===k?' selected':'')+'>'+DECL[k]+'</option>'}).join("");
   $("#modal").innerHTML='<div class="bg"><form id="itf" autocomplete="off"><h2>'+(id?'möbel bearbeiten':'möbel hinzufügen')+'</h2>'+
   '<div class="row"><label>Shop-Link<input id="f-link" type="url" placeholder="https://www.ikea.com/de/de/p/…" value="'+esc(it.link||"")+'"></label><button type="button" class="btn ghost" id="f-get">Holen</button></div>'+
@@ -699,6 +737,27 @@ function itemForm(id){var it=id?Object.assign({},I[id]):{dec:"kaufen",her:"Neu",
     if(!o.status)delete o.status;I[nid]=o;var keep=Object.assign({},o);delete keep.x;delete keep.y;delete keep.rot;st.itemData[nid]=keep;save();$("#modal").innerHTML="";render();toast(id?"Gespeichert":"Möbel liegt jetzt in der Zone Möbel. Zieh es in einen Raum.")});
   setTimeout(function(){(id?$("#f-name"):$("#f-link")).focus()},30)}
 
+/* ---------- Pflanzen ---------- */
+function plantForm(id){var it=id?Object.assign({},I[id]):{typ:"pflanze",dec:"mitnehmen",her:"Alte Wohnung",round:true},img=it.img||"";
+  var LI=["","hell, Sonne","hell, keine Sonne","halbschattig","schattig"];
+  $("#modal").innerHTML='<div class="bg"><form id="plf" autocomplete="off"><h2>'+(id?'pflanze bearbeiten':'pflanze hinzufügen')+'</h2>'+
+  '<div class="ph"><div class="box" id="p-img">'+(img?'':'Kein Foto')+'</div><div><p class="note2">Foto auswählen oder mit Strg+V einfügen. Auf dem Handy öffnet „Foto wählen“ auch die Kamera.</p><p style="margin:8px 0 0"><label class="btn ghost" style="display:inline-block;cursor:pointer">Foto wählen<input type="file" id="p-file" accept="image/*" hidden></label></p></div></div>'+
+  '<label>Name<input id="p-name" required placeholder="z. B. Monstera" value="'+esc(it.name||"")+'"></label>'+
+  '<div class="g3"><label>Durchmesser cm (geschätzt)<input id="p-w" inputmode="decimal" required value="'+esc(it.w||"")+'"></label><label>Höhe cm<input id="p-h" inputmode="decimal" value="'+esc(it.h||"")+'"></label><label>Licht<select id="p-licht">'+LI.map(function(l){return '<option value="'+l+'"'+((it.licht||"")===l?' selected':'')+'>'+(l||"–")+'</option>'}).join("")+'</select></label></div>'+
+  '<label>Notiz<input id="p-notiz" placeholder="Gießen, Topfgröße, Transport …" value="'+esc(it.notiz||"")+'"></label>'+
+  '<div class="foot">'+(id?'<button type="button" class="btn del" id="p-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="p-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
+  var box=$("#p-img"),setImg=function(u){img=u;box.style.backgroundImage=u?'url("'+u+'")':"";box.textContent=u?"":"Kein Foto"};setImg(img);
+  $("#p-file").onchange=function(){if(this.files[0])shrink(this.files[0],setImg)};
+  $("#plf").addEventListener("paste",function(e){Array.prototype.forEach.call((e.clipboardData&&e.clipboardData.items)||[],function(x){if(x.type.indexOf("image")===0){e.preventDefault();shrink(x.getAsFile(),setImg)}})});
+  $("#p-x").onclick=function(){$("#modal").innerHTML=""};
+  $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
+  if(id)$("#p-del").onclick=function(){if(!confirm("Diese Pflanze löschen?"))return;delete I[id];st.itemData[id]=null;delete st.itemPos[id];save();$("#modal").innerHTML="";render()};
+  $("#plf").addEventListener("submit",function(e){e.preventDefault();var n=function(k){var v=parseFloat(String($("#p-"+k).value).replace(",","."));return isNaN(v)?"":v};
+    var nid=id||("p"+Date.now().toString(36)),dm=n("w")||40,o=Object.assign({},it,{typ:"pflanze",round:true,name:$("#p-name").value.trim()||"Pflanze",w:dm,d:dm,h:n("h"),licht:$("#p-licht").value,notiz:$("#p-notiz").value.trim(),img:img});
+    if(it.x!=null&&it.x!==""&&it.w&&it.w!==dm){o.x=Math.round((+it.x+it.w/2-dm/2)/5)*5;o.y=Math.round((+it.y+it.w/2-dm/2)/5)*5}
+    I[nid]=o;var keep=Object.assign({},o);delete keep.x;delete keep.y;delete keep.rot;st.itemData[nid]=keep;save();$("#modal").innerHTML="";render();toast(id?"Gespeichert":"Pflanze liegt im Bereich Pflanzen. Zieh sie in einen Raum.")});
+  setTimeout(function(){(id?$("#p-name"):$("#p-name")).focus()},30)}
+
 /* ---------- Aufgaben ---------- */
 var BER={orga:"Organisation",alt:"Alte Wohnung",neu:"Neue Wohnung",pflanzen:"Pflanzen"};
 function taskForm(id,preset){var t=id?Object.assign({},T[id]):Object.assign({title:"",bereich:"orga",done:false},preset||{});
@@ -716,6 +775,31 @@ function taskForm(id,preset){var t=id?Object.assign({},T[id]):Object.assign({tit
     save();$("#modal").innerHTML="";render();toast(T[nid].due?"Eingetragen für "+fmtD(T[nid].due):"Steht jetzt unter „ohne datum“")});
   setTimeout(function(){$("#k-title").focus()},30)}
 
+/* ---------- Bereiche ---------- */
+var FNAME={now:"Jetzt dran",moebel:"Möbel für die neue Wohnung",verkauf:"Verkaufen und weggeben",zeit:"Zeitplan",mood:"Moodboard",geld:"Geld",vertraege:"Verträge",pflanzen:"Pflanzen"};
+function frameMenu(c){var hid=Object.keys(FNAME).filter(function(k){return st.frames[k]&&st.frames[k].hidden});
+  $("#modal").innerHTML='<div class="bg"><form id="frf" autocomplete="off"><h2>bereich</h2><label>Name für einen neuen Bereich<input id="fr-name" value="Neuer Bereich"></label>'+
+  (hid.length?'<p class="note2">Ausgeblendete Bereiche wieder zeigen:</p><div class="foot" style="justify-content:flex-start">'+hid.map(function(k){return '<button type="button" class="btn ghost" data-fshow="'+k+'">'+esc(FNAME[k])+'</button>'}).join("")+'</div>':'')+
+  '<div class="foot"><button type="button" class="btn ghost" id="fr-x">Abbrechen</button><button class="btn">Neuen Bereich anlegen</button></div></form></div>';
+  $("#fr-x").onclick=function(){$("#modal").innerHTML=""};
+  $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
+  Array.prototype.forEach.call(document.querySelectorAll("[data-fshow]"),function(x){x.onclick=function(){delete st.frames[x.dataset.fshow].hidden;$("#modal").innerHTML="";save();render();toast(FNAME[x.dataset.fshow]+" ist wieder da")}});
+  $("#frf").addEventListener("submit",function(e){e.preventDefault();var id="u"+Date.now().toString(36);st.frames.user[id]={x:Math.round(c.x-300),y:Math.round(c.y-200),w:600,h:400,title:$("#fr-name").value.trim()||"Neuer Bereich"};$("#modal").innerHTML="";save();render()});
+  setTimeout(function(){var n=$("#fr-name");if(n){n.focus();n.select()}},30)}
+
+/* ---------- Möbel im Plan ---------- */
+var selFurn=null;
+function setPos(id,x,y,rot){var it=I[id];it.x=x;it.y=y;if(rot!=null)it.rot=rot;st.itemPos[id]={x:it.x,y:it.y,rot:it.rot||0}}
+function selectFurn(id){selFurn=id;world.querySelectorAll(".furn.fsel").forEach(function(n){n.classList.remove("fsel")});var n=id&&world.querySelector('[data-furn="'+id+'"]');if(n)n.classList.add("fsel");placeTool()}
+function placeTool(){var tb=$("#ftool");if(!tb)return;var it=selFurn&&I[selFurn];if(!it||it.x==null||it.x===""){tb.classList.remove("on");return}
+  var po=planOff(),d=dims(it),sx=V.x+(po.x+(+it.x)+d.w/2)*V.k,sy=V.y+(po.y+(+it.y))*V.k;
+  if(tb.dataset.id!==selFurn){tb.dataset.id=selFurn;tb.innerHTML='<b>'+esc((it.name||"").split(/[,(]/)[0])+'</b>'+(it.wall||isPlant(it)?'':'<button data-ft="rot">Drehen</button>')+'<button data-ft="edit">Bearbeiten</button><button data-ft="out">Aus dem Plan</button>'}
+  tb.style.left=Math.max(120,Math.min(innerWidth-120,sx))+"px";tb.style.top=Math.max(110,sy)+"px";tb.classList.add("on")}
+function rotFurn(id){var it=I[id];if(!it||it.wall||isPlant(it))return;var d=dims(it),cx=+it.x+d.w/2,cy=+it.y+d.h/2,nr=it.rot===90?0:90;it.rot=nr;var nd=dims(it);setPos(id,Math.round((cx-nd.w/2)/5)*5,Math.round((cy-nd.h/2)/5)*5,nr);save();render();selectFurn(id)}
+function unplace(id){var it=I[id];if(!it)return;it.x=null;it.y=null;st.itemPos[id]={x:null,y:null,rot:it.rot||0};if(selFurn===id)selFurn=null;tbReset();save();render();toast(((it.name||"").split(/[,(]/)[0])+" liegt wieder bei den Möbeln")}
+function tbReset(){var tb=$("#ftool");if(tb){tb.classList.remove("on");tb.dataset.id=""}}
+function furnAction(a){var id=selFurn;if(!id)return;if(a==="rot")rotFurn(id);else if(a==="edit"){tbReset();itemForm(id)}else if(a==="out")unplace(id)}
+
 /* ---------- Raumblatt ---------- */
 var sheetId=null;
 function splitLines(v){return String(v||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean)}
@@ -732,7 +816,7 @@ function drawSheet(){var rid=sheetId,r0=R[rid];if(!rid)return;if(!r0){$("#rb").c
   '<div class="lnadd"><input type="text" id="rb-lt" placeholder="Titel oder Stichpunkt"><input type="url" id="rb-lu" placeholder="https://… (optional)"><button class="rbtn" data-lnadd>Dazu</button></div>'+
   '<h3>aufgaben</h3>'+(ts.length?'<ul>'+ts.map(function(t){return '<li>'+esc(t.title)+(t.due?' <span style="color:var(--ink2);font:11px var(--mono)">'+fmtD(t.due)+'</span>':'')+'</li>'}).join("")+'</ul>':'<p class="hint2">Keine offenen Aufgaben für diesen Raum.</p>')+
   '<div class="rbrow"><button class="rbtn" data-rbtask>+ Aufgabe für diesen Raum</button></div>'+
-  '<h3>möbel hier</h3>'+(its.length?'<ul>'+its.map(function(i){return '<li><button data-rbitem="'+esc(i.id)+'" style="border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;text-decoration:underline dotted">'+esc(i.name)+'</button> <span style="color:var(--ink2);font:11px var(--mono)">'+i.w+'×'+i.d+'</span></li>'}).join("")+'</ul>':'<p class="hint2">Noch leer. Zieh eine Möbelkarte hier rein.</p>')+
+  '<h3>möbel und pflanzen hier</h3>'+(its.length?'<ul>'+its.map(function(i){return '<li><button data-rbitem="'+esc(i.id)+'" style="border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;text-decoration:underline dotted">'+esc(i.name)+'</button> <span style="color:var(--ink2);font:11px var(--mono)">'+i.w+'×'+i.d+'</span></li>'}).join("")+'</ul>':'<p class="hint2">Noch leer. Zieh eine Möbelkarte hier rein.</p>')+
   '<p class="lock">Der Grundriss ist hier gesperrt. Räume verschieben oder Maße ändern geht nur in der Liste unter Wohnung mit „Räume bearbeiten“.</p>';
   var ta=$("#rb-notiz"),tt;ta.addEventListener("input",function(){var v=this.value;clearTimeout(tt);tt=setTimeout(function(){if(R[rid]){R[rid].notiz=v;save()}},500)});
   ta.addEventListener("blur",function(){clearTimeout(tt);if(R[rid]&&R[rid].notiz!==this.value){R[rid].notiz=this.value;save()}});
