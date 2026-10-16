@@ -457,10 +457,10 @@ function vWohnung(){
      '<div style="border-top:1px solid var(--line);padding:12px 14px;display:grid;gap:6px"><span class="lbl">Wandansicht: Höhen im Vergleich zur Decke</span>'+elevation(UI.broom)+'</div>'+leg+'</div>';
   }
   return head+'<div class="proto"><div class="pbar steel"><b>'+area.toFixed(1).replace(".",",")+' m²</b>'+
-    '<button class="tog" data-t="gaps" aria-pressed="'+UI.gaps+'">Abstände</button><button class="tog" data-t="pins" aria-pressed="'+UI.pins+'">Aufgaben</button><button class="tog" data-t="clear" aria-pressed="'+UI.clear+'">Türschwenk</button><button class="tog" data-t="edit" aria-pressed="'+UI.edit+'">Räume bearbeiten</button>'+
+    '<button class="tog" data-t="gaps" aria-pressed="'+UI.gaps+'">Abstände</button><button class="tog" data-t="pins" aria-pressed="'+UI.pins+'">Aufgaben</button><button class="tog" data-t="clear" aria-pressed="'+UI.clear+'">Türschwenk</button><button class="tog" data-t="edit" aria-pressed="'+UI.edit+'">'+(UI.edit?'Grundriss sperren':'Räume bearbeiten')+'</button>'+
     '<span class="hint">'+live("items").filter(placed).length+' Möbel platziert · '+badCount(an)+' mit Konflikt · '+an.gaps.length+' Engstellen</span></div>'+
     '<div class="pbody"><div class="stage">'+planSVG({key:"a",an:an})+'</div><aside class="side">'+(UI.sel&&S.items[UI.sel]?pieceSide(UI.sel,an):roomSide(UI.room,true))+'</aside></div>'+leg+'</div>'+
-    '<p class="hint">'+(UI.edit?'Bearbeiten: Raum ziehen verschiebt ihn, das blaue Quadrat unten rechts ändert die Größe. Türen und Fenster wandern mit.':'Möbel ziehen, antippen zum Auswählen, Taste R oder „Drehen“ dreht um 90°. Raum antippen zeigt Fotos und Aufgaben.')+'</p>';
+    '<p class="hint">'+(UI.edit?'Grundriss entsperrt: Raum ziehen verschiebt ihn, das blaue Quadrat unten rechts ändert die Größe. Türen und Fenster wandern mit. Danach „Grundriss sperren“ tippen.'+(UI.undo?' <button class="btn small ghost" data-room-undo>Letzte Raumänderung zurück</button>':''):'Möbel ziehen, antippen zum Auswählen, Taste R oder „Drehen“ dreht um 90°. Raum antippen zeigt Fotos und Aufgaben.')+'</p>';
 }
 function pieceSide(id,an){var p=get("items",id),r=roomOf(p),is=an.issues[id]||[],dd=D(p);
   return '<div><span class="lbl">Möbel</span><h4>'+esc(p.name)+'</h4></div><div class="kv"><span>Maße</span><span class="mono">'+p.w+' × '+p.d+' × '+(p.h||"–")+' cm</span><span>Herkunft</span><span>'+esc(p.her||"–")+'</span><span>Entscheidung</span><span><i class="sq" style="background:'+dd.c+'"></i> '+dd.l+'</span><span>Raum</span><span>'+(r?esc(r.name):"–")+'</span></div>'+
@@ -478,8 +478,10 @@ function roomSide(rid,full){var r=get("rooms",rid);if(!r)return "";
     var op=function(kind,label){var L=(S.plan[kind]||[]).map(function(o,i){return [o,i]}).filter(function(x){return x[0].room===rid});
       return '<div><span class="lbl">'+label+'</span>'+L.map(function(x){var o=x[0],i=x[1];return '<div class="opening"><select data-op="'+kind+':'+i+':wall" aria-label="Wand">'+[["n","Oben"],["s","Unten"],["w","Links"],["e","Rechts"]].map(function(w){return '<option value="'+w[0]+'"'+(o.wall===w[0]?' selected':'')+'>'+w[1]+(kind==="doors"?(o.type==="double"?' · Flügeltür':o.type==="open"?' · Durchgang':''):'')+'</option>'}).join("")+'</select><input data-op="'+kind+':'+i+':off" value="'+o.off+'" aria-label="Abstand" title="Abstand von der Ecke (cm)"><input data-op="'+kind+':'+i+':w" value="'+o.w+'" aria-label="Breite" title="Breite (cm)"><button class="btn small ghost" data-op-del="'+kind+':'+i+'" aria-label="Entfernen">×</button></div>'}).join("")+'<button class="btn small ghost" data-op-add="'+kind+'" style="margin-top:6px">+ '+(kind==="doors"?"Tür":"Fenster")+'</button></div>'};
     s+=op("doors","Türen (Wand, Abstand, Breite)")+op("windows","Fenster");
-    s+='<div class="row"><button class="btn small ghost" data-edit="rooms:'+rid+'">Fotos und Notiz</button><button class="btn small ghost" data-add-room>+ Neuer Raum</button><button class="btn small danger" data-trash="rooms:'+rid+'">Raum löschen</button></div>';
-  } else s+='<div class="row"><button class="btn small ghost" data-edit="rooms:'+rid+'">Fotos und Notiz</button></div>'+(r.notiz?'<p class="hint">'+esc(r.notiz)+'</p>':'');
+    s+='<div class="row"><button class="btn small ghost" data-edit="rooms:'+rid+'">Fotos, Notiz, Links</button><button class="btn small ghost" data-add-room>+ Neuer Raum</button><button class="btn small danger" data-trash="rooms:'+rid+'">Raum löschen</button></div>';
+  } else s+='<div class="row"><button class="btn small ghost" data-edit="rooms:'+rid+'">Fotos, Notiz, Links</button></div>'+(r.notiz?'<p class="hint" style="white-space:pre-line">'+esc(r.notiz)+'</p>':'');
+  var lns=String(r.links||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean);
+  if(lns.length)s+='<div><span class="lbl">Links und Sonstiges</span><div class="tlist">'+lns.map(function(l){var m=l.match(/https?:\/\/\S+/),u=m?m[0]:"",tx=l.replace(u,"").replace(/\s*[|·–-]\s*$/,"").replace(/^\s*[|·–-]\s*/,"").trim();if(u&&!tx){try{tx=new URL(u).hostname.replace(/^www\./,"")}catch(_){tx=u}}return u?'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(tx)+'</a>':'<span>'+esc(tx||l)+'</span>'}).join("")+'</div></div>';
   s+='<div><span class="lbl">Aufgaben in diesem Raum</span><div class="tlist">'+(ts.length?ts.map(function(t){return '<label class="'+(t.done?'done':'')+'"><input type="checkbox" data-toggle-task="'+t.id+'"'+(t.done?' checked':'')+'><span>'+esc(t.title)+(t.due?' <span class="due">'+dShort(t.due)+'</span>':'')+'</span></label>'}).join(""):'<span class="hint">Keine Aufgaben.</span>')+'</div><button class="btn small ghost" data-new="tasks" data-raum="'+rid+'" style="margin-top:6px">+ Aufgabe hier</button></div>';
   if(full)s+='<div><span class="lbl">Möbel hier</span><div class="tray">'+(inR.length?inR.map(function(p){return '<div class="ti"><i class="sq" style="background:'+D(p).c+'"></i><span>'+esc(p.name)+'</span><button class="btn small ghost" data-pick="'+p.id+'">Wählen</button></div>'}).join(""):'<span class="hint">Noch leer.</span>')+'</div></div>';
   return s;
@@ -562,7 +564,7 @@ var FORMS={
  items:{t:"Möbel",f:[["name","Name","text",1],["cat","IKEA-Modell (füllt Maße)","cat"],["dec","Entscheidung","dec"],["status","Status","status"],["her","Herkunft","her"],["prio","Priorität","prio"],["w","Breite cm","num"],["d","Tiefe cm","num"],["h","Höhe cm","num"],["round","Rund","bool"],["wall","An der Wand montiert","bool"],["preis","Preis / Wunschpreis €","num"],["erzielt","Erzielter Preis €","num","sell"],["abl","Ablöse €","num","abl"],["link","Link (Shop, Kleinanzeigen)","url"],["img","Bild","img"],["notiz","Notiz","area"]]},
  tasks:{t:"Aufgabe",f:[["title","Aufgabe","text",1],["bereich","Bereich","bereich"],["raum","Raum","raum"],["due","Fällig am","date"],["wer","Wer","wer"],["done","Erledigt","bool"],["notiz","Notiz","area"]]},
  events:{t:"Termin",f:[["title","Titel","text",1],["date","Datum","date",1],["time","Uhrzeit","time"],["dauer","Dauer Minuten","num"],["ort","Ort","text"],["notiz","Notiz","area"]]},
- rooms:{t:"Raum",f:[["name","Name","text",1],["photos","Fotos","photos"],["notiz","Notiz","area"]]},
+ rooms:{t:"Raum",f:[["name","Name","text",1],["photos","Fotos","photos"],["notiz","Notiz","area"],["links","Links und Sonstiges (eine Zeile pro Eintrag, z. B. Titel | https://…)","area"]]},
  ideas:{t:"Idee",f:[["title","Titel","text",1],["link","Link","url"],["raum","Raum","raum"],["img","Bild","img"],["notiz","Notiz","area"]]},
  costs:{t:"Kosten oder Einnahme",f:[["title","Was","text",1],["typ","Art","typ"],["betrag","Betrag €","num"],["bezahlt","Erledigt","bool"],["notiz","Notiz","area"]]}
 };
@@ -607,24 +609,24 @@ var drag=null;
 function svgPt(svg,e){var pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse())}
 document.addEventListener("pointerdown",function(e){if(e.button>0)return;var t=e.target,g,svg,pt;
   if((g=t.closest&&t.closest("[data-pc]"))&&!UI.edit){svg=g.ownerSVGElement;var p=get("items",g.getAttribute("data-pc"));pt=svgPt(svg,e);drag={k:"pc",p:p,svg:svg,dx:pt.x-p.x,dy:pt.y-p.y,g:g,tx:0,ty:0,moved:false}}
-  else if(UI.edit&&(g=t.closest&&t.closest("[data-handle]"))){svg=g.ownerSVGElement;var r=get("rooms",g.getAttribute("data-handle"));pt=svgPt(svg,e);drag={k:"rs",r:r,svg:svg,sx:pt.x,sy:pt.y,w0:r.w,h0:r.h,moved:false}}
-  else if(UI.edit&&UI.wv==="a"&&(g=t.closest&&t.closest("rect[data-room]"))){svg=g.ownerSVGElement;var r2=get("rooms",g.getAttribute("data-room"));UI.room=r2.id;pt=svgPt(svg,e);drag={k:"rm",r:r2,svg:svg,sx:pt.x,sy:pt.y,x0:r2.x,y0:r2.y,moved:false}}
+  else if(UI.edit&&(g=t.closest&&t.closest("[data-handle]"))){svg=g.ownerSVGElement;var r=get("rooms",g.getAttribute("data-handle"));pt=svgPt(svg,e);drag={k:"rs",r:r,svg:svg,sx:pt.x,sy:pt.y,w0:r.w,h0:r.h,moved:false,cx:e.clientX,cy:e.clientY,prev:{x:r.x,y:r.y,w:r.w,h:r.h}}}
+  else if(UI.edit&&UI.wv==="a"&&(g=t.closest&&t.closest("rect[data-room]"))){svg=g.ownerSVGElement;var r2=get("rooms",g.getAttribute("data-room"));UI.room=r2.id;pt=svgPt(svg,e);drag={k:"rm",r:r2,svg:svg,sx:pt.x,sy:pt.y,x0:r2.x,y0:r2.y,moved:false,cx:e.clientX,cy:e.clientY,prev:{x:r2.x,y:r2.y,w:r2.w,h:r2.h}}}
   if(drag){try{(drag.g||g).setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()}});
-document.addEventListener("pointermove",function(e){if(!drag)return;var pt=svgPt(drag.svg,e),sn=function(v){return Math.round(v/5)*5};
+document.addEventListener("pointermove",function(e){if(!drag)return;if((drag.k==="rm"||drag.k==="rs")&&!drag.moved&&Math.hypot(e.clientX-drag.cx,e.clientY-drag.cy)<14)return;var pt=svgPt(drag.svg,e),sn=function(v){return Math.round(v/5)*5};
   if(drag.k==="pc"){var nx=sn(pt.x-drag.dx),ny=sn(pt.y-drag.dy);if(nx!==drag.p.x||ny!==drag.p.y){drag.tx+=nx-drag.p.x;drag.ty+=ny-drag.p.y;drag.p.x=nx;drag.p.y=ny;drag.moved=true;drag.g.setAttribute("transform","translate("+drag.tx+" "+drag.ty+")")}}
   else if(drag.k==="rs"){var w=Math.max(60,sn(drag.w0+pt.x-drag.sx)),h=Math.max(60,sn(drag.h0+pt.y-drag.sy));if(w!==drag.r.w||h!==drag.r.h){drag.r.w=w;drag.r.h=h;drag.moved=true;S.rooms[drag.r.id]=Object.assign({},S.rooms[drag.r.id],{w:w,h:h});livePlan()}}
   else if(drag.k==="rm"){var x=sn(drag.x0+pt.x-drag.sx),y=sn(drag.y0+pt.y-drag.sy);if(x!==drag.r.x||y!==drag.r.y){drag.r.x=x;drag.r.y=y;drag.moved=true;S.rooms[drag.r.id]=Object.assign({},S.rooms[drag.r.id],{x:x,y:y});livePlan()}}});
 function livePlan(){var st=$(".stage");if(st)st.innerHTML=planSVG({key:"a",an:analyse()});var ns=$(".stage svg");if(ns&&drag)drag.svg=ns}
 document.addEventListener("pointerup",function(){if(!drag)return;var d=drag;drag=null;
   if(d.k==="pc"){UI.sel=d.p.id;if(d.moved)save("items",d.p.id,d.p);else render()}
-  else{if(d.moved)save("rooms",d.r.id,d.r);else render()}});
+  else{if(d.moved){UI.undo={id:d.r.id,prev:d.prev};save("rooms",d.r.id,d.r)}else render()}});
 document.addEventListener("pointercancel",function(){if(drag){drag=null;render()}});
 function rot(id){var p=get("items",id);if(!p||p.wall)return;var b=box(p),cx=b.x+b.w/2,cy=b.y+b.h/2;p.rot=p.rot===90?0:90;var nb=dims(p);p.x=Math.round((cx-nb.w/2)/5)*5;p.y=Math.round((cy-nb.h/2)/5)*5;save("items",id,p)}
 
 /* ================= Klicks ================= */
 document.addEventListener("click",function(e){var t=e.target.closest("button,a,[data-room],[data-photo-room],[data-scrim],label");if(!t)return;var a;
   if(t.matches("[data-scrim]")){if(e.target===t){M=null;drawForm()}return}
-  if((a=t.getAttribute("data-tab"))&&t.closest){UI.tab=a;saveUI();try{history.replaceState(null,"","#"+a)}catch(_){}render();window.scrollTo(0,0);return}
+  if((a=t.getAttribute("data-tab"))&&t.closest){UI.tab=a;UI.edit=false;UI.undo=null;saveUI();try{history.replaceState(null,"","#"+a)}catch(_){}render();window.scrollTo(0,0);return}
   if(t.matches("[data-close]")){M=null;drawForm();return}
   if(t.matches("[data-lb-close]")){LB=null;drawLB();return}
   if((a=t.getAttribute("data-lb-step"))){LB.i=(LB.i+(+a)+LB.l.length)%LB.l.length;drawLB();return}
@@ -632,7 +634,8 @@ document.addEventListener("click",function(e){var t=e.target.closest("button,a,[
   if((a=t.getAttribute("data-lbf"))!=null&&M){openLB(M.d.photos,+a,M.d.name||"Raum");return}
   if((a=t.getAttribute("data-photo-room"))){var r2=get("rooms",a);UI.room=a;UI.sel=null;if(r2.photos&&r2.photos.length)openLB(r2.photos,0,r2.name);render();return}
   if((a=t.getAttribute("data-wv"))){UI.wv=a;UI.sel=null;saveUI();render();return}
-  if((a=t.getAttribute("data-t"))){UI[a]=!UI[a];if(a==="edit")UI.sel=null;saveUI();render();return}
+  if((a=t.getAttribute("data-t"))){if(a==="edit"&&!UI.edit&&!confirm("Grundriss entsperren?\n\nDann lassen sich Räume verschieben und in der Größe ändern. Zum Schluss wieder auf „Sperren“ tippen."))return;UI[a]=!UI[a];if(a==="edit"){UI.sel=null;UI.undo=null}saveUI();render();return}
+  if(t.matches("[data-room-undo]")){var uu=UI.undo;if(uu){var ur=get("rooms",uu.id);if(ur){Object.assign(ur,uu.prev);UI.undo=null;save("rooms",uu.id,ur).then(function(){toast("Raum zurückgesetzt")})}}return}
   if((a=t.getAttribute("data-broom"))){UI.broom=a;UI.sel=null;saveUI();render();return}
   if(t.matches("rect[data-room]")||t.matches(".pin")){if(UI.edit&&t.matches("rect[data-room]"))return;UI.room=t.getAttribute("data-room");UI.sel=null;render();return}
   if((a=t.getAttribute("data-rot"))){rot(a);return}

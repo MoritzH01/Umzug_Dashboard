@@ -204,6 +204,19 @@ body.lod0 .l0b{display:flex}
 #rb h3{font:600 11px var(--sans);letter-spacing:.08em;text-transform:lowercase;margin:18px 0 6px;color:var(--ink2)}
 #rb ul{margin:0;padding-left:18px;line-height:1.5;font-size:14px}
 #rb .close{position:absolute;right:14px;top:14px;border:1px solid var(--uiline);background:transparent;padding:6px 10px}
+#rb .pw{position:relative}
+#rb .phx{position:absolute;top:6px;right:6px;width:26px;height:26px;border:0;border-radius:50%;background:rgba(251,249,244,.92);color:var(--ink);font:600 15px/1 var(--sans);cursor:pointer}
+#rb .rbtn{display:inline-block;border:1px solid var(--uiline);background:transparent;padding:7px 11px;font:500 13px var(--sans);color:var(--ink);cursor:pointer;border-radius:8px}
+#rb .rbrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 0}
+#rb .hint2{font:12px/1.4 var(--sans);color:var(--ink2)}
+#rb textarea,#rb input[type=text],#rb input[type=url]{width:100%;font:14px/1.45 var(--sans);color:var(--ink);padding:9px 11px;border:1px solid #d9d2c3;border-radius:9px;background:#fff;box-sizing:border-box}
+#rb textarea{min-height:110px;resize:vertical}
+#rb .lnk{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--uiline);font-size:14px}
+#rb .lnk a{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--blau)}
+#rb .lnk span{flex:1;min-width:0}
+#rb .lnk button{border:0;background:none;color:var(--ink2);font-size:16px;cursor:pointer;padding:0 4px}
+#rb .lnadd{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-top:8px}
+#rb .lock{font:12px var(--sans);color:var(--ink2);margin-top:22px;border-top:1px solid var(--uiline);padding-top:10px}
 #lb{position:fixed;inset:0;z-index:50;background:rgba(15,15,15,.88);display:none;place-items:center}
 #lb.open{display:grid}
 #lb img{max-width:92vw;max-height:88vh}
@@ -292,8 +305,8 @@ var save=(function(){var t;return function(){clearTimeout(t);t=setTimeout(functi
   if(STORE){try{localStorage.setItem("umzug-tafel-prefs",JSON.stringify({view:st.view,color:st.color,input:st.input}))}catch(e){}sync();return}
   try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){toast("Im Browser ist kein Platz mehr für weitere Bilder.")}},250)}})();
 /* Abgleich mit der Datenbank: nur geänderte Einträge schreiben */
-var last={els:{},items:{},tasks:{},contracts:{},frames:""};
-function snap(){last.els={};st.els.forEach(function(e){last.els[e.id]=JSON.stringify(e)});last.items={};Object.keys(I).forEach(function(k){last.items[k]=JSON.stringify(I[k])});last.tasks={};Object.keys(T).forEach(function(k){last.tasks[k]=JSON.stringify(T[k])});last.contracts={};Object.keys(C).forEach(function(k){last.contracts[k]=JSON.stringify(C[k])});last.frames=JSON.stringify(st.frames)}
+var last={els:{},items:{},tasks:{},contracts:{},rooms:{},frames:""};
+function snap(){last.els={};st.els.forEach(function(e){last.els[e.id]=JSON.stringify(e)});last.items={};Object.keys(I).forEach(function(k){last.items[k]=JSON.stringify(I[k])});last.tasks={};Object.keys(T).forEach(function(k){last.tasks[k]=JSON.stringify(T[k])});last.contracts={};Object.keys(C).forEach(function(k){last.contracts[k]=JSON.stringify(C[k])});last.rooms={};Object.keys(R).forEach(function(k){last.rooms[k]=JSON.stringify(R[k])});last.frames=JSON.stringify(st.frames)}
 function sync(){if(!STORE)return;var now={};
   st.els.forEach(function(e){var j=JSON.stringify(e);now[e.id]=1;if(last.els[e.id]!==j){last.els[e.id]=j;STORE.put("board",e.id,e)}});
   Object.keys(last.els).forEach(function(id){if(!now[id]){delete last.els[id];STORE.del("board",id)}});
@@ -303,8 +316,9 @@ function sync(){if(!STORE)return;var now={};
   Object.keys(last.tasks).forEach(function(k){if(!T[k]){var o=JSON.parse(last.tasks[k]);delete last.tasks[k];o.deleted=new Date().toISOString();STORE.put("tasks",k,o)}});
   Object.keys(C).forEach(function(k){var j=JSON.stringify(C[k]);if(last.contracts[k]!==j){last.contracts[k]=j;STORE.put("contracts",k,C[k])}});
   Object.keys(last.contracts).forEach(function(k){if(!C[k]){var o=JSON.parse(last.contracts[k]);delete last.contracts[k];o.deleted=new Date().toISOString();STORE.put("contracts",k,o)}});
+  Object.keys(R).forEach(function(k){var j=JSON.stringify(R[k]);if(last.rooms[k]!==j){last.rooms[k]=j;STORE.put("rooms",k,R[k])}});
   var fj=JSON.stringify(st.frames);if(fj!==last.frames){last.frames=fj;STORE.put("meta","board",st.frames)}}
-function busy(){return !!(drag||pinch||document.querySelector('[contenteditable="true"]')||$("#modal").innerHTML)}
+function busy(){var a=document.activeElement;return !!(drag||pinch||document.querySelector('[contenteditable="true"]')||$("#modal").innerHTML||(a&&a.closest&&a.closest("#rb")&&/INPUT|TEXTAREA/.test(a.tagName)))}
 var pending=false;
 window.TAFEL_APPLY=function(c,id,data){var j=data?JSON.stringify(data):null;
   if(c==="board"&&data&&last.els[id]===j)return;
@@ -312,7 +326,7 @@ window.TAFEL_APPLY=function(c,id,data){var j=data?JSON.stringify(data):null;
   else if(c==="items"){if(!data||data.deleted){delete I[id];delete last.items[id]}else{I[id]=data;last.items[id]=JSON.stringify(data)}}
   else if(c==="tasks"){if(!data||data.deleted){delete T[id];delete last.tasks[id]}else{if(last.tasks[id]===j)return;T[id]=data;last.tasks[id]=j}}
   else if(c==="contracts"){if(!data||data.deleted){delete C[id];delete last.contracts[id]}else{if(last.contracts[id]===j)return;C[id]=data;last.contracts[id]=j}}
-  else if(c==="rooms"){if(!data||data.deleted)delete R[id];else R[id]=data}
+  else if(c==="rooms"){if(!data||data.deleted){delete R[id];delete last.rooms[id]}else{if(last.rooms[id]===j)return;R[id]=data;last.rooms[id]=j}}
   else if(c==="meta"&&id==="plan"&&data)P=data;
   else if(c==="meta"&&id==="board"&&data){st.frames=Object.assign(defaults().frames,data);st.frames.user=st.frames.user||{};last.frames=JSON.stringify(st.frames)}
   else return;
@@ -472,7 +486,7 @@ function geldHTML(){var aus=0,ein=0;Object.keys(I).forEach(function(k){var it=I[
 /* ---------- Rendern ---------- */
 var world=$("#world"),board=$("#board"),V={x:0,y:0,k:.5},selId=null;
 function frameDiv(id,title,sub,f,inner,sum){return '<div class="el frame" data-frame="'+id+'" style="left:'+f.x+'px;top:'+f.y+'px;width:'+f.w+'px;height:'+f.h+'px"><div class="fhead" data-fdrag="'+id+'">'+esc(title)+(sub?' <small>'+esc(sub)+'</small>':'')+'</div><div class="fbody">'+inner+'</div>'+(sum!=null?'<div class="fsum l0b" data-fdrag="'+id+'"><span>'+esc(title)+'</span><b>'+sum+'</b></div>':'')+(id!=="plan"?'<div class="rs" data-fres="'+id+'"></div>':'')+(id.indexOf("u")===0?'<button class="x" data-fdel="'+id+'">×</button>':'')+'</div>'}
-function render(){PB=bounds();var F=st.frames,s="";
+function render(){if(sheetId&&$("#rb").classList.contains("open")&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#rb")))setTimeout(drawSheet,0);PB=bounds();var F=st.frames,s="";
   var pf=F.plan,sw=PB.w+2*PAD+70,sh=PB.h+2*PAD+70+120;
   s+='<div class="el sheet" style="left:'+pf.x+'px;top:'+pf.y+'px;width:'+sw+'px;height:'+sh+'px"><div class="fhead sheethead" data-fdrag="plan" style="left:-1px;top:-34px">Grundriss · neue Wohnung <small>M 1:100 · Blatt 01</small></div>'+
     '<svg style="left:'+(PAD+70-PB.x)+'px;top:'+(PAD+70-PB.y)+'px" width="'+PB.w+'" height="'+PB.h+'" viewBox="'+PB.x+' '+PB.y+' '+PB.w+' '+PB.h+'" id="plansvg">'+planSVG()+'</svg>'+
@@ -620,15 +634,20 @@ document.addEventListener("click",function(e){var t=e.target,b;
   if((b=t.closest("[data-undue]"))){var ue=getEl(b.dataset.undue);if(ue){delete ue.due;save();render();toast("Datum entfernt")}return}
   if((b=t.closest("[data-lb]"))){var p=b.dataset.lb.split(":");$("#lb img").src=R[p[0]].photos[+p[1]];$("#lb").classList.add("open");return}
   if(t.closest("#lb")){$("#lb").classList.remove("open");return}
-  if(t.closest("[data-close]")){$("#rb").classList.remove("open");return}});
+  if(t.closest("[data-close]")){$("#rb").classList.remove("open");sheetId=null;return}
+  if((b=t.closest("[data-phdel]"))){var rr=R[sheetId];if(rr&&confirm("Dieses Foto aus dem Raum entfernen?")){rr.photos=(rr.photos||[]).filter(function(_,i){return i!==+b.dataset.phdel});save();render();drawSheet()}return}
+  if((b=t.closest("[data-lndel]"))){var rl=R[sheetId];if(rl){var L=splitLines(rl.links);L.splice(+b.dataset.lndel,1);rl.links=L.join("\n");save();drawSheet()}return}
+  if(t.closest("[data-lnadd]")){addRoomLink();return}
+  if(t.closest("[data-rbtask]")){taskForm(null,{raum:sheetId,bereich:"neu"});return}
+  if((b=t.closest("[data-rbitem]"))){itemForm(b.dataset.rbitem);return}});
 document.addEventListener("keydown",function(e){if(e.target.isContentEditable||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
   if((e.key==="Delete"||e.key==="Backspace")&&selId){st.els=st.els.filter(function(x){return x.id!==selId});selId=null;save();render()}
-  if(e.key==="Escape"){$("#rb").classList.remove("open");$("#lb").classList.remove("open");$("#modal").innerHTML=""}
+  if(e.key==="Escape"){$("#rb").classList.remove("open");sheetId=null;$("#lb").classList.remove("open");$("#modal").innerHTML=""}
   if(e.key==="+"||e.key==="=")zoomAt(innerWidth/2,innerHeight/2,1.3);if(e.key==="-")zoomAt(innerWidth/2,innerHeight/2,1/1.3);if(e.key==="0")fit(allBox(),30);if(e.key==="1")fit(planBox(),40)});
 $("#file").addEventListener("change",function(){var c=center();Array.prototype.forEach.call(this.files,function(f,i){shrink(f,function(u){addImg(u,c.x+i*40,c.y+i*40,f.name.replace(/\.[^.]+$/,""))})});this.value=""});
 board.addEventListener("dragover",function(e){e.preventDefault()});
 board.addEventListener("drop",function(e){e.preventDefault();var w=toWorld(e.clientX,e.clientY);Array.prototype.forEach.call(e.dataTransfer.files||[],function(f,i){if(/^image\//.test(f.type))shrink(f,function(u){addImg(u,w.x+i*40,w.y+i*40,"")})})});
-document.addEventListener("paste",function(e){if(e.target.isContentEditable||$("#modal").innerHTML)return;var c=center();Array.prototype.forEach.call((e.clipboardData&&e.clipboardData.items)||[],function(it){if(it.type.indexOf("image")===0)shrink(it.getAsFile(),function(u){addImg(u,c.x,c.y,"")})})});
+document.addEventListener("paste",function(e){if(e.target.isContentEditable||$("#modal").innerHTML)return;if(sheetId&&$("#rb").classList.contains("open")){if(/INPUT|TEXTAREA/.test(e.target.tagName))return;Array.prototype.forEach.call((e.clipboardData&&e.clipboardData.items)||[],function(it){if(it.type.indexOf("image")===0){e.preventDefault();addRoomPhoto(it.getAsFile())}});return}var c=center();Array.prototype.forEach.call((e.clipboardData&&e.clipboardData.items)||[],function(it){if(it.type.indexOf("image")===0)shrink(it.getAsFile(),function(u){addImg(u,c.x,c.y,"")})})});
 addEventListener("resize",drawMini);
 
 /* ---------- Möbel per Shop-Link ---------- */
@@ -696,12 +715,30 @@ function taskForm(id,preset){var t=id?Object.assign({},T[id]):Object.assign({tit
   setTimeout(function(){$("#k-title").focus()},30)}
 
 /* ---------- Raumblatt ---------- */
-function openSheet(rid){var r=Object.assign({id:rid},R[rid]),its=itemsIn(rid),ts=tasksFor(rid),ds=(P.doors||[]).filter(function(d){return d.room===rid}).length,ws=(P.windows||[]).filter(function(d){return d.room===rid}).length;
+var sheetId=null;
+function splitLines(v){return String(v||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean)}
+function parseLink(line){var m=line.match(/https?:\/\/\S+/),u=m?m[0]:"",t=line.replace(u,"").replace(/\s*[|·–-]\s*$/,"").replace(/^\s*[|·–-]\s*/,"").trim();
+  if(u&&!t){try{t=new URL(u).hostname.replace(/^www\./,"")}catch(e){t=u}}return {u:u,t:t||line}}
+function openSheet(rid){if(!R[rid])return;sheetId=rid;drawSheet();$("#rb").classList.add("open");$("#rb").scrollTop=0}
+function drawSheet(){var rid=sheetId,r0=R[rid];if(!rid)return;if(!r0){$("#rb").classList.remove("open");sheetId=null;return}
+  var r=Object.assign({id:rid},r0),its=itemsIn(rid),ts=tasksFor(rid),ds=(P.doors||[]).filter(function(d){return d.room===rid}).length,ws=(P.windows||[]).filter(function(d){return d.room===rid}).length,ph=r.photos||[],ln=splitLines(r.links);
   $("#rb").innerHTML='<button class="close" data-close>Schließen</button><small style="font:500 10px var(--mono);letter-spacing:.1em;text-transform:lowercase;color:var(--ink2)">Raumblatt</small><h2>'+esc(r.name)+'</h2><div class="meta">'+(r.w/100).toFixed(2).replace(".",",")+' × '+(r.h/100).toFixed(2).replace(".",",")+' m · '+(r.w*r.h/1e4).toFixed(1).replace(".",",")+' m² · '+ds+' Tür'+(ds===1?'':'en')+' · '+ws+' Fenster</div>'+
-  (r.photos&&r.photos.length?'<div class="phs">'+r.photos.map(function(p,i){return '<img src="'+p+'" data-lb="'+rid+':'+i+'" alt="Foto '+esc(r.name)+'">'}).join("")+'</div>':'<p>Noch keine Fotos.</p>')+
-  '<h3>Möbel hier</h3>'+(its.length?'<ul>'+its.map(function(i){return '<li>'+esc(i.name)+' <span style="color:var(--ink2);font:11px var(--mono)">'+i.w+'×'+i.d+'</span></li>'}).join("")+'</ul>':'<p style="font-size:14px;color:var(--ink2)">Noch leer. Zieh eine Möbelkarte hier rein.</p>')+
-  '<h3>Aufgaben</h3>'+(ts.length?'<ul>'+ts.map(function(t){return '<li>'+esc(t.title)+'</li>'}).join("")+'</ul>':'<p style="font-size:14px;color:var(--ink2)">Keine offenen Aufgaben für diesen Raum.</p>');
-  $("#rb").classList.add("open")}
+  '<h3>fotos</h3>'+(ph.length?'<div class="phs">'+ph.map(function(p,i){return '<div class="pw"><img src="'+p+'" data-lb="'+rid+':'+i+'" alt="Foto '+esc(r.name)+'"><button class="phx" data-phdel="'+i+'" aria-label="Foto entfernen" title="Foto entfernen">×</button></div>'}).join("")+'</div>':'<p class="hint2">Noch keine Fotos.</p>')+
+  '<div class="rbrow"><label class="rbtn">Fotos hinzufügen<input type="file" id="rb-file" accept="image/*" multiple hidden></label><span class="hint2">oder mit Strg+V einfügen</span></div>'+
+  '<h3>notizen</h3><textarea id="rb-notiz" placeholder="Maße, Ideen, Mängel, was noch fehlt …">'+esc(r.notiz||"")+'</textarea>'+
+  '<h3>links und sonstiges</h3>'+(ln.length?ln.map(function(l,i){var o=parseLink(l);return '<div class="lnk">'+(o.u?'<a href="'+esc(o.u)+'" target="_blank" rel="noopener">'+esc(o.t)+'</a>':'<span>'+esc(o.t)+'</span>')+'<button data-lndel="'+i+'" aria-label="Eintrag entfernen" title="Entfernen">×</button></div>'}).join(""):'<p class="hint2">Shop-Links, Pinterest, Angebote oder kurze Stichpunkte.</p>')+
+  '<div class="lnadd"><input type="text" id="rb-lt" placeholder="Titel oder Stichpunkt"><input type="url" id="rb-lu" placeholder="https://… (optional)"><button class="rbtn" data-lnadd>Dazu</button></div>'+
+  '<h3>aufgaben</h3>'+(ts.length?'<ul>'+ts.map(function(t){return '<li>'+esc(t.title)+(t.due?' <span style="color:var(--ink2);font:11px var(--mono)">'+fmtD(t.due)+'</span>':'')+'</li>'}).join("")+'</ul>':'<p class="hint2">Keine offenen Aufgaben für diesen Raum.</p>')+
+  '<div class="rbrow"><button class="rbtn" data-rbtask>+ Aufgabe für diesen Raum</button></div>'+
+  '<h3>möbel hier</h3>'+(its.length?'<ul>'+its.map(function(i){return '<li><button data-rbitem="'+esc(i.id)+'" style="border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;text-decoration:underline dotted">'+esc(i.name)+'</button> <span style="color:var(--ink2);font:11px var(--mono)">'+i.w+'×'+i.d+'</span></li>'}).join("")+'</ul>':'<p class="hint2">Noch leer. Zieh eine Möbelkarte hier rein.</p>')+
+  '<p class="lock">Der Grundriss ist hier gesperrt. Räume verschieben oder Maße ändern geht nur in der Liste unter Wohnung mit „Räume bearbeiten“.</p>';
+  var ta=$("#rb-notiz"),tt;ta.addEventListener("input",function(){var v=this.value;clearTimeout(tt);tt=setTimeout(function(){if(R[rid]){R[rid].notiz=v;save()}},500)});
+  ta.addEventListener("blur",function(){clearTimeout(tt);if(R[rid]&&R[rid].notiz!==this.value){R[rid].notiz=this.value;save()}});
+  $("#rb-file").addEventListener("change",function(){Array.prototype.forEach.call(this.files,function(f){addRoomPhoto(f)});this.value=""});
+  ["#rb-lt","#rb-lu"].forEach(function(q){$(q).addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addRoomLink()}})})}
+function addRoomPhoto(file){var rid=sheetId;if(!file||!R[rid])return;shrink(file,function(u){var r=R[rid];if(!r)return;r.photos=(r.photos||[]).concat([u]);save();render();if(sheetId===rid)drawSheet();toast("Foto gespeichert")})}
+function addRoomLink(){var r=R[sheetId];if(!r)return;var t=$("#rb-lt").value.trim().replace(/\n/g," "),u=$("#rb-lu").value.trim();if(!t&&!u)return;
+  if(u&&!/^https?:\/\//i.test(u))u="https://"+u;var L=splitLines(r.links);L.push(t&&u?t+" | "+u:(t||u));r.links=L.join("\n");save();drawSheet();setTimeout(function(){var x=$("#rb-lt");if(x)x.focus()},0)}
 
 /* ---------- Start ---------- */
 function syncTop(){$("#inp").textContent=st.input==="maus"?"maus":"touchpad";document.querySelectorAll("[data-color]").forEach(function(b){b.classList.toggle("on",b.dataset.color===st.color)})}
