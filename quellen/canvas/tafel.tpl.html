@@ -316,9 +316,68 @@ body.lod0 .l0b{display:flex}
 #modal .foot .del{margin-right:auto}
 .card img.pic{display:block;width:100%;height:70px;object-fit:contain;margin-bottom:6px;background:#fff}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;font-size:13px;display:none}
+/* Prüfung im Grundriss */
+.furn.bad rect.b{stroke:var(--neu)!important;stroke-width:3!important;stroke-dasharray:6 3!important}
+.clr{fill:var(--neu);fill-opacity:.07}
+.gp line{stroke:var(--orange);stroke-width:1.2}.gp rect{fill:#fff;stroke:var(--orange);stroke-width:.8}.gp text{font:500 8px var(--mono);fill:#8a4a07}
+#ftool .fw{color:#ffb4a6;font:500 12px var(--sans);padding:6px 8px;max-width:260px;white-space:normal;line-height:1.25}
+#ftool .fw.ok{color:#b8e6c4}
+.nowg{display:grid;grid-template-columns:220px 1fr;gap:28px;height:100%}
+.now li.nt{list-style:none;margin-left:-20px;display:flex;gap:8px;align-items:baseline}
+.now li.late span{color:var(--neu)}
+.tbox{width:16px;height:16px;border:1.5px solid var(--ink);background:var(--paper);padding:0;flex:none;align-self:center;cursor:pointer}
+.tbox:hover{background:#e7f2ea}
+/* Raumblatt: Grundriss bearbeiten, Wandansicht */
+#rb .edit{border:1.5px solid var(--blau);border-radius:10px;padding:12px;margin-top:22px;background:#fff}
+#rb .edit h3{margin-top:12px;color:var(--blau)}
+#rb .fg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#rb .fg label,#rb .op label{display:grid;gap:3px;font:500 11px var(--sans);color:var(--ink2)}
+#rb select,#rb input.n{width:100%;font:14px var(--sans);color:var(--ink);padding:7px 9px;border:1px solid #d9d2c3;border-radius:8px;background:#fff;box-sizing:border-box}
+#rb .op{display:grid;grid-template-columns:1.3fr 1fr 1fr 34px 34px;gap:6px;align-items:end;margin-bottom:6px}
+#rb .op button{height:34px;border:1px solid #d9d2c3;background:#fff;border-radius:8px;cursor:pointer;font:15px var(--sans);color:var(--ink)}
+#rb .rbtn.danger{color:var(--neu);border-color:var(--neu)}
+#rb .elev{width:100%;height:auto;background:#fff;border:1px solid var(--uiline)}
+#rb .elev text{font:11px var(--sans);fill:var(--ink)}
+#rb input[type=checkbox].tk{width:auto;margin:0 6px 0 0;vertical-align:-2px;accent-color:var(--ink)}
+/* Daten */
+#modal .trash{display:grid;gap:0;max-height:260px;overflow:auto;border-top:1px solid #e3ddd0}
+#modal .trash div{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #e3ddd0;font:13px var(--sans)}
+#modal .trash span{flex:1;min-width:0}
+#modal .trash small{color:var(--ink2)}
+#modal .btn.sm{padding:6px 10px;font-size:12px}
+#modal h3{margin:6px 0 0;font:600 12px var(--sans);letter-spacing:.06em;text-transform:lowercase;color:var(--ink2)}
+/* Handy: Bereich als Vollbild */
+.ui button.mob{display:none}
+#full{position:fixed;inset:0;z-index:33;background:var(--bg);display:none;flex-direction:column}
+#full.open{display:flex}
+#full header{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;border-bottom:1px solid var(--line);background:#fbf9f4}
+#full header h2{margin:0;flex:1;font:700 24px var(--sans);letter-spacing:-.03em;text-transform:lowercase}
+#full header button{border:1px solid var(--uiline);background:transparent;padding:7px 12px;border-radius:9px;font:500 14px var(--sans);color:var(--ink)}
+#full .fb{flex:1;overflow:auto;padding:16px 16px calc(24px + env(safe-area-inset-bottom,0px));position:relative}
+#full .pipe{grid-template-columns:1fr 1fr!important;height:auto}
+#full .vt{height:auto;grid-auto-columns:minmax(230px,80vw)}
+#full .vt .col{height:auto}
+#full .rgrps,#full .ucats{columns:1}
+#full .nowg{grid-template-columns:1fr;gap:12px}
+#full .nowg .cdn{font-size:64px!important}
+#full .card{cursor:pointer}
+#full .money{grid-template-columns:1fr}
+.fl-list{display:grid;gap:12px}
+.fl-list .note{position:relative;width:auto;min-height:0;cursor:pointer;white-space:pre-wrap}
+.fl-list .img{position:relative;width:auto;height:auto;padding:8px 8px 28px}
+.fl-list .img img{height:auto}
+.zl h4{margin:14px 0 4px;font:600 12px var(--mono);text-transform:lowercase;color:var(--ink2);border-bottom:1.5px solid var(--ink);padding-bottom:4px}
+.zl h4.late{color:var(--neu);border-color:var(--neu)}
+.zl .zr{display:flex;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.zl .zr b{font-weight:500;flex:1;cursor:pointer}
+.zl .zr span{font:500 12px var(--mono);color:var(--ink2);white-space:nowrap}
+.zl .zr.ev b{color:var(--blau);font-weight:600}
+.zl .acts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.zl .acts span{display:inline-block;padding:7px 11px;border:1px solid var(--line);background:var(--paper);font:600 13px var(--sans);cursor:pointer}
 @media (max-width:760px){
+  .ui button.mob{display:inline-flex;border:1.5px solid var(--ink)}
   #bar{overflow-x:auto;overflow-y:hidden}
-  .logo{order:-2}#to-3d,#to-list{order:-1;flex:none}
+  .logo{order:-2}#to-3d,.ui button.mob{order:-1;flex:none}
   #bar .lab,#lodtag,#zoom [data-z="plan"],#zoom [data-z="input"],#zoom .sep{display:none}
   #mini,#hint{display:none}
 }
@@ -338,13 +397,14 @@ body.lod0 .l0b{display:flex}
   <button data-add="frame"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.5 2"><rect x="2" y="2.5" width="12" height="11"/></svg><span class="lab">rahmen</span></button>
   <span class="grow"></span>
   <span id="lodtag"></span>
+  <button class="mob" data-areas>bereiche</button>
   <a class="navl" id="to-3d" href="3d.html" hidden>3d</a>
-  <a class="navl" id="to-list" href="liste.html" hidden>liste</a>
+  <button data-daten title="Umzugsdatum, Deckenhöhe, Sicherung, Papierkorb">daten</button>
   <span class="acct" id="acct" hidden></span>
 </header>
 <div class="ui" id="zoom">
   <button data-z="out" aria-label="Verkleinern">−</button><span id="zl">100%</span><button data-z="in" aria-label="Vergrößern">+</button>
-  <span class="sep"></span><button data-z="plan">grundriss</button><button data-z="all">alles</button>
+  <span class="sep"></span><button data-z="plan">grundriss</button><button data-z="all">alles</button><button data-z="check" id="chk" title="Konflikte, Abstände unter 60 cm und Türschwenk im Grundriss zeigen">prüfen</button>
   <span class="sep"></span><button data-z="input" id="inp" title="Wie das Scrollrad wirkt">touchpad</button>
 </div>
 <canvas id="mini" width="400" height="264" aria-label="Übersichtskarte"></canvas>
@@ -352,6 +412,7 @@ body.lod0 .l0b{display:flex}
 <div id="ftool" role="toolbar" aria-label="Möbel"></div>
 <div id="modal"></div>
 <aside id="rb" aria-label="Raumblatt"></aside>
+<section id="full" aria-label="Bereich"><header><h2 id="full-h"></h2><button data-fullx>zurück</button></header><div class="fb" id="full-b"></div></section>
 <div id="lb"><img alt=""></div>
 <div id="toast"></div>
 <input type="file" id="file" accept="image/*" hidden multiple>
@@ -364,12 +425,16 @@ var $=function(s,r){return (r||document).querySelector(s)};
 var SEED=window.SEED,KEY="umzug-tafel-v1",STORE=window.TAFEL_STORE||null;
 var DEC={mitnehmen:"bestand",uebernehmen:"bestand",fest:"neu",kaufen:"neu",aufarbeiten:"bestand",offen:"bestand",verkaufen:"abbruch",verschenken:"abbruch",nachmieter:"abbruch",entsorgen:"abbruch"};
 var DECL={mitnehmen:"Bleibt",uebernehmen:"Übernehmen",fest:"Neu, fest",kaufen:"Kaufen",aufarbeiten:"Aufarbeiten",offen:"Offen",verkaufen:"Verkaufen",verschenken:"Verschenken",nachmieter:"An Nachmieter",entsorgen:"Sperrmüll"};
-var MOVE="2026-12-15";
+var MOVE="2026-12-15",CEIL=320;
+/* Statusschritte je Entscheidung; die Geld-Rechnung bringt dieselbe Liste als IST mit */
+var DST={mitnehmen:["Steht noch","Abgebaut","Transportiert","Aufgebaut"],uebernehmen:["Klären","Zugesagt","Bezahlt"],kaufen:["Idee","Suchen","Gefunden","Bestellt","Geliefert"],fest:["Geplant","Bestellt","Geliefert","Aufgebaut"],aufarbeiten:["Geplant","Material besorgen","In Arbeit","Fertig"],offen:["Offen"],verkaufen:["Fotos machen","Online","Reserviert","Verkauft","Abgeholt"],verschenken:["Anbieten","Reserviert","Abgeholt"],nachmieter:["Anbieten","Zugesagt","Bezahlt"],entsorgen:["Termin fehlt","Angemeldet","Weg"]};
+function stList(dec){var L=typeof IST!=="undefined"&&IST[dec]?IST[dec]:DST[dec];return L||["Offen"]}
+var HERK=["Alte Wohnung","Vormieter","Neu","Geschenkt"];
 var MON=["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
 
 /* ---------- Zustand ---------- */
 var st=null;try{st=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
-if(STORE){var pr={};try{pr=JSON.parse(localStorage.getItem("umzug-tafel-prefs")||"{}")}catch(e){}var df=defaults();st={v:1,view:pr.view||null,color:pr.color||"gelb",input:pr.input||"touchpad",itemPos:{},itemData:{},els:(SEED.board||[]).slice(),frames:Object.assign(df.frames,SEED.layout||{})};st.frames.user=st.frames.user||{}}
+if(STORE){var pr={};try{pr=JSON.parse(localStorage.getItem("umzug-tafel-prefs")||"{}")}catch(e){}var df=defaults();st={v:1,view:pr.view||null,color:pr.color||"gelb",input:pr.input||"touchpad",check:pr.check!==false,itemPos:{},itemData:{},els:(SEED.board||[]).slice(),frames:Object.assign(df.frames,SEED.layout||{})};st.frames.user=st.frames.user||{}}
 if(!st||st.v!==1)st=defaults();st.skin="zeichentisch";st.tasks=st.tasks||null;st.itemData=st.itemData||{};st.input=st.input||"touchpad";
 function defaults(){return {v:1,skin:"zeichentisch",view:null,color:"gelb",itemPos:{},
   frames:{plan:{x:-70,y:-90},utensilien:{x:2020,y:640,w:1100,h:640},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:620,pp:1},vertraege:{x:2020,y:-90,w:1100,h:620},pflanzen:{x:-70,y:1010,w:1400,h:420},notizen:{x:960,y:-580,w:1500,h:440,cols:["Eingang","Fragen an Vermieter","Ideen","Infos"]},user:{}},
@@ -382,7 +447,7 @@ function defaults(){return {v:1,skin:"zeichentisch",view:null,color:"gelb",itemP
     {id:"t1",type:"text",x:1400,y:300,text:"Altbau. Hell. Viel Grün."}
   ]}}
 var save=(function(){var t;return function(){clearTimeout(t);t=setTimeout(function(){
-  if(STORE){try{localStorage.setItem("umzug-tafel-prefs",JSON.stringify({view:st.view,color:st.color,input:st.input}))}catch(e){}sync();return}
+  if(STORE){try{localStorage.setItem("umzug-tafel-prefs",JSON.stringify({view:st.view,color:st.color,input:st.input,check:st.check}))}catch(e){}sync();return}
   try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){toast("Im Browser ist kein Platz mehr für weitere Bilder.")}},250)}})();
 /* Abgleich mit der Datenbank: nur geänderte Einträge schreiben */
 var last={els:{},items:{},tasks:{},contracts:{},rooms:{},events:{},utensils:{},costs:{},ausgleich:{},frames:""};
@@ -404,7 +469,9 @@ function sync(){if(!STORE)return;var now={};
     Object.keys(M).forEach(function(k){var j=JSON.stringify(M[k]);if(last[c][k]!==j){last[c][k]=j;STORE.put(c,k,M[k])}});
     Object.keys(last[c]).forEach(function(k){if(!M[k]){var o=JSON.parse(last[c][k]);delete last[c][k];o.deleted=new Date().toISOString();STORE.put(c,k,o)}})});
   Object.keys(R).forEach(function(k){var j=JSON.stringify(R[k]);if(last.rooms[k]!==j){last.rooms[k]=j;STORE.put("rooms",k,R[k])}});
-  var fj=JSON.stringify(st.frames);if(fj!==last.frames){last.frames=fj;STORE.put("meta","board",st.frames)}}
+  var fj=JSON.stringify(st.frames);if(fj!==last.frames){last.frames=fj;STORE.put("meta","board",st.frames)}
+  var pj=JSON.stringify(P);if(pj!==last.plan){last.plan=pj;STORE.put("meta","plan",P)}
+  var sj=JSON.stringify(SETT);if(sj!==last.settings){last.settings=sj;STORE.put("meta","settings",SETT)}}
 function busy(){var a=document.activeElement;return !!(drag||pinch||document.querySelector('[contenteditable="true"]')||$("#modal").innerHTML||(a&&a.closest&&a.closest("#rb")&&/INPUT|TEXTAREA/.test(a.tagName)))}
 var pending=false;
 window.TAFEL_APPLY=function(c,id,data){var j=data?JSON.stringify(data):null;
@@ -424,6 +491,14 @@ window.TAFEL_APPLY=function(c,id,data){var j=data?JSON.stringify(data):null;
   else return;
   if(busy())pending=true;else render()};
 setInterval(function(){if(pending&&!busy()){pending=false;render()}},700);
+/* Papierkorb: gelöschte Einträge (deleted gesetzt) bleiben in der Datenbank und lassen sich zurückholen */
+var TRASH={},TRC={rooms:"Raum",items:"Möbel",tasks:"Aufgabe",events:"Termin",contracts:"Vertrag",utensils:"Utensil",costs:"Kosten",ausgleich:"Ausgleich"};
+Object.keys(TRC).forEach(function(c){var m=SEED[c]||{};Object.keys(m).forEach(function(id){if(m[id]&&m[id].deleted)TRASH[c+":"+id]={c:c,id:id,d:m[id]}})});
+(function(){var ap=window.TAFEL_APPLY;window.TAFEL_APPLY=function(c,id,data){
+  if(c==="meta"&&id==="plan"&&data)last.plan=JSON.stringify(data);
+  if(c==="meta"&&id==="settings"&&data)last.settings=JSON.stringify(data);
+  if(TRC[c]){if(data&&data.deleted)TRASH[c+":"+id]={c:c,id:id,d:data};else delete TRASH[c+":"+id]}
+  return ap(c,id,data)}})();
 
 var R=SEED.rooms||{},P=SEED.plan||{doors:[],windows:[],fixed:[]},I=SEED.items||{},T=SEED.tasks||{},C=SEED.contracts||{},E=SEED.events||{},U=SEED.utensils||{},K=SEED.costs||{},A=SEED.ausgleich||{},SETT=SEED.settings||{},KD=SEED.kueche||null;
 [R,I,T,C,E,U,K,A].forEach(function(m){Object.keys(m).forEach(function(k){if(m[k]&&m[k].deleted)delete m[k]})});
@@ -490,10 +565,14 @@ function planSVG(){var b=PB,s='';
   for(var j=0;j<ys.length-1;j++){var a2=ys[j],c2=ys[j+1];s+='<line class="dim" x1="'+left+'" y1="'+a2+'" x2="'+left+'" y2="'+c2+'"/><line class="dim" x1="'+(left-4)+'" y1="'+(a2+4)+'" x2="'+(left+4)+'" y2="'+(a2-4)+'"/><line class="dim" x1="'+(left-4)+'" y1="'+(c2+4)+'" x2="'+(left+4)+'" y2="'+(c2-4)+'"/><text class="dimt" transform="translate('+(left-4)+','+((a2+c2)/2)+') rotate(-90)" text-anchor="middle">'+((c2-a2)/100).toFixed(2).replace(".",",")+'</text>'}
   s+='</g>';
   if(P.north!=null)s+=compass(b.x+b.w-45,b.y+b.h-45,P.north);
+  /* Prüfung: Türschwenk unter den Möbeln, Abstände darüber */
+  var an=st.check?analyse():null;
+  if(an)(P.doors||[]).forEach(function(o){var c=clearance(o);if(c)s+='<rect class="clr" x="'+c.x+'" y="'+c.y+'" width="'+c.w+'" height="'+c.h+'" pointer-events="none"/>'});
   /* Möbel */
   Object.keys(I).forEach(function(id){var it=I[id];if(it.x==null||it.x==="")return;var d=dims(it),x=+it.x,y=+it.y;
-    s+='<g class="furn '+(isPlant(it)?'plant':cls(it))+'" data-furn="'+id+'"><rect class="b" x="'+x+'" y="'+y+'" width="'+d.w+'" height="'+d.h+'"'+(isPlant(it)?' rx="'+d.w/2+'"':'')+'/>'+topView(it,x,y,d.w,d.h)+
+    s+='<g class="furn '+(isPlant(it)?'plant':cls(it))+(an&&an.issues[id]&&an.issues[id].length?' bad':'')+'" data-furn="'+id+'"><rect class="b" x="'+x+'" y="'+y+'" width="'+d.w+'" height="'+d.h+'"'+(isPlant(it)?' rx="'+d.w/2+'"':'')+'/>'+topView(it,x,y,d.w,d.h)+
     '<text class="fl l2" x="'+(x+3)+'" y="'+(y+d.h+9)+'">'+esc((it.name||"").split(/[,(]/)[0].slice(0,28))+'</text><text class="fl2 l2" x="'+(x+3)+'" y="'+(y+d.h+17)+'">'+it.w+'×'+it.d+'×'+it.h+' · '+esc(DECL[it.dec]||"")+'</text></g>'});
+  if(an)an.gaps.forEach(function(g){var mx=(g.x1+g.x2)/2,my=(g.y1+g.y2)/2;s+='<g class="gp" pointer-events="none"><line x1="'+g.x1+'" y1="'+g.y1+'" x2="'+g.x2+'" y2="'+g.y2+'"/><rect x="'+(mx-11)+'" y="'+(my-6)+'" width="22" height="12" rx="2"/><text x="'+mx+'" y="'+(my+3)+'" text-anchor="middle">'+g.v+'</text></g>'});
   /* Raumbeschriftung */
   rooms().forEach(function(r){var a=(r.w*r.h/1e4).toFixed(1).replace(".",","),cx=r.x+r.w/2,cy=r.y+r.h/2,n=itemsIn(r.id).length,nt=tasksFor(r.id).length;
     s+='<text class="rlabel l1" x="'+(r.x+12)+'" y="'+(r.y+r.h-26)+'">'+esc(r.name)+'</text><text class="rsub l1" x="'+(r.x+12)+'" y="'+(r.y+r.h-13)+'">'+(r.w/100).toFixed(2).replace(".",",")+' × '+(r.h/100).toFixed(2).replace(".",",")+' m · '+a+' m²</text>';
@@ -546,7 +625,7 @@ function zeitHTML(f){var s='<div class="tl"><div class="nd"><h5>ohne datum</h5>'
   vtrAll().filter(function(v){return !v.ab&&(v.status==="abgeschlossen"||v.status==="kuendigen")}).forEach(function(v){s+='<div class="tag nd-t vtr'+(v.status==="kuendigen"?' kd':'')+'" data-vtr="'+v.id+'">'+esc(vtrLab(v))+'</div>'});
   s+='<p class="tlh">Zum Planen auf die Leiste ziehen.</p><div><span class="nbtn" data-newev>+ Termin</span><span class="nbtn" data-newtask>+ Aufgabe</span><span class="nbtn" data-ics title="Alle Termine als Kalenderdatei für Google, Apple oder Outlook">Kalenderdatei</span></div></div><div class="ax" style="left:'+TLL+'px"></div>';
   for(var d=new Date(TL0);d<=TL1;d.setDate(d.getDate()+1)){var x=tlX(f,d);if(d.getDate()===1)s+='<div class="mo" style="left:'+x+'px">'+MON[d.getMonth()].toLowerCase()+' '+String(d.getFullYear()).slice(2)+'</div><div class="tick" style="left:'+x+'px"></div>';else if(d.getDay()===1)s+='<div class="tick wk" style="left:'+x+'px"></div>'}
-  s+='<div class="td" style="left:'+tlX(f,today())+'px"><span>heute</span></div><div class="mv" style="left:'+tlX(f,pd(MOVE))+'px"><span>umzug 15.12.</span></div>';
+  s+='<div class="td" style="left:'+tlX(f,today())+'px"><span>heute</span></div><div class="mv" style="left:'+tlX(f,pd(MOVE))+'px"><span>umzug '+fmtD(MOVE)+'</span></div>';
   var evl=[],evs=evAll().filter(function(e){return e.date}).sort(function(a,b){return (a.date+(a.time||""))<(b.date+(b.time||""))?-1:1});
   evs.forEach(function(e){var x=tlX(f,pd(e.date)),l=0;while(evl[l]!=null&&evl[l]>x-4)l++;evl[l]=x+176;
     s+='<div class="tag ev'+(days(e.date)<0?' past':'')+'" data-ev="'+e.id+'" style="left:'+x+'px;top:'+(52+l*34)+'px" title="'+esc(e.title)+' · '+fmtD(e.date)+(e.time?' '+esc(e.time):'')+(e.ort?' · '+esc(e.ort):'')+'">'+esc(e.title||"Termin")+'<small>'+(e.time?esc(e.time):fmtD(e.date))+'</small></div>'});
@@ -633,8 +712,8 @@ function uForm(id,preset){var u=id?Object.assign({},U[id]):Object.assign({kat:""
   setTimeout(function(){$("#u-name").focus()},30)}
 function nowHTML(){var nev=evAll().filter(function(e){return e.date&&days(e.date)>=0}).sort(function(a,b){return (a.date+(a.time||""))<(b.date+(b.time||""))?-1:1}).slice(0,3);
   var evh=nev.map(function(e){return '<li data-ev="'+e.id+'" style="cursor:pointer"><span style="color:var(--blau)">'+fmtD(e.date)+(e.time?' '+esc(e.time):'')+'</span><b style="color:var(--blau)">Termin:</b> '+esc(e.title)+(e.ort?' <small style="color:var(--ink2)">· '+esc(e.ort)+'</small>':'')+'</li>'}).join("");
-  var d=days(MOVE),open=Object.keys(T).map(function(k){return T[k]}).filter(function(t){return !t.done&&t.due}).sort(function(a,b){return a.due<b.due?-1:1}).slice(0,5-nev.length);
-  return '<div style="display:grid;grid-template-columns:220px 1fr;gap:28px;height:100%"><div><div style="font:800 110px/0.9 var(--sans);color:var(--neu);letter-spacing:-.04em" class="cdn">'+d+'</div><div style="font:500 13px var(--mono);margin-top:10px">Tage bis zum Umzug am 15.12.</div></div><ol class="now" style="margin:0;padding-left:20px">'+evh+open.map(function(t){var dd=pd(t.due);return '<li><span>'+String(dd.getDate()).padStart(2,"0")+'.'+String(dd.getMonth()+1).padStart(2,"0")+'.</span>'+esc(t.title)+'</li>'}).join("")+'</ol></div>'}
+  var d=days(MOVE),open=tasksAll().filter(function(t){return !t.done&&t.due}).sort(function(a,b){return a.due<b.due?-1:1}).slice(0,6-nev.length);
+  return '<div class="nowg"><div><div style="font:800 110px/0.9 var(--sans);color:var(--neu);letter-spacing:-.04em" class="cdn">'+d+'</div><div style="font:500 13px var(--mono);margin-top:10px">Tage bis zum Umzug am '+fmtD(MOVE)+'</div></div><ol class="now" style="margin:0;padding-left:20px">'+evh+open.map(function(t){var late=days(t.due)<0;return '<li class="nt'+(late?' late':'')+'"><button class="tbox" data-tdone="'+t.id+'" title="Erledigt" aria-label="'+esc(t.title)+' erledigt"></button><span>'+fmtD(t.due)+'</span><b data-task="'+t.id+'" style="font-weight:400;cursor:pointer">'+esc(t.title)+'</b>'+(t.wer?' <small style="color:var(--ink2)">· '+esc(t.wer)+'</small>':'')+'</li>'}).join("")+'</ol></div>'}
 /* ---------- Geld pro Person ---------- */
 var IST={kaufen:["Idee","Suchen","Gefunden","Bestellt","Geliefert"],fest:["Geplant","Bestellt","Geliefert","Aufgebaut"],aufarbeiten:["Geplant","Material besorgen","In Arbeit","Fertig"],uebernehmen:["Klären","Zugesagt","Bezahlt"],mitnehmen:["Steht noch","Abgebaut","Transportiert","Aufgebaut"],verkaufen:["Fotos machen","Online","Reserviert","Verkauft","Abgeholt"],verschenken:["Anbieten","Reserviert","Abgeholt"],nachmieter:["Anbieten","Zugesagt","Bezahlt"],entsorgen:["Termin fehlt","Angemeldet","Weg"]};
 var IOK={kaufen:"Bestellt",fest:"Bestellt",aufarbeiten:"In Arbeit",uebernehmen:"Bezahlt",verkaufen:"Verkauft",nachmieter:"Bezahlt"};
@@ -734,15 +813,15 @@ function namenForm(){var n=SETT.namen||{};
   $("#n-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
   $("#nf").addEventListener("submit",function(e){e.preventDefault();SETT=Object.assign({},SETT,{namen:{m:$("#n-m").value.trim(),h:$("#n-h").value.trim()}});
-    if(STORE)STORE.put("meta","settings",SETT);else{st.settings=SETT;save()}$("#modal").innerHTML="";render()});
+    if(!STORE)st.settings=SETT;save();$("#modal").innerHTML="";render()});
   setTimeout(function(){$("#n-h").focus()},30)}
 
 /* ---------- Rendern ---------- */
 var world=$("#world"),board=$("#board"),V={x:0,y:0,k:.5},selId=null;
 function frameDiv(id,title,sub,f,inner,sum){return '<div class="el frame" data-frame="'+id+'" style="left:'+f.x+'px;top:'+f.y+'px;width:'+f.w+'px;height:'+f.h+'px"><div class="fhead" data-fdrag="'+id+'">'+esc(title)+(sub?' <small>'+esc(sub)+'</small>':'')+'</div><div class="fbody">'+inner+'</div>'+(sum!=null?'<div class="fsum l0b" data-fdrag="'+id+'"><span>'+esc(title)+'</span><b>'+sum+'</b></div>':'')+(id!=="plan"?'<div class="rs" data-fres="'+id+'"></div>':'')+(id!=="plan"?'<button class="x" data-fdel="'+id+'" title="Bereich entfernen" aria-label="Bereich entfernen">×</button>':'')+'</div>'}
-function render(){if(sheetId&&$("#rb").classList.contains("open")&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#rb")))setTimeout(drawSheet,0);PB=bounds();var F=st.frames,s="";
+function render(){MOVE=(SETT&&SETT.moveDate)||"2026-12-15";CEIL=+(SETT&&SETT.ceiling)||320;if(fullId)setTimeout(drawFull,0);if(sheetId&&$("#rb").classList.contains("open")&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#rb")))setTimeout(drawSheet,0);PB=bounds();var F=st.frames,s="";
   var pf=F.plan,sw=PB.w+2*PAD+70,sh=PB.h+2*PAD+70+120;
-  s+='<div class="el sheet" style="left:'+pf.x+'px;top:'+pf.y+'px;width:'+sw+'px;height:'+sh+'px"><div class="fhead sheethead" data-fdrag="plan" style="left:-1px;top:-34px">Grundriss · neue Wohnung <small>M 1:100 · Blatt 01</small></div>'+
+  s+='<div class="el sheet" style="left:'+pf.x+'px;top:'+pf.y+'px;width:'+sw+'px;height:'+sh+'px"><div class="fhead sheethead" data-fdrag="plan" style="left:-1px;top:-34px">Grundriss · neue Wohnung <small>M 1:100 · Blatt 01'+(st.check?(function(){var n=Object.keys(analyse().issues).filter(function(k){return analyse.last.issues[k].length}).length;return n?' · <b style="color:var(--neu)">'+n+' möbel mit konflikt</b>':' · keine konflikte'})():'')+'</small></div>'+
     '<svg style="left:'+(PAD+70-PB.x)+'px;top:'+(PAD+70-PB.y)+'px" width="'+PB.w+'" height="'+PB.h+'" viewBox="'+PB.x+' '+PB.y+' '+PB.w+' '+PB.h+'" id="plansvg">'+planSVG()+'</svg>'+
     '<div style="position:absolute;left:'+(PAD+70-PB.x)+'px;top:'+(PAD+70-PB.y)+'px">'+roomInfo()+'</div>'+
     titleBlock(sw,sh)+'</div>';
@@ -766,7 +845,7 @@ function render(){if(sheetId&&$("#rb").classList.contains("open")&&!(document.ac
 function titleBlock(sw,sh){var d=days(MOVE),area=rooms().filter(function(r){return !r.outdoor}).reduce(function(a,r){return a+r.w*r.h/1e4},0);
   return '<div class="tblock" style="left:'+PAD+'px;right:'+PAD+'px;bottom:'+(PAD-20)+'px">'+
   '<div><small>Projekt</small><div class="mid">Umzug Altbau</div><div class="legend"><span><i style="border-color:var(--bestand)"></i>Bestand</span><span><i style="border-color:var(--neu)"></i>Neu</span><span><i style="border-color:var(--abbruch);border-style:dashed"></i>Geht weg</span></div></div>'+
-  '<div><small>Einzug</small><div class="mid">Di, 15.12.2026</div><small style="margin-top:6px">Wohnfläche ca.</small><div class="mid">'+area.toFixed(1).replace(".",",")+' m²</div></div>'+
+  '<div><small>Einzug</small><div class="mid">'+["So","Mo","Di","Mi","Do","Fr","Sa"][pd(MOVE).getDay()]+', '+fmtD(MOVE)+pd(MOVE).getFullYear()+'</div><small style="margin-top:6px">Wohnfläche ca.</small><div class="mid">'+area.toFixed(1).replace(".",",")+' m²</div></div>'+
   '<div><small>Noch</small><div class="big">'+d+'</div><small>Tage</small></div>'+
   '<div style="display:flex;flex-direction:column;justify-content:space-between"><small>Maßstab / Nord</small><svg width="110" height="44" viewBox="0 0 110 44"><g fill="none" stroke="var(--ink)" stroke-width="1"><rect x="0" y="30" width="100" height="5"/><rect x="0" y="30" width="50" height="5" fill="var(--ink)"/></g><text x="0" y="26" font-size="9" font-family="IBM Plex Mono" fill="var(--ink)">0</text><text x="88" y="26" font-size="9" font-family="IBM Plex Mono" fill="var(--ink)">1 m</text><g transform="translate(92,14) rotate('+(+P.north||0)+')"><path d="M0 -10 L6 8 L0 4 L-6 8Z" fill="var(--ink)"/><text y="-12" font-size="9" text-anchor="middle" font-family="Archivo" font-weight="700" fill="var(--ink)">N</text></g></svg></div></div>'}
 function elHTML(e){var c=e.id===selId?" sel":"";
@@ -832,7 +911,7 @@ board.addEventListener("pointerdown",function(e){if(e.target.closest('[contented
   else if(t.closest("[data-task]")){drag={kind:"task",id:t.closest("[data-task]").dataset.task,sx:e.clientX,sy:e.clientY}}
   else if(t.closest("[data-tnote]")){var ne=getEl(t.closest("[data-tnote]").dataset.tnote);if(ne){V.x=innerWidth/2-(ne.x+95)*V.k;V.y=innerHeight/2-(ne.y+85)*V.k;applyView();selId=ne.id;render()}return}
   else if(t.closest("[data-el]")){tbReset();var id=t.closest("[data-el]").dataset.el,el2=getEl(id);drag={kind:"el",el:el2,ox:w.x-el2.x,oy:w.y-el2.y,node:t.closest("[data-el]")};if(selId!==id){selId=id;world.querySelectorAll(".sel").forEach(function(n){n.classList.remove("sel")});drag.node.classList.add("sel")}}
-  else if(t.closest("[data-fdrag]")){var fid=t.closest("[data-fdrag]").dataset.fdrag,fr=st.frames[fid]||st.frames.user[fid];drag={kind:"frame",f:fr,ox:w.x-fr.x,oy:w.y-fr.y,node:t.closest("[data-fdrag]").parentNode}}
+  else if(t.closest("[data-fdrag]")){var fid=t.closest("[data-fdrag]").dataset.fdrag,fr=st.frames[fid]||st.frames.user[fid];drag={kind:"frame",id:fid,f:fr,ox:w.x-fr.x,oy:w.y-fr.y,node:t.closest("[data-fdrag]").parentNode}}
   else if(t.closest("[data-furn]")){var fid2=t.closest("[data-furn]").dataset.furn,it=I[fid2];drag={kind:"furn",id:fid2,ox:w.x-(+it.x),oy:w.y-(+it.y),node:t.closest("[data-furn]"),sx:e.clientX,sy:e.clientY};tbReset()}
   else if(t.closest("[data-prio]")){drag={kind:"prio",id:t.closest("[data-prio]").dataset.prio}}
   else if(t.closest("[data-card]")){drag={kind:"card",id:t.closest("[data-card]").dataset.card,sx:e.clientX,sy:e.clientY}}
@@ -855,6 +934,7 @@ function planOff(){var f=st.frames.plan;return {x:f.x+PAD+70-PB.x,y:f.y+PAD+70-P
 function end(e){delete pts[e.pointerId];if(pinch&&Object.keys(pts).length<2){pinch=null;return}
   if(!drag)return;board.classList.remove("panning");var d=drag;drag=null;
   if(d.kind==="pan"&&!moved&&d.room){openSheet(d.room.dataset.room);return}
+  if(d.kind==="frame"&&!moved&&isMob()){openFull(d.id);return}
   if(d.kind==="furn"&&moved&&d.nx!=null){var it=I[d.id],dd0=dims(it);if(!roomAt(d.nx+dd0.w/2,d.ny+dd0.h/2)){unplace(d.id);return}setPos(d.id,d.nx,d.ny);save();render();selectFurn(d.id);return}
   if(d.kind==="furn"){if(!moved)selectFurn(selFurn===d.id?null:d.id);else{render();selectFurn(d.id)}return}
   if(d.kind==="prio"){var ip=I[d.id];if(ip){ip.prio=prioOf(ip)%3+1;if(st.itemData[d.id])st.itemData[d.id].prio=ip.prio;save();render();toast(((ip.name||"").split(/[,(]/)[0])+": "+PRIO[ip.prio])}return}
@@ -893,7 +973,7 @@ document.addEventListener("click",function(e){var t=e.target,b;
   if((b=t.closest("[data-add]"))){var c=center();if(b.dataset.add==="note")addNote(c.x,c.y);else if(b.dataset.add==="text")addText(c.x-60,c.y);else if(b.dataset.add==="img")$("#file").click();else if(b.dataset.add==="moebel")itemForm(null);else if(b.dataset.add==="pflanze")plantForm(null);
     else if(b.dataset.add==="frame")frameMenu(c);return}
   if((b=t.closest("[data-color]"))){st.color=b.dataset.color;var s=getEl(selId);if(s&&s.type==="note"){s.color=st.color;render()}save();syncTop();return}
-  if((b=t.closest("[data-z]"))){var z=b.dataset.z;if(z==="in")zoomAt(innerWidth/2,innerHeight/2,1.3);if(z==="out")zoomAt(innerWidth/2,innerHeight/2,1/1.3);if(z==="plan")fit(planBox(),40);if(z==="all")fit(allBox(),30);if(z==="input"){st.input=st.input==="maus"?"touchpad":"maus";save();syncTop();toast(st.input==="maus"?"Mausrad zoomt jetzt.":"Zwei Finger schieben, Kneifen zoomt.")}return}
+  if((b=t.closest("[data-z]"))){var z=b.dataset.z;if(z==="in")zoomAt(innerWidth/2,innerHeight/2,1.3);if(z==="out")zoomAt(innerWidth/2,innerHeight/2,1/1.3);if(z==="plan")fit(planBox(),40);if(z==="all")fit(allBox(),30);if(z==="check"){st.check=!st.check;save();syncTop();render();if(selFurn)selectFurn(selFurn);toast(st.check?"Prüfung an: Konflikte rot, Abstände unter 60 cm orange.":"Prüfung aus.")}if(z==="input"){st.input=st.input==="maus"?"touchpad":"maus";save();syncTop();toast(st.input==="maus"?"Mausrad zoomt jetzt.":"Zwei Finger schieben, Kneifen zoomt.")}return}
   if((b=t.closest("[data-del]"))){st.els=st.els.filter(function(x){return x.id!==b.dataset.del});selId=null;save();render();return}
   if((b=t.closest("[data-fdel]"))){var fk=b.dataset.fdel,uf=st.frames.user[fk],bf=st.frames[fk];
     if(uf){if(!confirm("Bereich „"+(uf.title||"Rahmen")+"“ löschen?"))return;delete st.frames.user[fk]}
@@ -968,12 +1048,25 @@ function itemForm(id){if(id&&isPlant(I[id]))return plantForm(id);var it=id?Objec
   '<p class="note2" id="f-msg">Link einfügen und „Holen“ drücken. Name, Maße und Foto werden übernommen, du kannst alles ändern.</p>'+
   '<label>Name<input id="f-name" required value="'+esc(it.name||"")+'"></label>'+
   '<div class="g3"><label>Breite cm<input id="f-w" inputmode="decimal" value="'+esc(it.w||"")+'"></label><label>Tiefe cm<input id="f-d" inputmode="decimal" value="'+esc(it.d||"")+'"></label><label>Höhe cm<input id="f-h" inputmode="decimal" value="'+esc(it.h||"")+'"></label></div>'+
-  '<div class="row"><label>Entscheidung<select id="f-dec">'+opts+'</select></label><label>Preis €<input id="f-preis" inputmode="decimal" value="'+esc(it.preis||"")+'"></label></div>'+
+  '<div class="row"><label>Entscheidung<select id="f-dec">'+opts+'</select></label><label>Status<select id="f-st"></select></label></div>'+
+  '<div class="row"><label>Preis / Wunschpreis €<input id="f-preis" inputmode="decimal" value="'+esc(it.preis||"")+'"></label><label>Herkunft<select id="f-her">'+HERK.map(function(h){return '<option'+((it.her||"Alte Wohnung")===h?' selected':'')+'>'+h+'</option>'}).join("")+'</select></label></div>'+
+  '<div class="row" id="f-prow"><label id="f-erzl">Erzielter Preis €<input id="f-erzielt" inputmode="decimal" value="'+esc(it.erzielt==null?"":it.erzielt)+'"></label><label id="f-abll">Ablöse €<input id="f-abl" inputmode="decimal" value="'+esc(it.abl==null?"":it.abl)+'"></label></div>'+
+  '<div id="f-geld"></div>'+
+  '<label>Notiz<input id="f-notiz" value="'+esc(it.notiz||"")+'" placeholder="Zustand, Farbe, Abholung …"></label>'+
+  '<label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="f-wall" style="width:auto"'+(it.wall?' checked':'')+'> an der Wand montiert (darf über anderen Möbeln hängen)</label>'+
   '<div class="row"><label>Raum<select id="f-raum"><option value="">noch offen</option>'+rooms().map(function(r){return '<option value="'+esc(r.id)+'"'+(raum0===r.id?' selected':'')+'>'+esc(r.name)+'</option>'}).join("")+'</select></label><label>Wichtigkeit<select id="f-prio">'+[1,2,3].map(function(p){return '<option value="'+p+'"'+(prioOf(it)===p?' selected':'')+'>'+PRIO[p]+'</option>'}).join("")+'</select></label></div>'+
   '<div class="ph"><div class="box" id="f-img">'+(img?'':'Kein Foto')+'</div><div><p class="note2">Foto kommt aus dem Shop-Link. Du kannst auch eins einfügen (Strg+V) oder auswählen.</p><p style="margin:8px 0 0"><label class="btn ghost" style="display:inline-block;cursor:pointer">Foto wählen<input type="file" id="f-file" accept="image/*" hidden></label></p></div></div>'+
-  '<div class="foot">'+(id?'<button type="button" class="btn del" id="f-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="f-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
+  '<div class="foot">'+(id?'<button type="button" class="btn del" id="f-del">Löschen</button><button type="button" class="btn ghost" id="f-pick" hidden>Abholtermin</button>':'')+'<button type="button" class="btn ghost" id="f-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
   var box=$("#f-img"),setImg=function(u){img=u;box.style.backgroundImage=u?'url("'+u+'")':"";box.textContent=u?"":"Kein Foto"};setImg(img);
   var msg=function(t){$("#f-msg").textContent=t};
+  /* Status passt zur Entscheidung; erzielter Preis nur beim Weggeben, Ablöse nur bei Vor- oder Nachmieter */
+  var upd=function(){var dc=$("#f-dec").value,L=stList(dc),cur=$("#f-st").value||it.status;$("#f-st").innerHTML=L.map(function(x){return '<option'+(x===cur?' selected':'')+'>'+esc(x)+'</option>'}).join("");
+    $("#f-erzl").style.display=dc==="verkaufen"||dc==="verschenken"?"":"none";$("#f-abll").style.display=dc==="nachmieter"||dc==="uebernehmen"||$("#f-her").value==="Vormieter"?"":"none";
+    $("#f-prow").style.display=$("#f-erzl").style.display==="none"&&$("#f-abll").style.display==="none"?"none":"";
+    var pk=$("#f-pick");if(pk){pk.hidden=DEC[dc]!=="abbruch";pk.textContent=dc==="entsorgen"?"Sperrmülltermin":"Abholtermin"}};upd();
+  $("#f-dec").addEventListener("change",upd);$("#f-her").addEventListener("change",upd);
+  if($("#f-pick"))$("#f-pick").onclick=function(){var nm=shortName(it)||$("#f-name").value;eventForm(null,{title:($("#f-dec").value==="entsorgen"?"Sperrmüll: ":"Abholung: ")+nm,notiz:it.link||""})};
+  if(typeof geldFormItem==="function")geldFormItem(it);
   $("#f-get").onclick=function(){var url=$("#f-link").value;if(!url){msg("Bitte zuerst einen Link einfügen.");return}msg("Hole Daten …");
     fetchProduct(url).then(function(d){if(!d){msg("Das ist kein gültiger Link.");return}
       if(d.name&&!$("#f-name").value)$("#f-name").value=d.name;else if(d.name&&!id)$("#f-name").value=d.name;
@@ -987,7 +1080,9 @@ function itemForm(id){if(id&&isPlant(I[id]))return plantForm(id);var it=id?Objec
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
   if(id)$("#f-del").onclick=function(){if(!confirm("Dieses Möbel löschen?"))return;delete I[id];st.itemData[id]=null;delete st.itemPos[id];save();$("#modal").innerHTML="";render()};
   $("#itf").addEventListener("submit",function(e){e.preventDefault();var n=function(k){var v=parseFloat(String($("#f-"+k).value).replace(",","."));return isNaN(v)?"":v};
-    var nid=id||("m"+Date.now().toString(36)),o=Object.assign({},it,{name:$("#f-name").value.trim(),w:n("w")||50,d:n("d")||50,h:n("h")||"",dec:$("#f-dec").value,preis:n("preis"),link:$("#f-link").value.trim(),img:img,prio:+$("#f-prio").value,raum:$("#f-raum").value});
+    var nid=id||("m"+Date.now().toString(36)),o=Object.assign({},it,{name:$("#f-name").value.trim(),w:n("w")||50,d:n("d")||50,h:n("h")||"",dec:$("#f-dec").value,preis:n("preis"),link:$("#f-link").value.trim(),img:img,prio:+$("#f-prio").value,raum:$("#f-raum").value,status:$("#f-st").value,her:$("#f-her").value,notiz:$("#f-notiz").value.trim(),wall:$("#f-wall").checked});
+    if($("#f-erzl").style.display!=="none")o.erzielt=n("erzielt");if($("#f-abll").style.display!=="none")o.abl=n("abl");if(!o.wall)delete o.wall;if(!o.notiz)delete o.notiz;
+    if(typeof geldReadItem==="function")geldReadItem(o);
     if(o.raum!==raum0&&o.x!=null&&o.x!==""){o.x=null;o.y=null;st.itemPos[nid]={x:null,y:null,rot:o.rot||0}}if(!o.raum)delete o.raum;
     if(!o.status)delete o.status;I[nid]=o;var keep=Object.assign({},o);delete keep.x;delete keep.y;delete keep.rot;st.itemData[nid]=keep;save();$("#modal").innerHTML="";render();toast(id?"Gespeichert":"Möbel steht jetzt im Bereich Möbel"+(o.raum&&R[o.raum]?" unter "+R[o.raum].name:"")+". Zieh es in den Grundriss, wenn du den Platz weißt.")});
   setTimeout(function(){(id?$("#f-name"):$("#f-link")).focus()},30)}
@@ -1020,13 +1115,15 @@ function taskForm(id,preset){var t=id?Object.assign({},T[id]):Object.assign({tit
   '<label>Was ist zu tun?<input id="k-title" required value="'+esc(t.title||"")+'"></label>'+
   '<div class="row"><label>Datum<input id="k-due" type="date" value="'+esc(t.due||"")+'"></label><label>Bereich<select id="k-ber">'+Object.keys(BER).map(function(k){return '<option value="'+k+'"'+(t.bereich===k?' selected':'')+'>'+BER[k]+'</option>'}).join("")+'</select></label></div>'+
   '<div class="row"><label>Raum<select id="k-raum"><option value="">kein Raum</option>'+rooms().map(function(r){return '<option value="'+r.id+'"'+(t.raum===r.id?' selected':'')+'>'+esc(r.name)+'</option>'}).join("")+'</select></label><label style="display:flex;align-items:center;gap:8px;padding-top:18px"><input type="checkbox" id="k-done" style="width:auto"'+(t.done?' checked':'')+'> erledigt</label></div>'+
+  '<div class="row"><label>Wer<input id="k-wer" list="k-wers" value="'+esc(t.wer||"")+'" placeholder="optional"><datalist id="k-wers">'+tasksAll().map(function(x){return x.wer}).filter(function(w,i,a){return w&&a.indexOf(w)===i}).map(function(w){return '<option value="'+esc(w)+'">'}).join("")+'</datalist></label><span></span></div>'+
+  '<label>Notiz<textarea id="k-notiz" style="min-height:70px;font:14px/1.4 var(--sans);padding:9px 11px;border:1px solid #d9d2c3;border-radius:9px">'+esc(t.notiz||"")+'</textarea></label>'+
   '<p class="note2">Ohne Datum steht der Eintrag links in der Spalte „ohne datum“.</p>'+
   '<div class="foot">'+(id?'<button type="button" class="btn del" id="k-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="k-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
   $("#k-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
   if(id)$("#k-del").onclick=function(){delete T[id];save();$("#modal").innerHTML="";render();toast("Eintrag gelöscht")};
   $("#tkf").addEventListener("submit",function(e){e.preventDefault();var nid=id||("k"+Date.now().toString(36));
-    T[nid]=Object.assign({},t,{title:$("#k-title").value.trim(),due:$("#k-due").value,bereich:$("#k-ber").value,raum:$("#k-raum").value,done:$("#k-done").checked});
+    T[nid]=Object.assign({},t,{title:$("#k-title").value.trim(),due:$("#k-due").value,bereich:$("#k-ber").value,raum:$("#k-raum").value,done:$("#k-done").checked,wer:$("#k-wer").value.trim(),notiz:$("#k-notiz").value.trim()});if(!T[nid].wer)delete T[nid].wer;if(!T[nid].notiz)delete T[nid].notiz;
     save();$("#modal").innerHTML="";render();toast(T[nid].due?"Eingetragen für "+fmtD(T[nid].due):"Steht jetzt unter „ohne datum“")});
   setTimeout(function(){$("#k-title").focus()},30)}
 
@@ -1049,7 +1146,7 @@ function eventForm(id,preset,onSaved){var ev=id?Object.assign({},E[id]):Object.a
   '<div class="g3"><label>Datum<input id="e-date" type="date" required value="'+esc(ev.date||"")+'"></label><label>Uhrzeit<input id="e-time" type="time" value="'+esc(ev.time||"")+'"></label><label>Dauer Minuten<input id="e-dauer" inputmode="numeric" value="'+esc(ev.dauer||"")+'"></label></div>'+
   '<label>Ort<input id="e-ort" placeholder="Adresse oder Treffpunkt" value="'+esc(ev.ort||"")+'"></label>'+
   '<label>Notiz<input id="e-notiz" placeholder="Wer kommt, was mitbringen …" value="'+esc(ev.notiz||"")+'"></label>'+
-  '<p class="note2">Termine stehen auch in der Liste und lassen sich über „Kalenderdatei“ in den Handy-Kalender übernehmen.</p>'+
+  '<p class="note2">Über „Kalenderdatei“ im Zeitplan kommen alle Termine in den Handy-Kalender.'+(id&&ev.date?' <a href="'+gcal(ev)+'" target="_blank" rel="noopener">In Google Kalender eintragen</a>':'')+'</p>'+
   '<div class="foot">'+(id?'<button type="button" class="btn del" id="e-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="e-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
   $("#e-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
@@ -1058,6 +1155,10 @@ function eventForm(id,preset,onSaved){var ev=id?Object.assign({},E[id]):Object.a
     E[nid]=Object.assign({},ev,{title:$("#e-title").value.trim(),date:$("#e-date").value,time:$("#e-time").value,dauer:isNaN(dv)?"":dv,ort:$("#e-ort").value.trim(),notiz:$("#e-notiz").value.trim()});
     $("#modal").innerHTML="";if(onSaved)onSaved(nid);save();render();toast("Termin am "+fmtD(E[nid].date)+(E[nid].time?" um "+E[nid].time:""))});
   setTimeout(function(){var f=id||!ev.title?$("#e-title"):$("#e-date");if(f)f.focus()},30)}
+function gcal(e){var p=pd(e.date),f=function(d){return isoD(d).replace(/-/g,"")+"T"+String(d.getHours()).padStart(2,"0")+String(d.getMinutes()).padStart(2,"0")+"00"},ds;
+  if(e.time&&/^\d{1,2}:\d{2}$/.test(e.time)){var hm=e.time.split(":"),s=new Date(p);s.setHours(+hm[0],+hm[1]);ds=f(s)+"/"+f(new Date(s.getTime()+(+e.dauer||60)*6e4))}
+  else{var n=new Date(p);n.setDate(n.getDate()+1);ds=isoD(p).replace(/-/g,"")+"/"+isoD(n).replace(/-/g,"")}
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(e.title||"")+"&dates="+ds+"&details="+encodeURIComponent(e.notiz||"")+"&location="+encodeURIComponent(e.ort||"")}
 function icsEsc(t){return String(t||"").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/([,;])/g,"\\$1")}
 function downloadICS(){var evs=evAll().filter(function(e){return e.date});if(!evs.length){toast("Noch keine Termine.");return}
   var pad=function(n){return String(n).padStart(2,"0")},stamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,""),L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Umzug//Tafel//DE","CALSCALE:GREGORIAN"];
@@ -1088,14 +1189,14 @@ function noteAction(a){var ne=getEl(selId);if(!ne)return;var txt=(ne.text||"").t
 /* ---------- Möbel im Plan ---------- */
 var selFurn=null;
 function setPos(id,x,y,rot){var it=I[id];it.x=x;it.y=y;if(rot!=null)it.rot=rot;st.itemPos[id]={x:it.x,y:it.y,rot:it.rot||0}}
-function selectFurn(id){selFurn=id;world.querySelectorAll(".furn.fsel").forEach(function(n){n.classList.remove("fsel")});var n=id&&world.querySelector('[data-furn="'+id+'"]');if(n)n.classList.add("fsel");placeTool()}
+function selectFurn(id){selFurn=id;var tb0=$("#ftool");if(tb0)tb0.dataset.id="";world.querySelectorAll(".furn.fsel").forEach(function(n){n.classList.remove("fsel")});var n=id&&world.querySelector('[data-furn="'+id+'"]');if(n)n.classList.add("fsel");placeTool()}
 function placeTool(){var tb=$("#ftool");if(!tb)return;var it=selFurn&&I[selFurn];
   if(!selFurn&&selId){var ne=getEl(selId);if(!ne||ne.type!=="note"){tb.classList.remove("on");return}
     if(tb.dataset.id!=="n:"+selId){tb.dataset.id="n:"+selId;tb.innerHTML='<b>Post-it</b><button data-nt="task">Zur Aufgabe</button><button data-nt="ev">Zum Termin</button><button data-nt="room">In einen Raum</button><button data-nt="edit">Bearbeiten</button>'}
     tb.style.left=Math.max(200,Math.min(innerWidth-200,V.x+(ne.x+95)*V.k))+"px";tb.style.top=Math.max(110,V.y+ne.y*V.k)+"px";tb.classList.add("on");return}
   if(!it||it.x==null||it.x===""){tb.classList.remove("on");return}
   var po=planOff(),d=dims(it),sx=V.x+(po.x+(+it.x)+d.w/2)*V.k,sy=V.y+(po.y+(+it.y))*V.k;
-  if(tb.dataset.id!==selFurn){tb.dataset.id=selFurn;tb.innerHTML='<b>'+esc((it.name||"").split(/[,(]/)[0])+'</b>'+(it.wall||isPlant(it)?'':'<button data-ft="rot">Drehen</button>')+'<button data-ft="edit">Bearbeiten</button><button data-ft="out">Aus dem Plan</button>'}
+  if(tb.dataset.id!==selFurn){tb.dataset.id=selFurn;tb.innerHTML='<b>'+esc((it.name||"").split(/[,(]/)[0])+'</b>'+(it.wall||isPlant(it)?'':'<button data-ft="rot">Drehen</button>')+'<button data-ft="edit">Bearbeiten</button><button data-ft="out">Aus dem Plan</button>'+(st.check?(function(){var is=(analyse().issues[selFurn])||[];return '<span class="fw'+(is.length?'':' ok')+'">'+(is.length?'⚠ '+esc(is.join(" · ")):'passt')+'</span>'})():'')}
   tb.style.left=Math.max(120,Math.min(innerWidth-120,sx))+"px";tb.style.top=Math.max(110,sy)+"px";tb.classList.add("on")}
 function rotFurn(id){var it=I[id];if(!it||it.wall||isPlant(it))return;var d=dims(it),cx=+it.x+d.w/2,cy=+it.y+d.h/2,nr=it.rot===90?0:90;it.rot=nr;var nd=dims(it);setPos(id,Math.round((cx-nd.w/2)/5)*5,Math.round((cy-nd.h/2)/5)*5,nr);save();render();selectFurn(id)}
 function unplace(id){var it=I[id];if(!it)return;var rr=raumOf(it);if(rr)it.raum=rr;it.x=null;it.y=null;st.itemPos[id]={x:null,y:null,rot:it.rot||0};if(selFurn===id)selFurn=null;tbReset();save();render();toast(((it.name||"").split(/[,(]/)[0])+" liegt wieder bei den Möbeln")}
@@ -1107,7 +1208,7 @@ var sheetId=null;
 function splitLines(v){return String(v||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean)}
 function parseLink(line){var m=line.match(/https?:\/\/\S+/),u=m?m[0]:"",t=line.replace(u,"").replace(/\s*[|·–-]\s*$/,"").replace(/^\s*[|·–-]\s*/,"").trim();
   if(u&&!t){try{t=new URL(u).hostname.replace(/^www\./,"")}catch(e){t=u}}return {u:u,t:t||line}}
-function openSheet(rid){if(!R[rid])return;sheetId=rid;drawSheet();$("#rb").classList.add("open");$("#rb").scrollTop=0}
+function openSheet(rid){if(!R[rid])return;if(sheetId!==rid)sheetEdit=false;sheetId=rid;drawSheet();$("#rb").classList.add("open");$("#rb").scrollTop=0}
 function drawSheet(){var rid=sheetId,r0=R[rid];if(!rid)return;if(!r0){$("#rb").classList.remove("open");sheetId=null;return}
   var r=Object.assign({id:rid},r0),its=itemsIn(rid),ts=tasksFor(rid),ds=(P.doors||[]).filter(function(d){return d.room===rid}).length,ws=(P.windows||[]).filter(function(d){return d.room===rid}).length,ph=r.photos||[],ln=splitLines(r.links);
   $("#rb").innerHTML='<button class="close" data-close>Schließen</button><small style="font:500 10px var(--mono);letter-spacing:.1em;text-transform:lowercase;color:var(--ink2)">Raumblatt</small><h2>'+esc(r.name)+'</h2><div class="meta">'+(r.w/100).toFixed(2).replace(".",",")+' × '+(r.h/100).toFixed(2).replace(".",",")+' m · '+(r.w*r.h/1e4).toFixed(1).replace(".",",")+' m² · '+ds+' Tür'+(ds===1?'':'en')+' · '+ws+' Fenster</div>'+
@@ -1116,10 +1217,11 @@ function drawSheet(){var rid=sheetId,r0=R[rid];if(!rid)return;if(!r0){$("#rb").c
   '<h3>notizen</h3><textarea id="rb-notiz" placeholder="Maße, Ideen, Mängel, was noch fehlt …">'+esc(r.notiz||"")+'</textarea>'+
   '<h3>links und sonstiges</h3>'+(ln.length?ln.map(function(l,i){var o=parseLink(l);return '<div class="lnk">'+(o.u?'<a href="'+esc(o.u)+'" target="_blank" rel="noopener">'+esc(o.t)+'</a>':'<span>'+esc(o.t)+'</span>')+'<button data-lndel="'+i+'" aria-label="Eintrag entfernen" title="Entfernen">×</button></div>'}).join(""):'<p class="hint2">Shop-Links, Pinterest, Angebote oder kurze Stichpunkte.</p>')+
   '<div class="lnadd"><input type="text" id="rb-lt" placeholder="Titel oder Stichpunkt"><input type="url" id="rb-lu" placeholder="https://… (optional)"><button class="rbtn" data-lnadd>Dazu</button></div>'+
-  '<h3>aufgaben</h3>'+(ts.length?'<ul>'+ts.map(function(t){return '<li>'+esc(t.title)+(t.due?' <span style="color:var(--ink2);font:11px var(--mono)">'+fmtD(t.due)+'</span>':'')+'</li>'}).join("")+'</ul>':'<p class="hint2">Keine offenen Aufgaben für diesen Raum.</p>')+
+  '<h3>aufgaben</h3>'+(ts.length?'<ul style="list-style:none;padding-left:0">'+ts.map(function(t){return '<li><input type="checkbox" class="tk" data-tk="'+t.id+'" aria-label="Erledigt">'+esc(t.title)+(t.due?' <span style="color:var(--ink2);font:11px var(--mono)">'+fmtD(t.due)+'</span>':'')+'</li>'}).join("")+'</ul>':'<p class="hint2">Keine offenen Aufgaben für diesen Raum.</p>')+
   '<div class="rbrow"><button class="rbtn" data-rbtask>+ Aufgabe für diesen Raum</button></div>'+
   '<h3>möbel und pflanzen hier</h3>'+(its.length?'<ul>'+its.map(function(i){return '<li><button data-rbitem="'+esc(i.id)+'" style="border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;text-decoration:underline dotted">'+esc(i.name)+'</button> <span style="color:var(--ink2);font:11px var(--mono)">'+i.w+'×'+i.d+'</span></li>'}).join("")+'</ul>':'<p class="hint2">Noch leer. Zieh eine Möbelkarte hier rein.</p>')+
-  '<p class="lock">Der Grundriss ist hier gesperrt. Räume verschieben oder Maße ändern geht nur in der Liste unter Wohnung mit „Räume bearbeiten“.</p>';
+  '<h3>wandansicht · höhen im vergleich zur decke</h3>'+elevation(rid)+
+  '<h3>grundriss</h3>'+editHTML(rid);
   var ta=$("#rb-notiz"),tt;ta.addEventListener("input",function(){var v=this.value;clearTimeout(tt);tt=setTimeout(function(){if(R[rid]){R[rid].notiz=v;save()}},500)});
   ta.addEventListener("blur",function(){clearTimeout(tt);if(R[rid]&&R[rid].notiz!==this.value){R[rid].notiz=this.value;save()}});
   $("#rb-file").addEventListener("change",function(){Array.prototype.forEach.call(this.files,function(f){addRoomPhoto(f)});this.value=""});
@@ -1128,13 +1230,169 @@ function addRoomPhoto(file){var rid=sheetId;if(!file||!R[rid])return;shrink(file
 function addRoomLink(){var r=R[sheetId];if(!r)return;var t=$("#rb-lt").value.trim().replace(/\n/g," "),u=$("#rb-lu").value.trim();if(!t&&!u)return;
   if(u&&!/^https?:\/\//i.test(u))u="https://"+u;var L=splitLines(r.links);L.push(t&&u?t+" | "+u:(t||u));r.links=L.join("\n");save();drawSheet();setTimeout(function(){var x=$("#rb-lt");if(x)x.focus()},0)}
 
+/* ---------- Prüfung: Konflikte, Abstände, Türschwenk ---------- */
+function inter(a,b){return a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h}
+function fbox(it){var d=dims(it);return {x:+it.x,y:+it.y,w:d.w,h:d.h}}
+function roomOfIt(it){var b=fbox(it);return roomAt(b.x+b.w/2,b.y+b.h/2)}
+function clearance(o){var g=opening(o);if(!g||o.type==="open")return null;var w=g.w,dp=o.type==="double"?w/2:w;
+  if(o.wall==="n")return {x:g.x1,y:g.y1,w:w,h:dp};if(o.wall==="s")return {x:g.x1,y:g.y1-dp,w:w,h:dp};
+  if(o.wall==="w")return {x:g.x1,y:g.y1,w:dp,h:w};return {x:g.x1-dp,y:g.y1,w:dp,h:w}}
+function fixedAbs(f){var r=R[f.room];if(!r)return null;return {n:f.n,x:r.x+(+f.dx||0),y:r.y+(+f.dy||0),w:+f.w,h:+f.h}}
+function shortName(it){return ((it&&it.name)||"").split(/[,(]/)[0].trim()}
+function analyse(){var issues={},gaps=[],L=Object.keys(I).filter(function(k){var it=I[k];return it.x!=null&&it.x!==""&&!gehtWeg(it)}).map(function(k){return Object.assign({id:k},I[k])});
+  L.forEach(function(p){issues[p.id]=[]});
+  var cl=(P.doors||[]).map(clearance).filter(Boolean),fx=(P.fixed||[]).map(fixedAbs).filter(Boolean);
+  L.forEach(function(p){var b=fbox(p),r=roomOfIt(p);
+    if(!r){issues[p.id].push("Steht außerhalb der Räume");return}
+    if(b.x<r.x||b.y<r.y||b.x+b.w>r.x+r.w||b.y+b.h>r.y+r.h)issues[p.id].push("Ragt in die Wand");
+    if(+p.h&&+p.h>CEIL-2)issues[p.id].push("Zu hoch für die Decke ("+CEIL+" cm)");
+    if(p.wall)return;
+    if(cl.some(function(c){return inter(b,c)}))issues[p.id].push("Steht im Schwenkbereich einer Tür");
+    fx.forEach(function(f){if(inter(b,f))issues[p.id].push("Kollidiert mit "+f.n)});
+    [["l",b.x-r.x],["r",r.x+r.w-(b.x+b.w)],["t",b.y-r.y],["b",r.y+r.h-(b.y+b.h)]].forEach(function(g){if(g[1]>=10&&g[1]<60){var x1,y1,x2,y2;
+      if(g[0]==="l"){y1=y2=b.y+b.h/2;x1=r.x;x2=b.x}else if(g[0]==="r"){y1=y2=b.y+b.h/2;x1=b.x+b.w;x2=r.x+r.w}else if(g[0]==="t"){x1=x2=b.x+b.w/2;y1=r.y;y2=b.y}else{x1=x2=b.x+b.w/2;y1=b.y+b.h;y2=r.y+r.h}
+      gaps.push({x1:x1,y1:y1,x2:x2,y2:y2,v:Math.round(g[1])})}})});
+  for(var i=0;i<L.length;i++)for(var j=i+1;j<L.length;j++){var a=L[i],c=L[j];if(a.wall||c.wall)continue;var A=fbox(a),B=fbox(c);
+    if(inter(A,B)){issues[a.id].push("Überlappt mit "+shortName(c));issues[c.id].push("Überlappt mit "+shortName(a));continue}
+    var ra=roomOfIt(a);if(!ra||ra!==roomOfIt(c))continue;
+    var oy=Math.min(A.y+A.h,B.y+B.h)-Math.max(A.y,B.y),ox=Math.min(A.x+A.w,B.x+B.w)-Math.max(A.x,B.x);
+    if(oy>0){var gx=A.x<B.x?B.x-(A.x+A.w):A.x-(B.x+B.w),xs=A.x<B.x?A.x+A.w:B.x+B.w,ym=Math.max(A.y,B.y)+oy/2;if(gx>=10&&gx<60)gaps.push({x1:xs,y1:ym,x2:xs+gx,y2:ym,v:Math.round(gx)})}
+    if(ox>0){var gy=A.y<B.y?B.y-(A.y+A.h):A.y-(B.y+B.h),ys=A.y<B.y?A.y+A.h:B.y+B.h,xm=Math.max(A.x,B.x)+ox/2;if(gy>=10&&gy<60)gaps.push({x1:xm,y1:ys,x2:xm,y2:ys+gy,v:Math.round(gy)})}}
+  return (analyse.last={issues:issues,gaps:gaps})}
+/* Wandansicht: alle Möbel eines Raums nebeneinander, Höhe gegen Decke und Türhöhe */
+function elevation(rid){var L=itemsIn(rid).sort(function(a,b){return (+a.x)-(+b.x)}),ceil=CEIL;if(!L.length)return '<p class="hint2">Noch keine Möbel in diesem Raum.</p>';
+  var W=Math.max(500,L.reduce(function(s,p){return s+(+p.w||50)+30},40)),col={bestand:"#6b7387",neu:"#e34a2f",abbruch:"#e2b33a"};
+  var s='<svg class="elev" viewBox="0 -24 '+W+' '+(ceil+44)+'" role="img" aria-label="Wandansicht"><line x1="0" y1="0" x2="'+W+'" y2="0" stroke="#1c2a4b" stroke-width="2"/><text x="4" y="-6">Decke '+ceil+' cm</text><line x1="0" y1="'+(ceil-210)+'" x2="'+W+'" y2="'+(ceil-210)+'" stroke="#5b6580" stroke-dasharray="5 4"/><text x="4" y="'+(ceil-214)+'" fill="#5b6580">Türhöhe 210</text><line x1="0" y1="'+ceil+'" x2="'+W+'" y2="'+ceil+'" stroke="#1c2a4b"/>';
+  var x=40,mx=0;L.forEach(function(p){var h=+p.h||0,w=+p.w||50,c=isPlant(p)?"#4f8a3c":col[cls(p)],y=ceil-(p.wall?150+h:h);if(!p.wall)mx=Math.max(mx,h);
+    s+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+Math.max(h,2)+'" fill="'+c+'" fill-opacity=".22" stroke="'+c+'" stroke-width="1.5"/><text x="'+(x+w/2)+'" y="'+(y-5)+'" text-anchor="middle">'+esc(shortName(p).slice(0,22))+' · '+(h||"?")+'</text>';x+=w+30});
+  return s+'</svg><p class="hint2">Über dem höchsten Möbel bleiben '+(ceil-mx)+' cm bis zur Decke.</p>'}
+
+/* ---------- Raumblatt: Grundriss bearbeiten (nur entsperrt) ---------- */
+var sheetEdit=false,WALLS=[["n","oben"],["s","unten"],["w","links"],["e","rechts"]];
+function editHTML(rid){var r=R[rid];if(!sheetEdit)return '<div class="rbrow" style="margin-top:22px"><button class="rbtn" data-rbunlock>Grundriss entsperren</button><span class="hint2">Räume liegen nach dem Originalplan fest.</span></div>';
+  var num=function(k,l){return '<label>'+l+'<input class="n" data-rf="'+k+'" inputmode="numeric" value="'+esc(r[k])+'"></label>'};
+  var ops=function(kind,lab){var L=(P[kind]||[]).map(function(o,i){return [o,i]}).filter(function(x){return x[0].room===rid});
+    return '<h3>'+lab+'</h3>'+L.map(function(x){var o=x[0],i=x[1];return '<div class="op"><label>Wand<select data-op="'+kind+':'+i+':wall">'+WALLS.map(function(w){return '<option value="'+w[0]+'"'+(o.wall===w[0]?' selected':'')+'>'+w[1]+'</option>'}).join("")+'</select></label><label>Abstand<input class="n" data-op="'+kind+':'+i+':off" inputmode="numeric" value="'+esc(o.off)+'" title="Abstand von der Ecke in cm"></label><label>Breite<input class="n" data-op="'+kind+':'+i+':w" inputmode="numeric" value="'+esc(o.w)+'"></label>'+
+      (kind==="doors"?'<button data-ophinge="'+i+'" title="Anschlag wechseln (Scharnier am Anfang oder Ende)" aria-label="Anschlag wechseln">'+(o.hinge==="end"?'⟲':'⟳')+'</button>':'<span></span>')+'<button data-opdel="'+kind+':'+i+'" aria-label="Entfernen" title="Entfernen">×</button></div>'}).join("")+
+      '<button class="rbtn" data-opadd="'+kind+'">+ '+(kind==="doors"?'Tür':'Fenster')+'</button>'};
+  return '<div class="edit"><div class="rbrow" style="margin:0 0 10px;justify-content:space-between"><b style="font:600 13px var(--sans);color:var(--blau)">Grundriss entsperrt</b><button class="rbtn" data-rblock>Sperren</button></div>'+
+    '<div class="fg"><label>Name<input class="n" data-rf="name" value="'+esc(r.name)+'"></label><label>Art<select data-rf="outdoor"><option value="">Innenraum</option><option value="1"'+(r.outdoor?' selected':'')+'>Balkon / außen</option></select></label>'+num("w","Breite cm")+num("h","Länge cm")+num("x","Lage X")+num("y","Lage Y")+'</div>'+
+    ops("doors","türen (wand, abstand, breite, anschlag)")+ops("windows","fenster")+
+    '<div class="rbrow" style="margin-top:16px"><button class="rbtn" data-roomadd>+ Neuer Raum</button><button class="rbtn danger" data-roomdel>Raum löschen</button></div></div>'}
+function nval(v){var n=parseFloat(String(v).replace(",","."));return isNaN(n)?0:n}
+document.addEventListener("change",function(e){var t=e.target,a,r=R[sheetId];if(!r||!t.closest||!t.closest("#rb"))return;
+  if((a=t.getAttribute("data-rf"))){if(a==="name")r.name=t.value.trim()||r.name;else if(a==="outdoor"){if(t.value)r.outdoor=true;else delete r.outdoor}else r[a]=Math.max(a==="x"||a==="y"?-1e5:30,Math.round(nval(t.value)));save();render();drawSheet();return}
+  if((a=t.getAttribute("data-op"))){var k=a.split(":"),o=P[k[0]]&&P[k[0]][+k[1]];if(!o)return;o[k[2]]=k[2]==="wall"?t.value:Math.max(0,Math.round(nval(t.value)));save();render();drawSheet();return}
+  if((a=t.getAttribute("data-tk"))&&T[a]){T[a].done=t.checked;save();render();drawSheet()}});
+
+/* ---------- Daten: Umzugsdatum, Decke, Sicherung, Papierkorb ---------- */
+function download(name,text,type){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
+function dataMaps(){var m={rooms:R,items:I,tasks:T,events:E,contracts:C,utensils:U};if(typeof K!=="undefined")m.costs=K;if(typeof A!=="undefined")m.ausgleich=A;return m}
+function datenForm(){var tr=Object.keys(TRASH).map(function(k){return Object.assign({k:k},TRASH[k])}).sort(function(a,b){return String(b.d.deleted||"").localeCompare(String(a.d.deleted||""))});
+  $("#modal").innerHTML='<div class="bg"><form id="dtf" autocomplete="off"><h2>daten</h2>'+
+  '<div class="row"><label>Umzugsdatum<input type="date" id="d-move" value="'+esc(MOVE)+'"></label><label>Deckenhöhe cm<input id="d-ceil" inputmode="numeric" value="'+esc(CEIL)+'"></label></div>'+
+  '<h3>sicherung</h3><p class="note2">Alle Einträge samt Bildern, Post-its und Grundriss als Datei. Damit lässt sich alles wiederherstellen.</p>'+
+  '<div class="foot" style="justify-content:flex-start"><button type="button" class="btn ghost" id="d-exp">Exportieren</button><label class="btn ghost" style="display:inline-block;cursor:pointer;color:var(--ink)">Importieren<input type="file" id="d-imp" accept=".json,application/json" hidden></label></div>'+
+  '<h3>papierkorb · '+tr.length+'</h3>'+(tr.length?'<div class="trash">'+tr.map(function(x){return '<div><span>'+esc(x.d.name||x.d.title||x.d.anbieter||x.d.kat||"Ohne Namen")+' <small>'+TRC[x.c]+(x.d.deleted?' · gelöscht '+fmtD(String(x.d.deleted).slice(0,10)):'')+'</small></span><button type="button" class="btn ghost sm" data-trback="'+esc(x.k)+'">Zurückholen</button><button type="button" class="btn del sm" data-trpurge="'+esc(x.k)+'">Endgültig</button></div>'}).join("")+'</div>':'<p class="note2">Leer.</p>')+
+  '<div class="foot"><button type="button" class="btn ghost" id="d-x">Schließen</button><button class="btn">Speichern</button></div></form></div>';
+  $("#d-x").onclick=function(){$("#modal").innerHTML=""};
+  $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
+  $("#d-exp").onclick=doExport;
+  $("#d-imp").onchange=function(){if(this.files[0])doImport(this.files[0])};
+  $("#dtf").addEventListener("submit",function(e){e.preventDefault();var mv=$("#d-move").value,ce=Math.round(nval($("#d-ceil").value));
+    if(mv)SETT.moveDate=mv;if(ce>=200&&ce<=600)SETT.ceiling=ce;save();$("#modal").innerHTML="";render();toast("Umzug am "+fmtD(SETT.moveDate||MOVE)+", Decke "+(SETT.ceiling||CEIL)+" cm")})}
+function doExport(){var d={version:3,exported:new Date().toISOString(),meta:SETT,plan:P,layout:st.frames,board:{}},m=dataMaps();
+  st.els.forEach(function(e){d.board[e.id]=e});Object.keys(m).forEach(function(c){d[c]=Object.assign({},m[c])});
+  Object.keys(TRASH).forEach(function(k){var t=TRASH[k];(d[t.c]=d[t.c]||{})[t.id]=t.d});
+  download("umzug-"+isoD(new Date())+".json",JSON.stringify(d),"application/json");toast("Sicherung wird heruntergeladen")}
+function doImport(file){if(!STORE){toast("Import geht nur mit Datenbank.");return}var rd=new FileReader();rd.onload=function(){var d;try{d=JSON.parse(rd.result)}catch(e){toast("Die Datei ist kein gültiger Export.");return}
+  var jobs=[];["rooms","items","tasks","events","contracts","utensils","costs","ausgleich","ideas"].forEach(function(c){Object.keys((d&&d[c])||{}).forEach(function(id){jobs.push([c,id,d[c][id]])})});
+  Object.keys((d&&d.board)||{}).forEach(function(id){jobs.push(["board",id,d.board[id]])});
+  if(d&&d.meta)jobs.push(["meta","settings",d.meta]);if(d&&d.plan)jobs.push(["meta","plan",d.plan]);if(d&&d.layout)jobs.push(["meta","board",d.layout]);
+  if(!jobs.length){toast("In der Datei stehen keine Umzugsdaten.");return}
+  if(!confirm(jobs.length+" Einträge importieren? Einträge mit gleicher Kennung werden überschrieben."))return;
+  var i=0;(function next(){if(i>=jobs.length){toast(jobs.length+" Einträge importiert. Seite lädt neu …");setTimeout(function(){location.reload()},900);return}var j=jobs[i++];Promise.resolve(STORE.put(j[0],j[1],j[2])).then(next,next)})()};rd.readAsText(file)}
+
+/* ---------- Ideen aus der alten Liste einmalig ins Moodboard ---------- */
+function migrateIdeas(){if(!STORE)return;var m=SEED.ideas||{},f=st.frames.mood,n=0,add=false,now=new Date().toISOString();
+  Object.keys(m).forEach(function(id){var x=m[id];if(!x||x.deleted)return;var eid="idea-"+id;
+    if(!getEl(eid)){var cx=f.x+30+(n%3)*280,cy=f.y+40+Math.floor(n/3)*340,rest=[x.notiz,x.link].filter(Boolean).join("\n");n++;
+      if(x.img){st.els.push({id:eid,type:"img",x:cx,y:cy,w:250,h:290,src:x.img,text:x.title||""});if(rest)st.els.push({id:eid+"-n",type:"note",x:cx+30,y:cy+240,color:"weiss",text:rest})}
+      else st.els.push({id:eid,type:"note",x:cx,y:cy,color:"weiss",text:[x.title,rest].filter(Boolean).join("\n")||"Idee"});add=true}
+    STORE.put("ideas",id,Object.assign({},x,{deleted:now,moodboard:eid}))});
+  if(add){save();render();toast("Ideen aus der Liste liegen jetzt im Moodboard")}}
+
+/* ---------- Handy: Bereich als Vollbild ---------- */
+var fullId=null;
+function isMob(){return window.matchMedia&&matchMedia("(max-width:760px)").matches}
+function ftitle(id){return FNAME[id]||(st.frames.user[id]&&st.frames.user[id].title)||"Bereich"}
+function openFull(id){if(id==="plan"){closeFull();fit(planBox(),12);return}fullId=id;drawFull();$("#full").classList.add("open");$("#full-b").scrollTop=0}
+function closeFull(){fullId=null;$("#full").classList.remove("open")}
+function drawFull(){if(!fullId)return;var id=fullId,b=$("#full-b"),y=b.scrollTop,h;
+  if(id==="now")h=nowHTML();else if(id==="moebel")h=moebelHTML();else if(id==="pflanzen")h=pflanzenHTML();else if(id==="verkauf")h=verkaufHTML();else if(id==="zeit")h=zeitListHTML();
+  else if(id==="geld")h=typeof geldHTML==="function"?geldHTML():"";else if(id==="vertraege")h=vertraegeHTML();else if(id==="utensilien")h=utensilienHTML();else h=frameElsHTML(id);
+  $("#full-h").textContent=ftitle(id);b.innerHTML=h;b.scrollTop=y}
+function areasMenu(){var ids=["now","zeit","moebel","pflanzen","verkauf","utensilien","vertraege","geld","notizen","mood"].filter(function(k){return st.frames[k]&&!st.frames[k].hidden}).concat(Object.keys(st.frames.user||{}));
+  $("#modal").innerHTML='<div class="bg"><form><h2>bereiche</h2><div class="foot" style="justify-content:flex-start"><button type="button" class="btn ghost" data-fullopen="plan">Grundriss</button>'+ids.map(function(k){return '<button type="button" class="btn ghost" data-fullopen="'+k+'">'+esc(ftitle(k))+'</button>'}).join("")+'</div><div class="foot"><button type="button" class="btn ghost" data-mx>Schließen</button></div></form></div>'}
+function frameElsHTML(id){var f=st.frames[id]||st.frames.user[id];if(!f)return "";
+  var L=st.els.filter(function(e){return e.x>f.x-30&&e.x<f.x+f.w&&e.y>f.y-30&&e.y<f.y+f.h}).sort(function(a,b){return (a.y-b.y)||(a.x-b.x)});
+  return '<div class="zl"><div class="acts"><span data-fladd="'+esc(id)+'">+ Post-it</span></div></div><div class="fl-list">'+L.map(function(e){
+    if(e.type==="img")return '<div class="img"><img src="'+e.src+'" alt=""><div class="cap">'+esc(e.text||"")+'</div></div>';
+    if(e.type==="note")return '<div class="note n-'+(e.color||"gelb")+'" data-flel="'+e.id+'">'+esc(e.text||"")+'</div>';
+    return '<div class="txt" style="font-size:24px">'+esc(e.text||"")+'</div>'}).join("")+'</div>'+(L.length?'':'<p class="mleer">Noch leer.</p>')}
+function noteEdit(id){var e=getEl(id);if(!e)return;
+  $("#modal").innerHTML='<div class="bg"><form id="nef"><h2>post-it</h2><label>Text<textarea id="ne-t" style="min-height:140px;font:15px/1.4 var(--hand);padding:10px;border:1px solid #d9d2c3;border-radius:9px">'+esc(e.text||"")+'</textarea></label><div class="foot"><button type="button" class="btn del" id="ne-del">Löschen</button><button type="button" class="btn ghost" data-mx>Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
+  $("#ne-del").onclick=function(){dropNote(id);save();$("#modal").innerHTML="";render()};
+  $("#nef").addEventListener("submit",function(ev){ev.preventDefault();var v=$("#ne-t").value.trim();if(v)e.text=v;else dropNote(id);save();$("#modal").innerHTML="";render()});
+  setTimeout(function(){$("#ne-t").focus()},30)}
+function zeitListHTML(){var t0=today(),rows=[],nd=[];
+  tasksAll().forEach(function(t){if(t.done)return;if(!t.due)nd.push(t);else rows.push({d:t.due,k:"t",o:t})});
+  evAll().forEach(function(e){if(e.date&&days(e.date)>=0)rows.push({d:e.date+(e.time||""),k:"e",o:e})});
+  vtrAll().forEach(function(v){if(v.ab&&v.status&&v.status!=="vergleich"&&days(v.ab)>=0)rows.push({d:v.ab,k:"v",o:v})});
+  rows.sort(function(a,b){return a.d<b.d?-1:1});
+  var tr=function(t){return '<div class="zr"><button class="tbox" data-tdone="'+t.id+'" aria-label="'+esc(t.title)+' erledigt"></button><b data-task="'+t.id+'">'+esc(t.title||"Ohne Titel")+(t.wer?' <small style="color:var(--ink2)">· '+esc(t.wer)+'</small>':'')+'</b><span>'+(t.due?fmtD(t.due):'')+'</span></div>'};
+  var late=rows.filter(function(r){return r.k==="t"&&pd(r.d)<t0}),fut=rows.filter(function(r){return !(r.k==="t"&&pd(r.d)<t0)}),mon="",s='<div class="zl"><div class="acts"><span data-newev>+ Termin</span><span data-newtask>+ Aufgabe</span><span data-ics>Kalenderdatei</span></div>';
+  if(late.length)s+='<h4 class="late">überfällig · '+late.length+'</h4>'+late.map(function(r){return tr(r.o)}).join("");
+  fut.forEach(function(r){var d=pd(r.d.slice(0,10)),m=MON[d.getMonth()].toLowerCase()+' '+d.getFullYear();if(m!==mon){mon=m;s+='<h4>'+m+'</h4>'}
+    if(r.k==="t")s+=tr(r.o);else if(r.k==="e")s+='<div class="zr ev"><span>●</span><b data-ev="'+r.o.id+'">'+esc(r.o.title||"Termin")+(r.o.ort?' <small style="color:var(--ink2)">· '+esc(r.o.ort)+'</small>':'')+'</b><span>'+fmtD(r.o.date)+(r.o.time?' '+esc(r.o.time):'')+'</span></div>';
+    else s+='<div class="zr"><span>§</span><b data-vtr="'+r.o.id+'">'+esc(vtrLab(r.o))+'</b><span>'+fmtD(r.o.ab)+'</span></div>'});
+  s+='<h4>ohne datum · '+nd.length+'</h4>'+(nd.length?nd.map(tr).join(""):'<p class="mleer">Alles hat ein Datum.</p>');
+  return s+'</div>'}
+$("#full").addEventListener("click",function(e){var t=e.target,b;
+  if(t.closest("[data-fullx]")){closeFull();return}
+  if((b=t.closest("[data-prio]"))){var ip=I[b.dataset.prio];if(ip){ip.prio=prioOf(ip)%3+1;save();render();toast(shortName(ip)+": "+PRIO[ip.prio])}return}
+  if((b=t.closest("[data-card]"))){itemForm(b.dataset.card);return}
+  if((b=t.closest("[data-vtr]"))){vtrForm(b.dataset.vtr);return}
+  if((b=t.closest("[data-task]"))){taskForm(b.dataset.task);return}
+  if((b=t.closest("[data-ev]"))){eventForm(b.dataset.ev);return}
+  if((b=t.closest("[data-flel]"))){noteEdit(b.dataset.flel);return}
+  if((b=t.closest("[data-fladd]"))){var f=st.frames[b.dataset.fladd]||st.frames.user[b.dataset.fladd],cnt=st.els.filter(function(z){return z.x>f.x&&z.x<f.x+f.w&&z.y>f.y&&z.y<f.y+f.h}).length,ne={id:newId(),type:"note",x:f.x+30+(cnt%4)*210,y:f.y+60+Math.floor(cnt/4)*190,color:st.color,text:""};st.els.push(ne);noteEdit(ne.id);return}});
+
+/* ---------- Klicks der neuen Teile ---------- */
+document.addEventListener("click",function(e){var t=e.target,b;if(!t.closest)return;
+  if((b=t.closest("[data-tdone]"))){var tk=T[b.dataset.tdone];if(tk){tk.done=true;save();render();toast("Erledigt: "+tk.title)}return}
+  if(t.closest("[data-daten]")){datenForm();return}
+  if(t.closest("[data-areas]")){areasMenu();return}
+  if((b=t.closest("[data-fullopen]"))){$("#modal").innerHTML="";openFull(b.dataset.fullopen);return}
+  if(t.closest("[data-mx]")){$("#modal").innerHTML="";return}
+  if((b=t.closest("[data-trback]"))){var x=TRASH[b.dataset.trback];if(!x)return;var o=Object.assign({},x.d);delete o.deleted;delete TRASH[b.dataset.trback];if(STORE)STORE.put(x.c,x.id,o);window.TAFEL_APPLY(x.c,x.id,o);datenForm();toast("Zurückgeholt");return}
+  if((b=t.closest("[data-trpurge]"))){if(!b.dataset.sure){b.dataset.sure="1";b.textContent="Wirklich?";return}var y=TRASH[b.dataset.trpurge];if(!y)return;delete TRASH[b.dataset.trpurge];if(STORE)STORE.del(y.c,y.id);datenForm();toast("Endgültig gelöscht");return}
+  if(!t.closest("#rb"))return;var r=R[sheetId];if(!r)return;
+  if(t.closest("[data-rbunlock]")){if(!confirm("Grundriss entsperren?\n\nDer Grundriss stammt aus dem Originalplan. Räume, Türen und Fenster nur ändern, wenn du sicher bist. Zum Schluss wieder sperren."))return;sheetEdit=true;drawSheet();return}
+  if(t.closest("[data-rblock]")){sheetEdit=false;drawSheet();return}
+  if((b=t.closest("[data-opadd]"))){var kd=b.dataset.opadd;P[kd]=P[kd]||[];P[kd].push({room:sheetId,wall:"s",off:20,w:kd==="doors"?80:100});save();render();drawSheet();return}
+  if((b=t.closest("[data-ophinge]"))){var dr=P.doors[+b.dataset.ophinge];if(dr){if(dr.hinge==="end")delete dr.hinge;else dr.hinge="end";save();render();drawSheet()}return}
+  if((b=t.closest("[data-opdel]"))){var q=b.dataset.opdel.split(":");if(P[q[0]]&&confirm(q[0]==="doors"?"Diese Tür entfernen?":"Dieses Fenster entfernen?")){P[q[0]].splice(+q[1],1);save();render();drawSheet()}return}
+  if(t.closest("[data-roomadd]")){var nid="r"+Date.now().toString(36),mo=rooms().reduce(function(a,x){return Math.max(a,+x.order||0)},0);R[nid]={name:"Neuer Raum",x:PB.x+PB.w+40,y:PB.y,w:300,h:300,order:mo+1,photos:[]};save();render();openSheet(nid);sheetEdit=true;drawSheet();toast("Neuer Raum rechts neben dem Grundriss");return}
+  if(t.closest("[data-roomdel]")){if(!confirm("Raum „"+r.name+"“ löschen? Er landet im Papierkorb unter „daten“."))return;var od=Object.assign({},r,{deleted:new Date().toISOString()}),rid=sheetId;TRASH["rooms:"+rid]={c:"rooms",id:rid,d:od};if(STORE)STORE.put("rooms",rid,od);delete R[rid];delete last.rooms[rid];sheetEdit=false;$("#rb").classList.remove("open");sheetId=null;render();toast("Raum im Papierkorb");return}});
+
 /* ---------- Start ---------- */
-function syncTop(){$("#inp").textContent=st.input==="maus"?"maus":"touchpad";document.querySelectorAll("[data-color]").forEach(function(b){b.classList.toggle("on",b.dataset.color===st.color)})}
+function syncTop(){$("#inp").textContent=st.input==="maus"?"maus":"touchpad";$("#chk").classList.toggle("on",!!st.check);document.querySelectorAll("[data-color]").forEach(function(b){b.classList.toggle("on",b.dataset.color===st.color)})}
 var kdSent=[],kdT;function saveKD(){if(!STORE){st.kueche=KD;save();return}clearTimeout(kdT);kdT=setTimeout(function(){var j=JSON.stringify(KD);kdSent.push(j);if(kdSent.length>8)kdSent.shift();STORE.put("meta","kueche",KD)},300)}
-if(window.Kueche)Kueche.init({R:function(){return R},P:function(){return P},I:function(){return I},KD:function(){return KD},setKD:function(d){KD=d},saveKD:saveKD,
+if(window.Kueche)Kueche.init({ceil:function(){return CEIL},R:function(){return R},P:function(){return P},I:function(){return I},KD:function(){return KD},setKD:function(d){KD=d},saveKD:saveKD,
   savePlan:function(){if(STORE)STORE.put("meta","plan",P);render()},setItem:function(id,o){I[id]=o;var k=Object.assign({},o);delete k.x;delete k.y;delete k.rot;st.itemData[id]=k;save()},
   delItem:function(id){delete I[id];st.itemData[id]=null;delete st.itemPos[id];save()},fetchProduct:fetchProduct,esc:esc,toast:toast,IST:IST,DECL:DECL,render:function(){render()},modal:function(){return $("#modal")}});
-var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();
+var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();last.plan=JSON.stringify(P);last.settings=JSON.stringify(SETT);migrateIdeas();
 if(sv){V=sv;applyView()}else fit(planBox(),40);
 };
 if(!window.TAFEL_DEFER)window.startTafel();

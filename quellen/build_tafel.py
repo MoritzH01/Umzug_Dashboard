@@ -25,17 +25,17 @@ function login(){$("#modal").innerHTML='<div class="bg"><form id="lg"><h2>anmeld
 function toast(t){var e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display="none"},3000)}
 function load(session){if(started)return;started=true;$("#modal").innerHTML='<div class="bg"><form><h2>lade tafel …</h2></form></div>';
   sb.from("docs").select("coll,id,data").then(function(r){if(r.error){$("#modal").innerHTML='<div class="bg"><form><h2>datenbank antwortet nicht</h2><p class="note2">'+r.error.message+'</p></form></div>';return}
-    var S={rooms:{},items:{},tasks:{},contracts:{},events:{},utensils:{},costs:{},ausgleich:{},plan:null,settings:null,board:[],layout:null};
-    r.data.forEach(function(x){if(x.coll==="rooms"||x.coll==="items"||x.coll==="tasks"||x.coll==="contracts"||x.coll==="events"||x.coll==="utensils"||x.coll==="costs"||x.coll==="ausgleich")S[x.coll][x.id]=x.data;else if(x.coll==="board")S.board.push(x.data);else if(x.coll==="meta"&&x.id==="plan")S.plan=x.data;else if(x.coll==="meta"&&x.id==="settings")S.settings=x.data;else if(x.coll==="meta"&&x.id==="board")S.layout=x.data;else if(x.coll==="meta"&&x.id==="kueche")S.kueche=x.data});
+    var S={rooms:{},items:{},tasks:{},contracts:{},events:{},utensils:{},costs:{},ausgleich:{},ideas:{},plan:null,settings:null,board:[],layout:null};
+    r.data.forEach(function(x){if(x.coll==="rooms"||x.coll==="items"||x.coll==="tasks"||x.coll==="contracts"||x.coll==="events"||x.coll==="utensils"||x.coll==="costs"||x.coll==="ausgleich"||x.coll==="ideas")S[x.coll][x.id]=x.data;else if(x.coll==="board")S.board.push(x.data);else if(x.coll==="meta"&&x.id==="plan")S.plan=x.data;else if(x.coll==="meta"&&x.id==="settings")S.settings=x.data;else if(x.coll==="meta"&&x.id==="board")S.layout=x.data;else if(x.coll==="meta"&&x.id==="kueche")S.kueche=x.data});
     window.SEED=S;
     window.TAFEL_STORE={
       put:function(c,id,data){return sb.from("docs").upsert({coll:c,id:id,data:data,updated_at:new Date().toISOString()}).then(function(x){if(x.error)toast("Speichern hat nicht geklappt: "+x.error.message)})},
       del:function(c,id){return sb.from("docs").delete().eq("coll",c).eq("id",id).then(function(x){if(x.error)toast("Löschen hat nicht geklappt.")})}};
     window.UMZUG_LINK_FN=function(url){return sb.functions.invoke("produkt",{body:{url:url}}).then(function(x){if(x.error){var c=x.error.context;return (c&&c.json?c.json().catch(function(){return {}}):Promise.resolve({})).then(function(j){throw new Error(j.error||(c&&c.status?"Status "+c.status:x.error.message))})}if(!x.data||x.data.error)throw new Error((x.data&&x.data.error)||"keine Antwort");return x.data})};
     $("#modal").innerHTML="";window.startTafel();
-    var acct=$("#acct");acct.hidden=false;acct.innerHTML=(session.user.email||"")+' · <a href="#" id="logout">abmelden</a>';$("#to-list").hidden=false;$("#to-3d").hidden=false;
+    var acct=$("#acct");acct.hidden=false;acct.innerHTML=(session.user.email||"")+' · <a href="#" id="logout">abmelden</a>';$("#to-3d").hidden=false;
     $("#logout").onclick=function(e){e.preventDefault();sb.auth.signOut().then(function(){location.reload()})};
-    if(!Object.keys(S.rooms).length)toast("Noch keine Daten. In der Liste unter Daten kannst du deinen Export importieren.");
+    if(!Object.keys(S.rooms).length)toast("Noch keine Daten. Oben unter „daten“ kannst du deinen Export importieren.");
     sb.channel("tafel").on("postgres_changes",{event:"*",schema:"public",table:"docs"},function(p){var row=p.eventType==="DELETE"?p.old:p.new;if(row&&row.coll)window.TAFEL_APPLY(row.coll,row.id,p.eventType==="DELETE"?null:row.data)}).subscribe();
   })}
 sb.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s)load(s);else login()});

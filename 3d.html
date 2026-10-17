@@ -375,9 +375,9 @@ KK.newId=function(p){return (p||"k")+Date.now().toString(36)+Math.random().toStr
 /* Küche finden und Modell bauen. Alles in Raumkoordinaten (cm, Ursprung oben links). */
 KK.roomId=function(R,KD){if(KD&&KD.room&&R[KD.room])return KD.room;var ids=Object.keys(R||{}).filter(function(k){return R[k]&&!R[k].deleted&&/küche/i.test(R[k].name||"")});if(ids.length)return ids[0];return R&&R.kueche?"kueche":null};
 KK.isZeile=function(f,rid){return f&&f.room===rid&&/küche/i.test(f.n||"")};
-KK.model=function(R,P,KD,I){var rid=KK.roomId(R,KD);if(!rid)return null;var r=R[rid];P=P||{};
+KK.model=function(R,P,KD,I,ceil){var rid=KK.roomId(R,KD);if(!rid)return null;var r=R[rid];P=P||{};
   var mine=function(a){return (a||[]).filter(function(o){return o&&o.room===rid})};
-  var M={rid:rid,room:r,W:+r.w,H:+r.h,C:num(r.hoehe)||320,I:I||{},KD:KD||{room:rid,laeufe:[]},
+  var M={rid:rid,room:r,W:+r.w,H:+r.h,C:num(r.hoehe)||num(ceil)||320,I:I||{},KD:KD||{room:rid,laeufe:[]},
     doors:mine(P.doors),windows:mine(P.windows),ans:mine(P.anschluesse),
     fixed:mine(P.fixed).filter(function(f){return !KK.isZeile(f,rid)})};
   M.runs=(M.KD.laeufe||[]);M.runs.forEach(function(l){l.unten=l.unten||[];l.oben=l.oben||[]});

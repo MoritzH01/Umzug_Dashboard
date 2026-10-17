@@ -5,7 +5,7 @@ var $=function(q){return root.querySelector(q)};
 var num=function(v){return KK.num(v)};
 var esc=function(s){return A.esc(s)};
 var ro=function(){return window.matchMedia("(max-width:760px)").matches};
-function M(){return KK.model(A.R(),A.P(),A.KD(),A.I())}
+function M(){return KK.model(A.R(),A.P(),A.KD(),A.I(),A.ceil&&A.ceil())}
 function kd(){var d=A.KD();if(!d){var rid=KK.roomId(A.R(),null);d={room:rid,laeufe:[]};A.setKD(d)}d.laeufe=d.laeufe||[];return d}
 function commit(){A.saveKD();draw()}
 function savePlan(){A.savePlan();draw()}
