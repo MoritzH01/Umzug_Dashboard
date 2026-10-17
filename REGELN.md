@@ -34,9 +34,24 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 
 - Geometrie strikt nur aus dem Grundriss des Canvas (`rooms`, `meta/plan`). Nichts erfinden.
 - Oberflächen nur nach den Raumfotos (Tabelle `LOOK` je Raum in `quellen/3d/wohnung3d.tpl.html`); Räume ohne Foto bleiben neutral.
-- Hohe Wände fest, kein Umschalter. Vorerst keine Möbel.
+- Hohe Wände fest, kein Umschalter. Vorerst keine Möbel. Ausnahme: die Küchenläufe aus dem Küchenplaner als schlichte Körper (Korpus, Platte, Hängeschrank); Fliesenspiegel und Schieferfeld folgen dem Lauf mit Kochfeld. (17.10.2026)
 - Kaminvorsprünge (`meta/plan.fixed` mit „Kamin“ im Namen) gehen bis zur Decke. (17.10.2026)
 - Ansichten Puppenhaus, Draufsicht und Rundgang bleiben.
+
+## Küchenplaner (17.10.2026)
+
+- Overlay im Canvas für den Raum Küche, so gebaut, dass es später für andere Räume taugt. Geplant werden Bestand und Neues zusammen, Farben wie im Bauantrag.
+- Schlank, funktional, schick: Werkzeuge erscheinen erst, wenn etwas ausgewählt ist; trotzdem bleiben alle Funktionen erreichbar.
+- Datenmodell: Läufe in `meta/kueche`, je Lauf `{wand | frei, start, höhen, raster, elemente[]}` mit drei Ebenen (unten, oben, hoch). Positionen werden aus der Reihe berechnet, nicht frei gespeichert. Geräte sind `items` (mit Shop-Link über `produkt`) und liegen in Schrankfeldern; die Passung prüft das Nischenmaß.
+- Raster: Vorlage IKEA METOD (Breiten 20/30/40/60/80, Korpus 80, Füße 8, Hängeschrank 37 tief), pro Lauf editierbar.
+- Formen: Zeile, L, U, zweizeilig, Insel (Lauf ohne Wand). Ecken als Blende, kein eigenes Eckmodul.
+- Maße zentimetergenau mit Kettenmaß und Restmaß je Lauf. Unbekannte Werte bleiben leer und sind als „unbekannt“ markiert, nichts wird geraten.
+- Plan-Erweiterung für alle Räume: `meta/plan.anschluesse[]` `{room, wall, off, hoehe, typ}` (Wasser, Abfluss, Steckdose, Starkstrom, Abluft, Gas), Brüstung und Höhe je Fenster, Heizkörper als `fixed`.
+- Ansichten: Grundriss, Wandansicht je Wand, Stückliste mit Summe und Status (brauchen, bestellt, haben). Bearbeiten in Grundriss und Wandansicht.
+- Prüfungen nur als Hinweis, nie blockierend: Restmaß (Vorschlag Passleiste oder Schrank), Durchgang ≥ 120 cm, Spülmaschine neben Spüle, Kochfeld ≥ 20 cm zur Wand oder zum Hochschrank mit Ablage daneben, Gerät passt nicht in Nische, Schrank vor Fenster, Spüle oder Kochfeld weit vom Anschluss. Kein Arbeitsdreieck.
+- Die feste Küchenzeile aus `meta/plan.fixed` entfällt; die Küche wird frei geplant.
+- Handy: nur ansehen (Stückliste, Wandansicht). Bearbeiten am Laptop.
+- Umsetzung (17.10.2026): Quellen in `quellen/kueche/` (`kern.js` rechnet, `planer.js` und `planer.css` sind das Overlay, Variante 1: Grundriss links, Wandansicht rechts, Prüfung unten). Geöffnet wird der Planer im Raumblatt der Küche mit „Küche planen“. `start` und Positionen eines Laufs zählen von links, so wie man von innen auf die Wand schaut; Anschlüsse zählen wie Türen ab oben/links im Plan. Hochschränke stehen in der unteren Reihe, die obere Reihe springt über sie. Geräte sind `items` mit `typ: "geraet"` und `art`, das Element merkt sich `art` für die 3D-Ansicht. Schränke und Arbeitsplatte stehen nur in der Stückliste, nicht im Bereich Geld; Geräte zählen dort als Möbel mit.
 
 ## Möbel, Utensilien, Verkauf
 

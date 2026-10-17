@@ -4,6 +4,7 @@ import re,sys,os
 sys.argv[2:]=[os.path.abspath(a) for a in sys.argv[2:]];os.chdir(os.path.dirname(os.path.abspath(__file__)))  # Pfade relativ zu quellen/
 s=open('3d/wohnung3d.tpl.html',encoding='utf8').read()
 title=re.search(r'<title>.*?</title>',s).group(0);s=s.replace(title,'')
+s=s.replace('<!--BOOT-->','<script>\n'+open('kueche/kern.js',encoding='utf8').read()+'</script>\n<!--BOOT-->')  # Rechenkern des Küchenplaners
 if len(sys.argv)>3 and sys.argv[1]=='vorschau':
   seed=open(sys.argv[2],encoding='utf8').read()
   out=title+s.replace('<!--BOOT-->','<script>window.W3D('+seed+');</script>')
@@ -16,14 +17,14 @@ if(!CFG.supabaseUrl||!window.supabase){say("keine datenbank","In config.js fehlt
 if(!window.THREE){say("3d lädt nicht","Die 3D-Bibliothek konnte nicht geladen werden. Bitte Seite neu laden.");return}
 var sb=window.__sb=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey,{auth:{persistSession:true,autoRefreshToken:true}});
 document.getElementById("back").hidden=false;
-function load(){return sb.from("docs").select("coll,id,data").or("coll.eq.rooms,and(coll.eq.meta,id.eq.plan)").then(function(r){
-  if(r.error)throw r.error;var S={rooms:{},plan:null};
-  r.data.forEach(function(x){if(x.coll==="rooms")S.rooms[x.id]=x.data;else S.plan=x.data});return S})}
+function load(){return sb.from("docs").select("coll,id,data").or("coll.eq.rooms,and(coll.eq.meta,id.in.(plan,kueche))").then(function(r){
+  if(r.error)throw r.error;var S={rooms:{},plan:null,kueche:null};
+  r.data.forEach(function(x){if(x.coll==="rooms")S.rooms[x.id]=x.data;else if(x.coll==="meta"&&x.id==="kueche")S.kueche=x.data;else if(x.coll==="meta"&&x.id==="plan")S.plan=x.data});return S})}
 sb.auth.getSession().then(function(r){
   if(!r.data||!r.data.session){say("bitte anmelden",'Die 3D-Ansicht nutzt die Anmeldung des Canvas. <a href="index.html">Zum Canvas</a>');return}
   load().then(function(S){var view=window.W3D(S),t=null;
     sb.channel("w3d").on("postgres_changes",{event:"*",schema:"public",table:"docs"},function(p){var row=p.new&&p.new.coll?p.new:p.old;
-      if(!row||(row.coll!=="rooms"&&!(row.coll==="meta"&&row.id==="plan")))return;clearTimeout(t);t=setTimeout(function(){load().then(view.update)},400)}).subscribe();
+      if(!row||(row.coll!=="rooms"&&!(row.coll==="meta"&&(row.id==="plan"||row.id==="kueche"))))return;clearTimeout(t);t=setTimeout(function(){load().then(view.update)},400)}).subscribe();
   }).catch(function(e){say("datenbank antwortet nicht",String(e&&e.message||e))})});
 })();
 </script>'''

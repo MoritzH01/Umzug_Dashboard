@@ -419,16 +419,17 @@ window.TAFEL_APPLY=function(c,id,data){var j=data?JSON.stringify(data):null;
   else if(c==="meta"&&id==="settings"&&data)SETT=data;
   else if(c==="rooms"){if(!data||data.deleted){delete R[id];delete last.rooms[id]}else{if(last.rooms[id]===j)return;R[id]=data;last.rooms[id]=j}}
   else if(c==="meta"&&id==="plan"&&data)P=data;
+  else if(c==="meta"&&id==="kueche"&&data){if(kdSent.indexOf(j)>=0)return;KD=data;if(window.Kueche)Kueche.refresh()}
   else if(c==="meta"&&id==="board"&&data){st.frames=Object.assign(defaults().frames,data);st.frames.user=st.frames.user||{};last.frames=JSON.stringify(st.frames)}
   else return;
   if(busy())pending=true;else render()};
 setInterval(function(){if(pending&&!busy()){pending=false;render()}},700);
 
-var R=SEED.rooms||{},P=SEED.plan||{doors:[],windows:[],fixed:[]},I=SEED.items||{},T=SEED.tasks||{},C=SEED.contracts||{},E=SEED.events||{},U=SEED.utensils||{},K=SEED.costs||{},A=SEED.ausgleich||{},SETT=SEED.settings||{};
+var R=SEED.rooms||{},P=SEED.plan||{doors:[],windows:[],fixed:[]},I=SEED.items||{},T=SEED.tasks||{},C=SEED.contracts||{},E=SEED.events||{},U=SEED.utensils||{},K=SEED.costs||{},A=SEED.ausgleich||{},SETT=SEED.settings||{},KD=SEED.kueche||null;
 [R,I,T,C,E,U,K,A].forEach(function(m){Object.keys(m).forEach(function(k){if(m[k]&&m[k].deleted)delete m[k]})});
 Object.keys(st.itemData).forEach(function(id){if(st.itemData[id]===null)delete I[id];else I[id]=Object.assign({},I[id]||{},st.itemData[id])});
 Object.keys(st.itemPos).forEach(function(id){if(I[id])Object.assign(I[id],st.itemPos[id])});
-if(!STORE&&st.tasks)T=st.tasks;if(!STORE)st.tasks=T;if(!STORE&&st.contracts)C=st.contracts;if(!STORE)st.contracts=C;if(!STORE&&st.events)E=st.events;if(!STORE)st.events=E;if(!STORE&&st.utensils)U=st.utensils;if(!STORE)st.utensils=U;if(!STORE&&st.costs)K=st.costs;if(!STORE)st.costs=K;if(!STORE&&st.ausgleich)A=st.ausgleich;if(!STORE)st.ausgleich=A;if(!STORE&&st.settings)SETT=st.settings;if(!STORE)st.settings=SETT;
+if(!STORE&&st.tasks)T=st.tasks;if(!STORE)st.tasks=T;if(!STORE&&st.contracts)C=st.contracts;if(!STORE)st.contracts=C;if(!STORE&&st.events)E=st.events;if(!STORE)st.events=E;if(!STORE&&st.utensils)U=st.utensils;if(!STORE)st.utensils=U;if(!STORE&&st.costs)K=st.costs;if(!STORE)st.costs=K;if(!STORE&&st.ausgleich)A=st.ausgleich;if(!STORE)st.ausgleich=A;if(!STORE&&st.settings)SETT=st.settings;if(!STORE)st.settings=SETT;if(!STORE&&st.kueche)KD=st.kueche;
 
 /* ---------- Helfer ---------- */
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -475,7 +476,8 @@ function planSVG(){var b=PB,s='';
   s+='<g class="axis l1">';xs.forEach(function(x,i){s+='<line x1="'+x+'" y1="'+(b.y-48)+'" x2="'+x+'" y2="'+(b.y+b.h+10)+'"/><circle cx="'+x+'" cy="'+(b.y-56)+'" r="10"/><text x="'+x+'" y="'+(b.y-56)+'">'+(i+1)+'</text>'});
   ys.forEach(function(y,i){s+='<line x1="'+(b.x-48)+'" y1="'+y+'" x2="'+(b.x+b.w+10)+'" y2="'+y+'"/><circle cx="'+(b.x-56)+'" cy="'+y+'" r="10"/><text x="'+(b.x-56)+'" y="'+y+'">'+String.fromCharCode(65+i)+'</text>'});s+='</g>';
   rooms().forEach(function(r){s+='<rect class="room-floor'+(r.outdoor?' out':'')+'" data-room="'+r.id+'" x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'"/>'});
-  (P.fixed||[]).forEach(function(f){var r=R[f.room];if(!r)return;s+='<g class="fixed"><rect x="'+(r.x+f.dx)+'" y="'+(r.y+f.dy)+'" width="'+f.w+'" height="'+f.h+'"/><text class="fl2 l2" x="'+(r.x+f.dx+3)+'" y="'+(r.y+f.dy+9)+'">'+esc(f.n)+'</text></g>'});
+  (P.fixed||[]).forEach(function(f){var r=R[f.room];if(!r||(window.KK&&KK.isZeile(f,KK.roomId(R,KD))))return;s+='<g class="fixed"><rect x="'+(r.x+f.dx)+'" y="'+(r.y+f.dy)+'" width="'+f.w+'" height="'+f.h+'"/><text class="fl2 l2" x="'+(r.x+f.dx+3)+'" y="'+(r.y+f.dy+9)+'">'+esc(f.n)+'</text></g>'});
+  if(window.Kueche)s+=Kueche.planSVG();
   rooms().forEach(function(r){s+='<rect class="wall" x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'"'+(r.outdoor?' style="stroke-width:3"':'')+'/>'});
   (P.windows||[]).map(opening).filter(Boolean).forEach(function(g){var o=g.h?[0,3]:[3,0];s+='<line class="gap" x1="'+g.x1+'" y1="'+g.y1+'" x2="'+g.x2+'" y2="'+g.y2+'" style="stroke-width:11"/><line class="win" x1="'+(g.x1-o[1])+'" y1="'+(g.y1-o[0])+'" x2="'+(g.x2-o[1])+'" y2="'+(g.y2-o[0])+'"/><line class="win" x1="'+(g.x1+o[1])+'" y1="'+(g.y1+o[0])+'" x2="'+(g.x2+o[1])+'" y2="'+(g.y2+o[0])+'"/><line class="win" x1="'+g.x1+'" y1="'+g.y1+'" x2="'+g.x2+'" y2="'+g.y2+'" style="stroke-width:.6"/>'});
   (P.doors||[]).map(function(o){var g=opening(o);if(g)g.o=o;return g}).filter(Boolean).forEach(function(g){var r=g.r,w=g.w,ins;s+='<line class="gap" x1="'+g.x1+'" y1="'+g.y1+'" x2="'+g.x2+'" y2="'+g.y2+'"/>';
@@ -918,6 +920,7 @@ document.addEventListener("click",function(e){var t=e.target,b;
   if((b=t.closest("[data-uitem]"))){uForm(b.dataset.uitem);return}
   if((b=t.closest("[data-vadd]"))){vtrForm(null,b.dataset.vadd?{kat:b.dataset.vadd}:null);return}
   if((b=t.closest("[data-sheet]"))){openSheet(b.dataset.sheet);return}
+  if(t.closest("[data-kplan]")){if(window.Kueche)Kueche.open();return}
   if((b=t.closest("[data-undue]"))){var ue=getEl(b.dataset.undue);if(ue){delete ue.due;save();render();toast("Datum entfernt")}return}
   if((b=t.closest("[data-lb]"))){var p=b.dataset.lb.split(":");$("#lb img").src=R[p[0]].photos[+p[1]];$("#lb").classList.add("open");return}
   if(t.closest("#lb")){$("#lb").classList.remove("open");return}
@@ -1108,7 +1111,7 @@ function openSheet(rid){if(!R[rid])return;sheetId=rid;drawSheet();$("#rb").class
 function drawSheet(){var rid=sheetId,r0=R[rid];if(!rid)return;if(!r0){$("#rb").classList.remove("open");sheetId=null;return}
   var r=Object.assign({id:rid},r0),its=itemsIn(rid),ts=tasksFor(rid),ds=(P.doors||[]).filter(function(d){return d.room===rid}).length,ws=(P.windows||[]).filter(function(d){return d.room===rid}).length,ph=r.photos||[],ln=splitLines(r.links);
   $("#rb").innerHTML='<button class="close" data-close>Schließen</button><small style="font:500 10px var(--mono);letter-spacing:.1em;text-transform:lowercase;color:var(--ink2)">Raumblatt</small><h2>'+esc(r.name)+'</h2><div class="meta">'+(r.w/100).toFixed(2).replace(".",",")+' × '+(r.h/100).toFixed(2).replace(".",",")+' m · '+(r.w*r.h/1e4).toFixed(1).replace(".",",")+' m² · '+ds+' Tür'+(ds===1?'':'en')+' · '+ws+' Fenster</div>'+
-  '<h3>fotos</h3>'+(ph.length?'<div class="phs">'+ph.map(function(p,i){return '<div class="pw"><img src="'+p+'" data-lb="'+rid+':'+i+'" alt="Foto '+esc(r.name)+'"><button class="phx" data-phdel="'+i+'" aria-label="Foto entfernen" title="Foto entfernen">×</button></div>'}).join("")+'</div>':'<p class="hint2">Noch keine Fotos.</p>')+
+  (window.Kueche&&KK.roomId(R,KD)===rid?'<div class="rbrow"><button class="rbtn" data-kplan>Küche planen</button><span class="hint2">Schränke, Geräte, Maße</span></div>':'')+'<h3>fotos</h3>'+(ph.length?'<div class="phs">'+ph.map(function(p,i){return '<div class="pw"><img src="'+p+'" data-lb="'+rid+':'+i+'" alt="Foto '+esc(r.name)+'"><button class="phx" data-phdel="'+i+'" aria-label="Foto entfernen" title="Foto entfernen">×</button></div>'}).join("")+'</div>':'<p class="hint2">Noch keine Fotos.</p>')+
   '<div class="rbrow"><label class="rbtn">Fotos hinzufügen<input type="file" id="rb-file" accept="image/*" multiple hidden></label><span class="hint2">oder mit Strg+V einfügen</span></div>'+
   '<h3>notizen</h3><textarea id="rb-notiz" placeholder="Maße, Ideen, Mängel, was noch fehlt …">'+esc(r.notiz||"")+'</textarea>'+
   '<h3>links und sonstiges</h3>'+(ln.length?ln.map(function(l,i){var o=parseLink(l);return '<div class="lnk">'+(o.u?'<a href="'+esc(o.u)+'" target="_blank" rel="noopener">'+esc(o.t)+'</a>':'<span>'+esc(o.t)+'</span>')+'<button data-lndel="'+i+'" aria-label="Eintrag entfernen" title="Entfernen">×</button></div>'}).join(""):'<p class="hint2">Shop-Links, Pinterest, Angebote oder kurze Stichpunkte.</p>')+
@@ -1127,6 +1130,10 @@ function addRoomLink(){var r=R[sheetId];if(!r)return;var t=$("#rb-lt").value.tri
 
 /* ---------- Start ---------- */
 function syncTop(){$("#inp").textContent=st.input==="maus"?"maus":"touchpad";document.querySelectorAll("[data-color]").forEach(function(b){b.classList.toggle("on",b.dataset.color===st.color)})}
+var kdSent=[],kdT;function saveKD(){if(!STORE){st.kueche=KD;save();return}clearTimeout(kdT);kdT=setTimeout(function(){var j=JSON.stringify(KD);kdSent.push(j);if(kdSent.length>8)kdSent.shift();STORE.put("meta","kueche",KD)},300)}
+if(window.Kueche)Kueche.init({R:function(){return R},P:function(){return P},I:function(){return I},KD:function(){return KD},setKD:function(d){KD=d},saveKD:saveKD,
+  savePlan:function(){if(STORE)STORE.put("meta","plan",P);render()},setItem:function(id,o){I[id]=o;var k=Object.assign({},o);delete k.x;delete k.y;delete k.rot;st.itemData[id]=k;save()},
+  delItem:function(id){delete I[id];st.itemData[id]=null;delete st.itemPos[id];save()},fetchProduct:fetchProduct,esc:esc,toast:toast,IST:IST,DECL:DECL,render:function(){render()},modal:function(){return $("#modal")}});
 var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();
 if(sv){V=sv;applyView()}else fit(planBox(),40);
 };

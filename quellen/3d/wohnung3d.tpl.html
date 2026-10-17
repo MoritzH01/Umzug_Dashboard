@@ -68,7 +68,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--blau);outline-offse
 /* 3D-Modell der neuen Wohnung. Geometrie nur aus dem Grundriss der Tafel (rooms, meta/plan),
    Oberflächen nur aus den Raumfotos. Keine Möbel. Aufruf: window.W3D(seed) → {update(seed)} */
 window.W3D=function(SEED){
-var R,P,H=320,T=15,EYE=165;
+var R,P,KD=null,H=320,T=15,EYE=165;
 var state={view:"haus"};
 
 /* Oberflächen je Raum, abgelesen aus den Fotos vom 16.10.2026.
@@ -215,15 +215,10 @@ function buildFloors(){
 
 /* Einbauten aus dem Grundriss, Aussehen nach Foto */
 function buildFixed(){
-  (P.fixed||[]).forEach(function(f){var r=R[f.room];if(!r)return;var g=new THREE.Group(),n=(f.n||"").toLowerCase(),w=+f.w,d=+f.h;
+  (P.fixed||[]).forEach(function(f){var r=R[f.room];if(!r||(window.KK&&KK.isZeile(f,KK.roomId(R,KD))))return;var g=new THREE.Group(),n=(f.n||"").toLowerCase(),w=+f.w,d=+f.h;
     function b(W,Hh,D,m,x,y,z){return box(W,Hh,D,m,x,y,z,g)}
     if(/wanne/.test(n)){b(w,55,d,texMat(TX.badTile,w/50,1,{roughness:.3}),0,27.5,0);b(w-12,4,d-12,M(0xeef1f2,{roughness:.15}),0,55,0)}
     else if(/wasch/.test(n)){b(w,6,d,MAT.white,0,84,0);b(w*.9,52,d*.85,MAT.white,0,52,-d*.05)}
-    else if(/küche/.test(n)){var dd=Math.max(d,60),nn=Math.max(1,Math.round(w/60));
-      /* Holzgestell mit Edelstahlplatte, Hängeschrank Edelstahl (Fotos Küche) */
-      b(w,80,dd-6,MAT.wood,0,46,0);b(w+2,3,dd,MAT.steel,0,87.5,0);
-      for(var i=0;i<=nn;i++)b(5,86,5,MAT.wood,-w/2+2.5+i*(w-5)/nn,43,dd/2-2.5);
-      b(w*.6,62,35,MAT.steel,-w*.05,190,-dd/2+17.5)}
     else if(/schrank/.test(n)){/* Einbauschrank: weißer Rahmen, vier Holztüren (Foto Flur) */
       var along=Math.max(w,d),deep=Math.min(w,d),hh=240,gg=new THREE.Group();g.add(gg);
       box(along,hh,deep,MAT.white,0,hh/2,0,gg);var vv=M(0xffffff,{map:TX.veneer,roughness:.55}),dw=along/2-9;
@@ -235,16 +230,30 @@ function buildFixed(){
     g.position.set(r.x+(+f.dx)+w/2,0,r.y+(+f.dy)+d/2);g.userData.room=f.room;built.fixed.add(g)});
   /* Details aus Fotos, die nicht im Grundriss stehen */
   Object.keys(R).forEach(function(rid){var r=R[rid],L=LOOK[rid]||{};
-    if(L.kitchen){var kz=(P.fixed||[]).filter(function(f){return f.room===rid&&/küche/i.test(f.n)})[0];
-      if(kz){var x0=r.x+(+kz.dx),y0=r.y+(+kz.dy);
-        box(+kz.w,75,1,texMat(TX.wallTile,kz.w/80,75/80,{roughness:.3}),x0+kz.w/2,90+37.5,y0+.8,built.deco,false);
-        var sl=plane(110,70,texMat(TX.slate,1,.7,{roughness:.7}),built.deco);sl.rotation.x=-Math.PI/2;sl.position.set(x0+kz.w*.55,.3,y0+(+kz.h)+35)}}
     if(L.klo){/* Stirnseite am Fenster: weiße Fliesen bis 125 cm, helle Bodenfliesen, WC an der Wand */
       var ex=r.x+r.w;box(1,125,r.h,texMat(TX.wallTile,r.h/80,125/80,{roughness:.3}),ex-.8,62.5,r.y+r.h/2,built.deco,false);
       [r.y+.8,r.y+r.h-.8].forEach(function(z){box(60,125,1,texMat(TX.wallTile,60/80,125/80,{roughness:.3}),ex-30,62.5,z,built.deco,false)});
       var bt=plane(80,r.h,texMat(TX.beige,80/30,r.h/30,{roughness:.4}),built.deco);bt.rotation.x=-Math.PI/2;bt.position.set(ex-40,.4,r.y+r.h/2);
       box(52,30,36,MAT.white,ex-27,40,r.y+r.h/2,built.deco);box(52,4,38,MAT.white,ex-27,57,r.y+r.h/2,built.deco)}
   });
+}
+
+/* Küchenläufe aus dem Küchenplaner als schlichte Körper. Fliesenspiegel und Schieferfeld folgen dem Lauf mit Kochfeld. */
+function buildKitchen(){if(!window.KK||!KD)return;var M0=KK.model(R,P,KD,{});if(!M0||!M0.runs.length)return;var r=M0.room,front=M(0xf3f2ee,{roughness:.45}),old=M(0xdcdcd6,{roughness:.6}),plinth=M(0x3a4157,{roughness:.8});
+  M0.runs.forEach(function(l){var ra=KK.ras(l),top=+ra.sockel+(+ra.korpus);
+    KK.boxes(M0,l).forEach(function(x){var q=x.r,cx=r.x+q[0]+q[2]/2,cz=r.y+q[1]+q[3]/2,e=x.e,mat=e.dec==="bestand"?old:front,a=KK.art(M0,e);
+      if(e.typ==="regal"){[0,38,76].forEach(function(dz){box(q[2],3,q[3],MAT.wood,cx,x.z0+dz,cz,built.fixed)});return}
+      if(e.typ==="abzug"){box(q[2]-2,6,q[3],MAT.steel,cx,x.z0+3,cz,built.fixed);return}
+      var h=x.z1-x.z0;if(x.lv==="unten"){box(q[2]-1,+ra.sockel,q[3]-6,plinth,cx,+ra.sockel/2,cz,built.fixed)}
+      box(q[2]-1,h,q[3],mat,cx,x.z0+h/2,cz,built.fixed);
+      if(x.lv==="unten"&&a==="kochfeld")box(Math.min(q[2],58)-4,1,Math.min(q[3],52)-4,MAT.slab,cx,top+(+ra.platte)+.5,cz,built.fixed,false)});
+    KK.platte(l).forEach(function(seg){var q=KK.rect(M0,l,seg[0],seg[1]-seg[0],+ra.tiefe);box(q[2],+ra.platte,q[3]+(l.wand?0:0),MAT.steel,r.x+q[0]+q[2]/2,top+(+ra.platte)/2,r.y+q[1]+q[3]/2,built.fixed)});
+    var L=KK.layout(M0,l),kf=L.unten.filter(function(it){return KK.art(M0,it.e)==="kochfeld"})[0];if(!kf||!l.wand)return;
+    /* Fliesen hinter der Arbeitsplatte, so lang wie der Lauf, bis zu den Hängeschränken */
+    var len=Math.max(L.end,1),q=KK.rect(M0,l,0,len,1),th=+ra.abstand,y0=top+(+ra.platte),tile=texMat(TX.wallTile,len/80,th/80,{roughness:.3}),b=box(l.wand==="n"||l.wand==="s"?len:1,th,l.wand==="n"||l.wand==="s"?1:len,tile,r.x+q[0]+q[2]/2,y0+th/2,r.y+q[1]+q[3]/2,built.deco,false);
+    /* Schieferfeld vor dem Kochfeld */
+    var d=+ra.tiefe,k=KK.rect(M0,l,kf.off,kf.b,d),sl=plane(l.wand==="n"||l.wand==="s"?110:70,l.wand==="n"||l.wand==="s"?70:110,texMat(TX.slate,1,.7,{roughness:.7}),built.deco);sl.rotation.x=-Math.PI/2;
+    var mx=r.x+k[0]+k[2]/2,mz=r.y+k[1]+k[3]/2;if(l.wand==="n")mz=r.y+d+35;if(l.wand==="s")mz=r.y+r.h-d-35;if(l.wand==="w")mx=r.x+d+35;if(l.wand==="e")mx=r.x+r.w-d-35;sl.position.set(mx,.3,mz)});
 }
 
 /* ---------- Ansichten ---------- */
@@ -309,7 +318,7 @@ window.addEventListener("resize",frame);
 /* ---------- Aufbau ---------- */
 function build(seed){
   R={};Object.keys(seed.rooms||{}).forEach(function(k){var r=seed.rooms[k];if(r&&!r.deleted&&+r.w>0&&+r.h>0)R[k]=Object.assign({},r,{x:+r.x,y:+r.y,w:+r.w,h:+r.h})});
-  P=seed.plan||{doors:[],windows:[],fixed:[]};
+  P=seed.plan||{doors:[],windows:[],fixed:[]};KD=seed.kueche||null;
   clearAll();hl=null;
   bb={x0:1e9,y0:1e9,x1:-1e9,y1:-1e9};
   Object.keys(R).forEach(function(k){var r=R[k];bb.x0=Math.min(bb.x0,r.x);bb.y0=Math.min(bb.y0,r.y);bb.x1=Math.max(bb.x1,r.x+r.w);bb.y1=Math.max(bb.y1,r.y+r.h)});
@@ -319,7 +328,7 @@ function build(seed){
   OPEN=[];
   (P.doors||[]).forEach(function(d){var g=opening(d);if(g){g.kind="door";g.room=d.room;OPEN.push(g)}});
   (P.windows||[]).forEach(function(d){var g=opening(d);if(g){g.kind="win";g.room=d.room;OPEN.push(g)}});
-  buildFloors();buildWalls();buildFixed();
+  buildFloors();buildWalls();buildFixed();buildKitchen();
   built.ceil.visible=state.view==="gehen";built.labels.visible=state.view!=="gehen";
   if(shown)showRoom(shown);
 }
