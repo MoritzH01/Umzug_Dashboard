@@ -349,7 +349,7 @@ function load(){return sb.from("docs").select("coll,id,data").or("coll.eq.rooms,
   if(r.error)throw r.error;var S={rooms:{},plan:null};
   r.data.forEach(function(x){if(x.coll==="rooms")S.rooms[x.id]=x.data;else S.plan=x.data});return S})}
 sb.auth.getSession().then(function(r){
-  if(!r.data||!r.data.session){say("bitte anmelden",'Die 3D-Ansicht nutzt die Anmeldung der Tafel. <a href="index.html">Zur Tafel</a>');return}
+  if(!r.data||!r.data.session){say("bitte anmelden",'Die 3D-Ansicht nutzt die Anmeldung des Canvas. <a href="index.html">Zum Canvas</a>');return}
   load().then(function(S){var view=window.W3D(S),t=null;
     sb.channel("w3d").on("postgres_changes",{event:"*",schema:"public",table:"docs"},function(p){var row=p.new&&p.new.coll?p.new:p.old;
       if(!row||(row.coll!=="rooms"&&!(row.coll==="meta"&&row.id==="plan")))return;clearTimeout(t);t=setTimeout(function(){load().then(view.update)},400)}).subscribe();
