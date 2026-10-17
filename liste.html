@@ -4,6 +4,7 @@
 <meta name="theme-color" content="#e9ebea"><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23e9ebea'/><text x='6' y='24' font-size='22' font-family='Arial' font-weight='700' fill='%231d1f20'>U</text><circle cx='25' cy='22' r='3' fill='%23e34a2f'/></svg>">
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="feedback.js"></script>
 </head><body>
 
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -424,7 +425,7 @@ function render(){if(!backend)return;renderHead();var v=$("#view"),fn={heute:vHe
 function renderHead(){
   $("#tabs").innerHTML=TABS.map(function(t){return '<button role="tab" data-tab="'+t[0]+'" aria-selected="'+(UI.tab===t[0])+'">'+t[1]+'</button>'}).join("");
   var d=daysUntil(S.meta.moveDate);$("#cd").innerHTML=d==null?"":(d>=0?'<b>'+d+'</b> Tage bis '+dShort(S.meta.moveDate):'Umzug war am '+dShort(S.meta.moveDate));
-  var m=$("#mode");if(backend&&backend.kind==="supabase"){m.hidden=false;m.innerHTML=esc(window.__sbUser||"Angemeldet")+' · <a href="#" data-setpw style="color:inherit">Passwort</a> · <a href="#" data-logout style="color:inherit">Abmelden</a>'}else if(backend&&backend.kind==="local"){m.hidden=false;m.textContent="Nur in diesem Browser gespeichert"}else if(readOnly){m.hidden=false;m.textContent="Nur lesen"}else m.hidden=true;
+  var m=$("#mode");if(backend&&backend.kind==="supabase"){m.hidden=false;m.innerHTML=esc(window.__sbUser||"Angemeldet")+' · <a href="#" data-logout style="color:inherit">Abmelden</a>'}else if(backend&&backend.kind==="local"){m.hidden=false;m.textContent="Nur in diesem Browser gespeichert"}else if(readOnly){m.hidden=false;m.textContent="Nur lesen"}else m.hidden=true;
 }
 function taskMeta(t){return [t.bereich?'<span class="tagm">'+esc(BEREICHE[t.bereich]||t.bereich)+'</span>':'',t.raum&&S.rooms[t.raum]?'<span class="tagm">'+esc(roomName(t.raum))+'</span>':'',t.wer?'<span class="tagm">'+esc(t.wer)+'</span>':''].join("")}
 
@@ -725,21 +726,18 @@ function doImport(file){if(readOnly){toast("Du kannst hier nur lesen.");return}v
 /* ================= Start ================= */
 var started=false;function start(db){if(started)return;started=true;backend=db?dbBackend(db):localBackend();render()}
 var CFG=window.UMZUG_CONFIG||{};
-function loginView(msg){var v=$("#view");v.innerHTML='<section class="panel" style="max-width:420px;margin:40px auto"><h2>Anmelden</h2><form id="login" style="display:grid;gap:10px"><input type="email" required id="login-mail" autocomplete="email" placeholder="Mail-Adresse"><input type="password" id="login-pw" autocomplete="current-password" placeholder="Passwort"><button class="btn">Anmelden</button></form><p class="hint" style="margin-top:12px">Noch kein Passwort oder vergessen? <a href="#" id="login-link">Link per Mail schicken</a>. Danach kannst du oben unter „Passwort“ eins festlegen.</p><p class="hint" id="login-msg">'+(msg||"")+'</p></section>';
+function loginView(msg){var v=$("#view");v.innerHTML='<section class="panel" style="max-width:420px;margin:40px auto"><h2>Anmelden</h2><form id="login" style="display:grid;gap:10px"><input type="email" required id="login-mail" autocomplete="email" placeholder="Mail-Adresse"><button class="btn" id="login-go">Link schicken</button></form><p class="hint" style="margin-top:12px">Du bekommst einen Link per Mail. Tipp ihn auf diesem Gerät an, dann bleibst du hier angemeldet, bis du dich abmeldest.</p><p class="hint" id="login-msg">'+(msg||"")+'</p></section>';
   var say=function(t){$("#login-msg").textContent=t};
-  $("#login").addEventListener("submit",function(e){e.preventDefault();var mail=$("#login-mail").value.trim(),pw=$("#login-pw").value;if(!pw){say("Bitte Passwort eingeben, oder unten einen Link schicken lassen.");return}say("Melde an …");
-    window.__sb.auth.signInWithPassword({email:mail,password:pw}).then(function(r){if(r.error)say(/invalid/i.test(r.error.message)?"Mail oder Passwort stimmt nicht.":"Das hat nicht geklappt: "+r.error.message)})});
-  $("#login-link").addEventListener("click",function(e){e.preventDefault();var mail=$("#login-mail").value.trim();if(!mail){say("Bitte zuerst deine Mail-Adresse eingeben.");return}say("Wird gesendet …");
-    window.__sb.auth.signInWithOtp({email:mail,options:{shouldCreateUser:true,emailRedirectTo:location.origin+location.pathname}}).then(function(r){say(r.error?((/database error|nicht erlaubt|not allowed/i.test(r.error.message)?"Diese Adresse ist nicht freigegeben.":"Das hat nicht geklappt: "+r.error.message)):"Schau in dein Postfach und tipp auf den Link.")})})}
-function pwView(){var m=$("#modal");m.innerHTML='<div style="position:fixed;inset:0;background:rgba(20,22,23,.35);display:grid;place-items:center;z-index:50"><section class="panel" style="max-width:380px;width:calc(100% - 32px)"><h2>Passwort festlegen</h2><form id="pwf" style="display:grid;gap:10px"><input type="password" id="pw1" minlength="8" required autocomplete="new-password" placeholder="Neues Passwort (mind. 8 Zeichen)"><input type="password" id="pw2" required autocomplete="new-password" placeholder="Nochmal"><div class="row" style="gap:8px"><button class="btn">Speichern</button><button type="button" class="btn ghost" id="pwx">Abbrechen</button></div></form><p class="hint" id="pw-msg"></p></section></div>';
-  $("#pwx").onclick=function(){m.innerHTML=""};
-  $("#pwf").addEventListener("submit",function(e){e.preventDefault();var a=$("#pw1").value,b=$("#pw2").value;if(a!==b){$("#pw-msg").textContent="Die beiden Passwörter sind nicht gleich.";return}
-    window.__sb.auth.updateUser({password:a}).then(function(r){if(r.error)$("#pw-msg").textContent="Das hat nicht geklappt: "+r.error.message;else{m.innerHTML="";toast("Passwort gespeichert")}})})}
+  try{var last=localStorage.getItem("umzug-mail");if(last)$("#login-mail").value=last}catch(e){}
+  $("#login").addEventListener("submit",function(e){e.preventDefault();var mail=$("#login-mail").value.trim().toLowerCase();if(!mail)return;try{localStorage.setItem("umzug-mail",mail)}catch(x){}
+    $("#login-go").disabled=true;say("Wird gesendet …");
+    window.__sb.auth.signInWithOtp({email:mail,options:{shouldCreateUser:true,emailRedirectTo:location.origin+location.pathname}}).then(function(r){$("#login-go").disabled=false;
+      if(!r.error){say("Schau in dein Postfach ("+mail+") und tipp auf den Link.");return}
+      var t=r.error.message||"";say(/database error|nicht erlaubt|not allowed/i.test(t)?"Diese Adresse ist nicht freigegeben.":/rate|seconds|too many/i.test(t)?"Gerade wurden zu viele Links verschickt. Bitte etwas warten und nochmal versuchen.":"Das hat nicht geklappt: "+t)})})}
 function startSb(sb,session){if(started)return;window.__sbUser=session.user&&session.user.email;$("#view").innerHTML='<p class="empty">Daten werden geladen …</p>';
   sb.from("docs").select("coll,id,data").then(function(r){if(r.error){$("#view").innerHTML='<p class="empty">Die Datenbank antwortet nicht: '+esc(r.error.message)+'</p>';return}
     started=true;backend=sbBackend(sb,r.data);if(!r.data.length){UI.tab="daten";toast("Noch leer. Unter Sicherung die Datei startdaten.json importieren.")}render()})}
 document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("[data-logout]");if(t){e.preventDefault();window.__sb.auth.signOut().then(function(){location.reload()})}});
-document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("[data-setpw]");if(t){e.preventDefault();pwView()}});
 if(CFG.supabaseUrl&&CFG.supabaseKey&&window.supabase){
   var sb=window.__sb=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   sb.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s)startSb(sb,s);else loginView()});
