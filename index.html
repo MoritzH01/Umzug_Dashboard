@@ -224,6 +224,7 @@ body.lod0 .l0b{display:flex}
 #bar{left:16px;right:16px;top:14px;height:54px}
 .logo{display:flex;align-items:center;gap:5px;font:700 23px var(--sans);letter-spacing:-.05em;color:var(--ink);padding:0 6px 3px 10px}
 .logo svg{width:15px;height:15px;margin-top:6px}
+#to-3d{border:1.5px solid var(--ink);margin-right:4px}
 .sws{display:flex;gap:0;margin-right:4px}
 .sws button{padding:6px 5px}
 .sw{width:18px;height:18px;border-radius:50%;border:1px solid rgba(28,42,75,.18);display:inline-block}
@@ -283,6 +284,7 @@ body.lod0 .l0b{display:flex}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;font-size:13px;display:none}
 @media (max-width:760px){
   #bar{overflow-x:auto;overflow-y:hidden}
+  .logo{order:-2}#to-3d,#to-list{order:-1;flex:none}
   #bar .lab,#lodtag,#zoom [data-z="plan"],#zoom [data-z="input"],#zoom .sep{display:none}
   #mini,#hint{display:none}
 }
