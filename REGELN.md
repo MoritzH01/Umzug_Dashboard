@@ -42,9 +42,23 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 
 - Geometrie strikt nur aus dem Grundriss des Canvas (`rooms`, `meta/plan`). Nichts erfinden.
 - Oberflächen nur nach den Raumfotos (Tabelle `LOOK` je Raum in `quellen/3d/wohnung3d.tpl.html`); Räume ohne Foto bleiben neutral.
-- Hohe Wände fest, kein Umschalter. Vorerst keine Möbel.
+- Hohe Wände fest, kein Umschalter. Vorerst keine Möbel. Ausnahme: die Küchenläufe aus dem Küchenplaner als schlichte Körper (Korpus, Platte, Hängeschrank); Fliesenspiegel und Schieferfeld folgen dem Lauf mit Kochfeld. (17.10.2026)
 - Kaminvorsprünge (`meta/plan.fixed` mit „Kamin“ im Namen) gehen bis zur Decke. (17.10.2026)
 - Ansichten Puppenhaus, Draufsicht und Rundgang bleiben.
+
+## Küchenplaner (17.10.2026)
+
+- Overlay im Canvas für den Raum Küche, so gebaut, dass es später für andere Räume taugt. Geplant werden Bestand und Neues zusammen, Farben wie im Bauantrag.
+- Schlank, funktional, schick: Werkzeuge erscheinen erst, wenn etwas ausgewählt ist; trotzdem bleiben alle Funktionen erreichbar.
+- Datenmodell: Läufe in `meta/kueche`, je Lauf `{wand | frei, start, höhen, raster, elemente[]}` mit drei Ebenen (unten, oben, hoch). Positionen werden aus der Reihe berechnet, nicht frei gespeichert. Geräte sind `items` (mit Shop-Link über `produkt`) und liegen in Schrankfeldern; die Passung prüft das Nischenmaß.
+- Raster: Vorlage IKEA METOD (Breiten 20/30/40/60/80, Korpus 80, Füße 8, Hängeschrank 37 tief), pro Lauf editierbar.
+- Formen: Zeile, L, U, zweizeilig, Insel (Lauf ohne Wand). Ecken als Blende, kein eigenes Eckmodul.
+- Maße zentimetergenau mit Kettenmaß und Restmaß je Lauf. Unbekannte Werte bleiben leer und sind als „unbekannt“ markiert, nichts wird geraten.
+- Plan-Erweiterung für alle Räume: `meta/plan.anschluesse[]` `{room, wall, off, hoehe, typ}` (Wasser, Abfluss, Steckdose, Starkstrom, Abluft, Gas), Brüstung und Höhe je Fenster, Heizkörper als `fixed`.
+- Ansichten: Grundriss, Wandansicht je Wand, Stückliste mit Summe und Status (brauchen, bestellt, haben). Bearbeiten in Grundriss und Wandansicht.
+- Prüfungen nur als Hinweis, nie blockierend: Restmaß (Vorschlag Passleiste oder Schrank), Durchgang ≥ 120 cm, Spülmaschine neben Spüle, Kochfeld ≥ 20 cm zur Wand oder zum Hochschrank mit Ablage daneben, Gerät passt nicht in Nische, Schrank vor Fenster, Spüle oder Kochfeld weit vom Anschluss. Kein Arbeitsdreieck.
+- Die feste Küchenzeile aus `meta/plan.fixed` entfällt; die Küche wird frei geplant.
+- Handy: nur ansehen (Stückliste, Wandansicht). Bearbeiten am Laptop.
 
 ## Möbel, Utensilien, Verkauf
 
@@ -74,6 +88,17 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - `zugang-beschraenken.sql` steht hier nur mit Platzhaltern; die ausgefüllte Fassung liegt außerhalb des Repos.
 - Alle Daten liegen in Supabase in der Tabelle `docs(coll, id, data)`. Fotos sind verkleinerte data-URLs in den Datensätzen.
 - Tests und Beispiele nutzen nur erfundene Daten.
+
+## Sparsam mit Supabase (17.10.2026)
+
+Supabase läuft im kostenlosen Plan. Jede Änderung (Mensch oder Claude) hält Speicher, Datenverkehr, Arbeitsspeicher und Rechenlast so gering wie möglich, ohne dass Bilder verpixelt wirken oder sonst Qualität verloren geht.
+
+- Lesen: nur laden, was die Seite gerade braucht, und nur die nötigen Collections. Keine Abfragen in Schleifen, kein Polling; Änderungen kommen über den Live-Abgleich. Einmal Geladenes im Speicher weiterverwenden statt neu holen.
+- Schreiben: nur den geänderten Datensatz, nie ganze Collections neu speichern. Häufige Änderungen (Ziehen, Tippen, Zoomen) bündeln und erst am Ende bzw. entprellt schreiben. Nichts doppelt oder abgeleitet speichern, was sich aus anderen Daten berechnen lässt.
+- Fotos: verkleinern auf die größte tatsächliche Anzeigegröße (inkl. hochauflösender Bildschirme) und gut komprimieren, aber nie so weit, dass sichtbare Artefakte oder Unschärfe entstehen. Jedes Bild nur einmal speichern, keine zusätzlichen Kopien in anderen Datensätzen.
+- Edge Function `produkt`: nur auf Nutzeraktion aufrufen, Ergebnisse im Datensatz behalten statt erneut abzufragen.
+- Arbeitsspeicher im Browser: Listener, Abos und Zeitgeber beim Schließen aufräumen, große Bilder nicht mehrfach dekodieren, 3D-Geometrie und Texturen wiederverwenden und freigeben.
+- Neue Funktionen vorher auf ihren Verbrauch prüfen; wenn etwas spürbar mehr Speicher oder Abfragen braucht, erst mit Moritz absprechen.
 
 ## Feedback aus der App
 
