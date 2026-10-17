@@ -64,6 +64,7 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 ## Möbel, Utensilien, Verkauf
 
 - Möbel-Wichtigkeit (`items.prio`): 1 essenziell, 2 später, 3 Spinnerei. `items.raum` ist der Raum für noch nicht platzierte Möbel. Pflanzen sind `items` mit `typ: "pflanze"`, `round: true`.
+- Möbelkacheln (17.10.2026): Foto oben im Format 4:3, darunter Name, Maße, Preis; Fußzeile mit der Hauptentscheidung (Farbquadrat in Bauantrag-Farbe) und „shop ↗“. Weitere Labels nur als graue Zeile „auch: …“, „im plan“ als kleine Marke auf dem Foto. Farbe nur für die Entscheidung. Die Wichtigkeit steht nicht auf der Kachel, sondern als Zwischenüberschrift je Raum (essenziell, später, Spinnerei) und wird im Möbelformular geändert.
 - Möbel per Shop-Link anlegen; Maße bleiben editierbar. Die Edge Function `produkt` liest Name, Maße, Preis und Foto.
 - Utensilien (Bereich „utensilien“) sind eine Checkliste nach Kategorie in der Collection `utensils`, getrennt von Möbeln. Status: brauchen, bestellt, haben.
 - Verkauf läuft über Kleinanzeigen. Es gibt keine Anbindung, das Dashboard verfolgt nur den Stand.

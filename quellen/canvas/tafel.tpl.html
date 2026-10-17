@@ -146,6 +146,7 @@ body.lod0 .l0b{display:flex}
 .rgrp .card>svg{background:#f6f4ef}
 .rgrp .card .cb{padding:8px 9px 9px;display:flex;flex-direction:column;gap:2px;flex:1}
 .rgrp .card b{font-size:13px;line-height:1.25}
+.rgrp .card .m span{white-space:nowrap}
 .rgrp .card .auch{font:500 10px var(--sans);color:var(--ink2)}
 .rgrp .card .cf{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:auto;padding-top:6px}
 .rgrp .card.placed::after{content:"im plan";display:flex;align-items:center;gap:4px;top:7px;right:7px;background:var(--paper);border:1px solid var(--line);padding:1px 6px}
@@ -641,7 +642,7 @@ function raumOf(it){if(it.x!=null&&it.x!==""){var d=dims(it),r=roomAt(+it.x+d.w/
 function moebelHTML(){var ids=Object.keys(I).filter(function(k){return !gehtWeg(I[k])&&!isPlant(I[k])}),g={};
   ids.forEach(function(id){var k=raumOf(I[id]);(g[k]=g[k]||[]).push(id)});
   var sum=function(l){return l.reduce(function(a,id){var it=I[id];return a+(it.dec==="kaufen"&&+it.preis?+it.preis:0)},0)},eur=function(n){return n?Math.round(n).toLocaleString("de-DE")+" €":""};
-  var card=function(id){var it=I[id],l=labels(it),d=l[0]?DECL[l[0]]:(it.dec||"");return '<div class="card'+(it.x!=null&&it.x!==""?' placed':'')+'" data-card="'+id+'">'+(it.img?'<img class="pic" src="'+esc(it.img)+'" alt="">':iconSVG(it))+'<div class="cb"><b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+it.w+' × '+it.d+' × '+it.h+' cm'+(it.dec==="kaufen"&&it.preis?' · '+eur(+it.preis):'')+'</div>'+(l.length>1?'<div class="auch">auch: '+l.slice(1).map(function(k){return esc(DECL[k])}).join(", ")+'</div>':'')+'<div class="cf"><span class="dec '+cls(it)+'"><i></i>'+esc(d)+'</span>'+(it.link?lnk(it.link,"shop"):'')+'</div></div></div>'};
+  var card=function(id){var it=I[id],l=labels(it),d=l[0]?DECL[l[0]]:(it.dec||"");return '<div class="card'+(it.x!=null&&it.x!==""?' placed':'')+'" data-card="'+id+'">'+(it.img?'<img class="pic" src="'+esc(it.img)+'" alt="">':iconSVG(it))+'<div class="cb"><b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+it.w+' × '+it.d+' × '+it.h+' cm'+(it.dec==="kaufen"&&it.preis?' · <span>'+eur(+it.preis)+'</span>':'')+'</div>'+(l.length>1?'<div class="auch">auch: '+l.slice(1).map(function(k){return esc(DECL[k])}).join(", ")+'</div>':'')+'<div class="cf"><span class="dec '+cls(it)+'"><i></i>'+esc(d)+'</span>'+(it.link?lnk(it.link,"shop"):'')+'</div></div></div>'};
   var grp=function(name,l){l.sort(function(a,b){return String(I[a].name).localeCompare(String(I[b].name))});return '<div class="rgrp"><h5><span>'+esc(name)+' · '+l.length+'</span><span>'+eur(sum(l))+'</span></h5>'+[1,2,3].map(function(p){var lp=l.filter(function(id){return prioOf(I[id])===p});return lp.length?'<div class="psub">'+PRIO[p]+' <span>· '+lp.length+'</span></div><div class="cards">'+lp.map(card).join("")+'</div>':''}).join("")+'</div>'};
   var s='<div class="mbar"><span class="sum">'+ids.length+' stück'+(sum(ids)?' · '+eur(sum(ids))+' zu kaufen':'')+'</span><button class="plus" data-add="moebel" title="Möbel hinzufügen" aria-label="Möbel hinzufügen">+</button></div>',leer=[];
   s+='<div class="rgrps">';rooms().forEach(function(r){if(g[r.id])s+=grp(r.name,g[r.id]);else leer.push(r.name)});
