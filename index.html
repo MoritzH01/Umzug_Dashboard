@@ -138,6 +138,19 @@ body.lod0 .l0b{display:flex}
 .card .m{font:10px var(--mono);color:var(--ink2);margin-top:2px}
 .chip{display:inline-block;font:600 9px var(--sans);letter-spacing:.01em;padding:2px 5px;margin-top:6px;border:1.5px solid}
 .chip.bestand{border-color:var(--bestand)}.chip.neu{border-color:var(--neu);color:var(--neu)}.chip.abbruch{border-color:var(--abbruch);border-style:dashed}
+.mbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:-4px 0 10px}
+.mbar .sum{font:500 11px var(--mono);color:var(--ink2);margin-left:auto}
+.plus{width:36px;height:36px;border-radius:50%;border:0;background:var(--blau);color:#fff;font:500 24px/1 var(--sans);cursor:pointer;display:grid;place-items:center;flex:none;box-shadow:var(--shadow)}
+.plus:hover{filter:brightness(1.1)}
+.rgrps{columns:3 240px;column-gap:20px}
+.rgrp{border-top:1px dashed var(--line);padding:8px 0 10px;break-inside:avoid}
+.rgrp h5{display:flex;justify-content:space-between;gap:8px;margin:0 0 8px;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+.rgrp .cards{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.rgrp .card svg,.rgrp .card img.pic{height:52px}
+.pb{display:inline-block;font:600 9px var(--sans);padding:2px 6px;border-radius:8px;text-transform:uppercase;letter-spacing:.04em;margin:6px 4px 0 0;cursor:pointer;white-space:nowrap}
+.pb.p1{background:#e2412b;color:#fff}.pb.p2{background:#f2c230;color:var(--ink)}.pb.p3{background:#e6defa;color:#5a4a8a}
+.mbar .pb{margin:0;cursor:default}
+.mleer{font:400 11px var(--mono);color:var(--ink2);margin:8px 0 0}
 .card.placed::after{content:"im Plan";position:absolute;right:8px;top:8px;font:500 9px var(--mono);color:var(--blau)}
 .pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;height:100%}
 .col{border-top:3px solid var(--neu);padding-top:8px;min-width:0}
@@ -454,8 +467,20 @@ function gehtWeg(it){return DEC[it.dec]==="abbruch"}
 function pflanzenHTML(){var ids=Object.keys(I).filter(function(k){return isPlant(I[k])}).sort(function(a,b){return String(I[a].name).localeCompare(String(I[b].name))});
   return '<div class="pcards">'+ids.map(function(id){var it=I[id];return '<div class="card'+(it.x!=null&&it.x!==""?' placed':'')+'" data-card="'+id+'">'+(it.img?'<img class="pic" src="'+esc(it.img)+'" alt="">':'<div class="ph0">✿</div>')+'<b>'+esc(it.name||"Pflanze")+'</b><div class="m">⌀ '+(it.w||"?")+' cm'+(it.licht?' · '+esc(it.licht):'')+'</div></div>'}).join("")+
   '<button class="card" data-addplant style="cursor:pointer;display:grid;place-items:center;min-height:150px;font:600 13px var(--sans);color:var(--ink2);border-style:dashed">+ Pflanze</button></div>'}
-function moebelHTML(){var ids=Object.keys(I).filter(function(k){return !gehtWeg(I[k])&&!isPlant(I[k])}).sort(function(a,b){return (I[a].prio||2)-(I[b].prio||2)});
-  return '<div class="cards">'+ids.map(function(id){var it=I[id];return '<div class="card'+(it.x!=null&&it.x!==""?' placed':'')+'" data-card="'+id+'">'+(it.img?'<img class="pic" src="'+esc(it.img)+'" alt="">':iconSVG(it))+'<b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+it.w+' × '+it.d+' × '+it.h+' cm</div><span class="chip '+cls(it)+'">'+esc(DECL[it.dec]||it.dec)+'</span></div>'}).join("")+'</div>'}
+var PRIO={1:"essenziell",2:"später",3:"Spinnerei"};
+function prioOf(it){var p=+it.prio;return PRIO[p]?p:2}
+function raumOf(it){if(it.x!=null&&it.x!==""){var d=dims(it),r=roomAt(+it.x+d.w/2,+it.y+d.h/2);if(r)return r.id}return it.raum&&R[it.raum]?it.raum:""}
+function moebelHTML(){var ids=Object.keys(I).filter(function(k){return !gehtWeg(I[k])&&!isPlant(I[k])}),g={};
+  ids.forEach(function(id){var k=raumOf(I[id]);(g[k]=g[k]||[]).push(id)});
+  var sum=function(l){return l.reduce(function(a,id){var it=I[id];return a+(it.dec==="kaufen"&&+it.preis?+it.preis:0)},0)},eur=function(n){return n?Math.round(n).toLocaleString("de-DE")+" €":""};
+  var card=function(id){var it=I[id],p=prioOf(it);return '<div class="card'+(it.x!=null&&it.x!==""?' placed':'')+'" data-card="'+id+'">'+(it.img?'<img class="pic" src="'+esc(it.img)+'" alt="">':iconSVG(it))+'<b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+it.w+' × '+it.d+' × '+it.h+' cm'+(it.dec==="kaufen"&&it.preis?' · '+eur(+it.preis):'')+'</div><span class="pb p'+p+'" data-prio="'+id+'" title="Antippen ändert die Wichtigkeit">'+PRIO[p]+'</span><span class="chip '+cls(it)+'">'+esc(DECL[it.dec]||it.dec)+'</span></div>'};
+  var grp=function(name,l){l.sort(function(a,b){return prioOf(I[a])-prioOf(I[b])||String(I[a].name).localeCompare(String(I[b].name))});return '<div class="rgrp"><h5><span>'+esc(name)+' · '+l.length+'</span><span>'+eur(sum(l))+'</span></h5><div class="cards">'+l.map(card).join("")+'</div></div>'};
+  var s='<div class="mbar">'+[1,2,3].map(function(p){return '<span class="pb p'+p+'">'+PRIO[p]+'</span>'}).join("")+'<span class="sum">'+ids.length+' stück'+(sum(ids)?' · '+eur(sum(ids))+' zu kaufen':'')+'</span><button class="plus" data-add="moebel" title="Möbel hinzufügen" aria-label="Möbel hinzufügen">+</button></div>',leer=[];
+  s+='<div class="rgrps">';rooms().forEach(function(r){if(g[r.id])s+=grp(r.name,g[r.id]);else leer.push(r.name)});
+  if(g[""])s+=grp("noch ohne Raum",g[""]);s+='</div>';
+  if(!ids.length)s+='<p class="mleer">Noch keine Möbel. Mit + das erste eintragen.</p>';
+  if(leer.length)s+='<p class="mleer">Noch nichts für: '+leer.map(esc).join(", ")+'</p>';
+  return s}
 function verkaufHTML(){var cols=["Fotos machen","Online","Reserviert","Verkauft","Abgeholt","Verschenken / Sperrmüll"],m={};cols.forEach(function(c){m[c]=[]});
   Object.keys(I).forEach(function(id){var it=Object.assign({id:id},I[id]);if(!gehtWeg(it))return;if(it.dec!=="verkaufen"){m["Verschenken / Sperrmüll"].push(it);return}(m[it.status]||m["Fotos machen"]).push(it)});
   return '<div class="pipe" style="grid-template-columns:repeat(6,1fr)">'+cols.map(function(c){return '<div class="col"><h4>'+c+'<span>'+m[c].length+'</span></h4>'+m[c].map(function(it){return '<div class="card" data-sell="'+esc(it.id)+'" style="cursor:pointer" title="Antippen zum Bearbeiten"><b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+(it.dec==="verkaufen"?(it.preis?it.preis+" €":"Preis fehlt"):esc(DECL[it.dec]||""))+'</div></div>'}).join("")+'</div>'}).join("")+'</div>'}
@@ -546,7 +571,7 @@ function render(){if(sheetId&&$("#rb").classList.contains("open")&&!(document.ac
   var openT=Object.keys(T).filter(function(k){return !T[k].done}).length,sell=Object.keys(I).filter(function(k){return I[k].dec==="verkaufen"&&["Verkauft","Abgeholt"].indexOf(I[k].status)<0}).length,placedN=Object.keys(I).filter(function(k){return I[k].x!=null&&I[k].x!==""}).length;
   if(!F.now.hidden)s+=frameDiv("now","Jetzt dran","",F.now,nowHTML(),days(MOVE)+" Tage");
   var keepN=Object.keys(I).filter(function(k){return !gehtWeg(I[k])&&!isPlant(I[k])});placedN=keepN.filter(function(k){return I[k].x!=null&&I[k].x!==""}).length;
-  if(!F.moebel.hidden)s+=frameDiv("moebel","Möbel für die neue Wohnung","in einen Raum ziehen",F.moebel,moebelHTML(),placedN+" / "+keepN.length+" im Plan");
+  if(!F.moebel.hidden)s+=frameDiv("moebel","Möbel für die neue Wohnung","nach Raum und Wichtigkeit",F.moebel,moebelHTML(),placedN+" / "+keepN.length+" im Plan");
   var plN=Object.keys(I).filter(function(k){return isPlant(I[k])}),plP=plN.filter(function(k){return I[k].x!=null&&I[k].x!==""}).length;
   if(F.pflanzen&&!F.pflanzen.hidden)s+=frameDiv("pflanzen","Pflanzen","in einen Raum ziehen",F.pflanzen,pflanzenHTML(),plP+" / "+plN.length+" im Plan");
   if(F.notizen&&!F.notizen.hidden){var pcs=F.notizen.cols||["Eingang"],pin='<div class="pin" style="grid-template-columns:repeat('+pcs.length+',1fr)">'+pcs.map(function(c,i){return '<div class="pc"><div class="ph"><span data-pinname="'+i+'" title="Doppelklick oder antippen zum Umbenennen">'+esc(c)+'</span><button data-pinadd="'+i+'">+ Post-it</button></div></div>'}).join("")+'</div>';
@@ -630,6 +655,7 @@ board.addEventListener("pointerdown",function(e){if(e.target.closest('[contented
   else if(t.closest("[data-el]")){tbReset();var id=t.closest("[data-el]").dataset.el,el2=getEl(id);drag={kind:"el",el:el2,ox:w.x-el2.x,oy:w.y-el2.y,node:t.closest("[data-el]")};if(selId!==id){selId=id;world.querySelectorAll(".sel").forEach(function(n){n.classList.remove("sel")});drag.node.classList.add("sel")}}
   else if(t.closest("[data-fdrag]")){var fid=t.closest("[data-fdrag]").dataset.fdrag,fr=st.frames[fid]||st.frames.user[fid];drag={kind:"frame",f:fr,ox:w.x-fr.x,oy:w.y-fr.y,node:t.closest("[data-fdrag]").parentNode}}
   else if(t.closest("[data-furn]")){var fid2=t.closest("[data-furn]").dataset.furn,it=I[fid2];drag={kind:"furn",id:fid2,ox:w.x-(+it.x),oy:w.y-(+it.y),node:t.closest("[data-furn]"),sx:e.clientX,sy:e.clientY};tbReset()}
+  else if(t.closest("[data-prio]")){drag={kind:"prio",id:t.closest("[data-prio]").dataset.prio}}
   else if(t.closest("[data-card]")){drag={kind:"card",id:t.closest("[data-card]").dataset.card,sx:e.clientX,sy:e.clientY}}
   else{tbReset();if(selFurn){selFurn=null;world.querySelectorAll(".furn.fsel").forEach(function(n){n.classList.remove("fsel")})}drag={kind:"pan",sx:e.clientX,sy:e.clientY,vx:V.x,vy:V.y,room:t.closest("[data-room]")};board.classList.add("panning");if(selId){selId=null;world.querySelectorAll(".sel").forEach(function(n){n.classList.remove("sel")})}}
   board.setPointerCapture(e.pointerId)});
@@ -652,6 +678,7 @@ function end(e){delete pts[e.pointerId];if(pinch&&Object.keys(pts).length<2){pin
   if(d.kind==="pan"&&!moved&&d.room){openSheet(d.room.dataset.room);return}
   if(d.kind==="furn"&&moved&&d.nx!=null){var it=I[d.id],dd0=dims(it);if(!roomAt(d.nx+dd0.w/2,d.ny+dd0.h/2)){unplace(d.id);return}setPos(d.id,d.nx,d.ny);save();render();selectFurn(d.id);return}
   if(d.kind==="furn"){if(!moved)selectFurn(selFurn===d.id?null:d.id);else{render();selectFurn(d.id)}return}
+  if(d.kind==="prio"){var ip=I[d.id];if(ip){ip.prio=prioOf(ip)%3+1;if(st.itemData[d.id])st.itemData[d.id].prio=ip.prio;save();render();toast(((ip.name||"").split(/[,(]/)[0])+": "+PRIO[ip.prio])}return}
   if(d.kind==="card"&&!d.g){itemForm(d.id);return}
   if(d.kind==="vtr"){vtrForm(d.id);return}
   if(d.kind==="ev"){if(!d.g){eventForm(d.id);return}d.g.remove();var we=toWorld(e.clientX,e.clientY),fe=st.frames.zeit,lxe=we.x-fe.x-18,lye=we.y-fe.y;
@@ -664,7 +691,7 @@ function end(e){delete pts[e.pointerId];if(pinch&&Object.keys(pts).length<2){pin
     if(nx>=TLL-30&&nx<=fz2.w&&ny>=0&&ny<=fz2.h){d.el.due=tlDate(fz2,Math.max(TLL,nx));save();render();toast("Post-it gilt jetzt für den "+fmtD(d.el.due));return}}
   if(d.kind==="card"){if(d.g){d.g.remove();var w=toWorld(e.clientX,e.clientY),po=planOff(),cx=w.x-po.x,cy=w.y-po.y,r=roomAt(cx,cy);
       if(r&&gehtWeg(I[d.id])){toast("Das Möbel geht weg und kommt nicht in die neue Wohnung. Ändere sonst die Entscheidung.");return}
-      if(r){var it3=I[d.id],dd=dims(it3);it3.x=Math.round((cx-dd.w/2)/5)*5;it3.y=Math.round((cy-dd.h/2)/5)*5;st.itemPos[d.id]={x:it3.x,y:it3.y,rot:it3.rot||0};save();render();toast(((it3.name||"").split(/[,(]/)[0])+" steht jetzt in: "+r.name)}
+      if(r){var it3=I[d.id],dd=dims(it3);it3.x=Math.round((cx-dd.w/2)/5)*5;it3.y=Math.round((cy-dd.h/2)/5)*5;it3.raum=r.id;st.itemPos[d.id]={x:it3.x,y:it3.y,rot:it3.rot||0};save();render();toast(((it3.name||"").split(/[,(]/)[0])+" steht jetzt in: "+r.name)}
       else toast("Zum Einplanen auf einen Raum im Grundriss ziehen.")}return}
   if(moved)save();if(d.kind==="el")placeTool()}
 board.addEventListener("pointerup",end);board.addEventListener("pointercancel",end);
@@ -745,7 +772,7 @@ function guessFromLink(url){var u;try{u=new URL(url.trim())}catch(e){return null
 function fetchProduct(url){var api=window.UMZUG_LINK_API;if(window.UMZUG_LINK_FN)return window.UMZUG_LINK_FN(url).then(function(d){var g=guessFromLink(url)||{};if(!d)return g;Object.keys(d).forEach(function(k){if(d[k]==null||d[k]==="")delete d[k]});return Object.assign(g,d,{src:"Shop"})}).catch(function(e){var g=guessFromLink(url)||{};g.err=(e&&e.message)||String(e||"unbekannter Fehler");return g});
   if(api)return fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:url})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){var g=guessFromLink(url)||{};return Object.assign(g,d,{src:"Shop"})}).catch(function(){return guessFromLink(url)});
   return Promise.resolve(guessFromLink(url))}
-function itemForm(id){if(id&&isPlant(I[id]))return plantForm(id);var it=id?Object.assign({},I[id]):{dec:"kaufen",her:"Neu",prio:2},img=it.img||"";
+function itemForm(id){if(id&&isPlant(I[id]))return plantForm(id);var it=id?Object.assign({},I[id]):{dec:"kaufen",her:"Neu",prio:2},img=it.img||"",raum0=raumOf(it);
   var opts=Object.keys(DECL).map(function(k){return '<option value="'+k+'"'+(it.dec===k?' selected':'')+'>'+DECL[k]+'</option>'}).join("");
   $("#modal").innerHTML='<div class="bg"><form id="itf" autocomplete="off"><h2>'+(id?'möbel bearbeiten':'möbel hinzufügen')+'</h2>'+
   '<div class="row"><label>Shop-Link<input id="f-link" type="url" placeholder="https://www.ikea.com/de/de/p/…" value="'+esc(it.link||"")+'"></label><button type="button" class="btn ghost" id="f-get">Holen</button></div>'+
@@ -753,6 +780,7 @@ function itemForm(id){if(id&&isPlant(I[id]))return plantForm(id);var it=id?Objec
   '<label>Name<input id="f-name" required value="'+esc(it.name||"")+'"></label>'+
   '<div class="g3"><label>Breite cm<input id="f-w" inputmode="decimal" value="'+esc(it.w||"")+'"></label><label>Tiefe cm<input id="f-d" inputmode="decimal" value="'+esc(it.d||"")+'"></label><label>Höhe cm<input id="f-h" inputmode="decimal" value="'+esc(it.h||"")+'"></label></div>'+
   '<div class="row"><label>Entscheidung<select id="f-dec">'+opts+'</select></label><label>Preis €<input id="f-preis" inputmode="decimal" value="'+esc(it.preis||"")+'"></label></div>'+
+  '<div class="row"><label>Raum<select id="f-raum"><option value="">noch offen</option>'+rooms().map(function(r){return '<option value="'+esc(r.id)+'"'+(raum0===r.id?' selected':'')+'>'+esc(r.name)+'</option>'}).join("")+'</select></label><label>Wichtigkeit<select id="f-prio">'+[1,2,3].map(function(p){return '<option value="'+p+'"'+(prioOf(it)===p?' selected':'')+'>'+PRIO[p]+'</option>'}).join("")+'</select></label></div>'+
   '<div class="ph"><div class="box" id="f-img">'+(img?'':'Kein Foto')+'</div><div><p class="note2">Foto kommt aus dem Shop-Link. Du kannst auch eins einfügen (Strg+V) oder auswählen.</p><p style="margin:8px 0 0"><label class="btn ghost" style="display:inline-block;cursor:pointer">Foto wählen<input type="file" id="f-file" accept="image/*" hidden></label></p></div></div>'+
   '<div class="foot">'+(id?'<button type="button" class="btn del" id="f-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="f-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
   var box=$("#f-img"),setImg=function(u){img=u;box.style.backgroundImage=u?'url("'+u+'")':"";box.textContent=u?"":"Kein Foto"};setImg(img);
@@ -770,8 +798,9 @@ function itemForm(id){if(id&&isPlant(I[id]))return plantForm(id);var it=id?Objec
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
   if(id)$("#f-del").onclick=function(){if(!confirm("Dieses Möbel löschen?"))return;delete I[id];st.itemData[id]=null;delete st.itemPos[id];save();$("#modal").innerHTML="";render()};
   $("#itf").addEventListener("submit",function(e){e.preventDefault();var n=function(k){var v=parseFloat(String($("#f-"+k).value).replace(",","."));return isNaN(v)?"":v};
-    var nid=id||("m"+Date.now().toString(36)),o=Object.assign({},it,{name:$("#f-name").value.trim(),w:n("w")||50,d:n("d")||50,h:n("h")||"",dec:$("#f-dec").value,preis:n("preis"),link:$("#f-link").value.trim(),img:img});
-    if(!o.status)delete o.status;I[nid]=o;var keep=Object.assign({},o);delete keep.x;delete keep.y;delete keep.rot;st.itemData[nid]=keep;save();$("#modal").innerHTML="";render();toast(id?"Gespeichert":"Möbel liegt jetzt in der Zone Möbel. Zieh es in einen Raum.")});
+    var nid=id||("m"+Date.now().toString(36)),o=Object.assign({},it,{name:$("#f-name").value.trim(),w:n("w")||50,d:n("d")||50,h:n("h")||"",dec:$("#f-dec").value,preis:n("preis"),link:$("#f-link").value.trim(),img:img,prio:+$("#f-prio").value,raum:$("#f-raum").value});
+    if(o.raum!==raum0&&o.x!=null&&o.x!==""){o.x=null;o.y=null;st.itemPos[nid]={x:null,y:null,rot:o.rot||0}}if(!o.raum)delete o.raum;
+    if(!o.status)delete o.status;I[nid]=o;var keep=Object.assign({},o);delete keep.x;delete keep.y;delete keep.rot;st.itemData[nid]=keep;save();$("#modal").innerHTML="";render();toast(id?"Gespeichert":"Möbel steht jetzt im Bereich Möbel"+(o.raum&&R[o.raum]?" unter "+R[o.raum].name:"")+". Zieh es in den Grundriss, wenn du den Platz weißt.")});
   setTimeout(function(){(id?$("#f-name"):$("#f-link")).focus()},30)}
 
 /* ---------- Pflanzen ---------- */
@@ -880,7 +909,7 @@ function placeTool(){var tb=$("#ftool");if(!tb)return;var it=selFurn&&I[selFurn]
   if(tb.dataset.id!==selFurn){tb.dataset.id=selFurn;tb.innerHTML='<b>'+esc((it.name||"").split(/[,(]/)[0])+'</b>'+(it.wall||isPlant(it)?'':'<button data-ft="rot">Drehen</button>')+'<button data-ft="edit">Bearbeiten</button><button data-ft="out">Aus dem Plan</button>'}
   tb.style.left=Math.max(120,Math.min(innerWidth-120,sx))+"px";tb.style.top=Math.max(110,sy)+"px";tb.classList.add("on")}
 function rotFurn(id){var it=I[id];if(!it||it.wall||isPlant(it))return;var d=dims(it),cx=+it.x+d.w/2,cy=+it.y+d.h/2,nr=it.rot===90?0:90;it.rot=nr;var nd=dims(it);setPos(id,Math.round((cx-nd.w/2)/5)*5,Math.round((cy-nd.h/2)/5)*5,nr);save();render();selectFurn(id)}
-function unplace(id){var it=I[id];if(!it)return;it.x=null;it.y=null;st.itemPos[id]={x:null,y:null,rot:it.rot||0};if(selFurn===id)selFurn=null;tbReset();save();render();toast(((it.name||"").split(/[,(]/)[0])+" liegt wieder bei den Möbeln")}
+function unplace(id){var it=I[id];if(!it)return;var rr=raumOf(it);if(rr)it.raum=rr;it.x=null;it.y=null;st.itemPos[id]={x:null,y:null,rot:it.rot||0};if(selFurn===id)selFurn=null;tbReset();save();render();toast(((it.name||"").split(/[,(]/)[0])+" liegt wieder bei den Möbeln")}
 function tbReset(){var tb=$("#ftool");if(tb){tb.classList.remove("on");tb.dataset.id=""}}
 function furnAction(a){var id=selFurn;if(!id)return;if(a==="rot")rotFurn(id);else if(a==="edit"){tbReset();itemForm(id)}else if(a==="out")unplace(id)}
 

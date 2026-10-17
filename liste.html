@@ -510,10 +510,11 @@ function vMoebel(){
    (body?'<div class="groups">'+body+'</div>':'<div class="panel"><p class="empty">'+(all.length?'Nichts passt zu diesem Filter.':'Noch keine Möbel. Trag das erste ein.')+'</p></div>');
 }
 function topIcon(p){var w=+p.w||50,d=+p.d||50,sc=Math.min(44/w,44/d);return '<svg viewBox="0 0 58 58" width="58" height="58" aria-hidden="true"><'+(p.round?'circle cx="29" cy="29" r="'+(w*sc/2)+'"':'rect x="'+(29-w*sc/2)+'" y="'+(29-d*sc/2)+'" width="'+w*sc+'" height="'+d*sc+'"')+' fill="'+D(p).c+'" stroke="#1d1f20"/></svg>'}
-function itemRow(it){var dd=D(it),k=decOf(it),r=placed(it)?roomOf(it):null,dn=isDone(it);
+var PRIOL={1:"essenziell",2:"später",3:"Spinnerei"};
+function itemRow(it){var dd=D(it),k=decOf(it),r=placed(it)?roomOf(it):(it.raum?rooms().filter(function(x){return x.id===it.raum})[0]:null),dn=isDone(it);
   var money=k==="verkaufen"||k==="verschenken"?(it.preis!=null?eur(it.preis):'')+(it.erzielt!=null?' → '+eur(it.erzielt):''):(k==="nachmieter"||k==="uebernehmen")?(it.abl!=null?'Ablöse '+eur(it.abl):''):it.preis!=null?eur(it.preis):'';
   return '<div class="item'+(dn?' done':'')+'"><span class="stripe" style="background:'+dd.c+'"></span><div class="thumb" style="'+img(it.img)+'">'+(it.img?'':topIcon(it))+'</div>'+
-   '<div style="min-width:0;display:grid;gap:3px"><button class="name" data-edit="items:'+it.id+'">'+esc(it.name)+'</button><div class="meta"><span class="dec'+(dd.dk?' dk':'')+'" style="background:'+dd.c+'">'+dd.l+'</span>'+(it.prio?'<span class="pill p'+it.prio+'">Prio '+it.prio+'</span>':'')+'<span class="mono">'+(it.w||"?")+'×'+(it.d||"?")+(it.h?'×'+it.h:'')+'</span>'+(it.her?'<span>'+esc(it.her)+'</span>':'')+(r?'<span>'+esc(r.name)+'</span>':dd.come?'<span>im Lager</span>':'')+(it.link?'<a class="ext" href="'+esc(it.link)+'" target="_blank" rel="noopener">Link ↗</a>':'')+'</div>'+(it.notiz?'<div class="meta">'+esc(it.notiz)+'</div>':'')+'</div>'+
+   '<div style="min-width:0;display:grid;gap:3px"><button class="name" data-edit="items:'+it.id+'">'+esc(it.name)+'</button><div class="meta"><span class="dec'+(dd.dk?' dk':'')+'" style="background:'+dd.c+'">'+dd.l+'</span>'+(PRIOL[it.prio]?'<span class="pill p'+it.prio+'">'+PRIOL[it.prio]+'</span>':'')+'<span class="mono">'+(it.w||"?")+'×'+(it.d||"?")+(it.h?'×'+it.h:'')+'</span>'+(it.her?'<span>'+esc(it.her)+'</span>':'')+(r?'<span>'+esc(r.name)+'</span>':dd.come?'<span>im Lager</span>':'')+(it.link?'<a class="ext" href="'+esc(it.link)+'" target="_blank" rel="noopener">Link ↗</a>':'')+'</div>'+(it.notiz?'<div class="meta">'+esc(it.notiz)+'</div>':'')+'</div>'+
    '<div class="right"><span class="mono" style="font-size:.85rem">'+money+'</span><select class="inl" aria-label="Status" data-status="'+it.id+'">'+dd.st.map(function(s){return '<option'+(s===it.status?' selected':'')+'>'+esc(s)+'</option>'}).join("")+'</select>'+((k==="verkaufen"||k==="verschenken"||k==="entsorgen")?'<button class="btn small ghost" data-pickup="'+it.id+'">'+(k==="entsorgen"?'Termin':'Abholtermin')+'</button>':'')+'</div></div>';
 }
 
@@ -563,7 +564,7 @@ function vDaten(){var tr=[];COLLS.forEach(function(c){Object.keys(S[c]).forEach(
 
 /* ================= Formulare ================= */
 var FORMS={
- items:{t:"Möbel",f:[["name","Name","text",1],["cat","IKEA-Modell (füllt Maße)","cat"],["dec","Entscheidung","dec"],["status","Status","status"],["her","Herkunft","her"],["prio","Priorität","prio"],["w","Breite cm","num"],["d","Tiefe cm","num"],["h","Höhe cm","num"],["round","Rund","bool"],["wall","An der Wand montiert","bool"],["preis","Preis / Wunschpreis €","num"],["erzielt","Erzielter Preis €","num","sell"],["abl","Ablöse €","num","abl"],["link","Link (Shop, Kleinanzeigen)","url"],["img","Bild","img"],["notiz","Notiz","area"]]},
+ items:{t:"Möbel",f:[["name","Name","text",1],["cat","IKEA-Modell (füllt Maße)","cat"],["dec","Entscheidung","dec"],["status","Status","status"],["her","Herkunft","her"],["prio","Wichtigkeit","prio"],["raum","Raum (solange nicht im Plan)","raum"],["w","Breite cm","num"],["d","Tiefe cm","num"],["h","Höhe cm","num"],["round","Rund","bool"],["wall","An der Wand montiert","bool"],["preis","Preis / Wunschpreis €","num"],["erzielt","Erzielter Preis €","num","sell"],["abl","Ablöse €","num","abl"],["link","Link (Shop, Kleinanzeigen)","url"],["img","Bild","img"],["notiz","Notiz","area"]]},
  tasks:{t:"Aufgabe",f:[["title","Aufgabe","text",1],["bereich","Bereich","bereich"],["raum","Raum","raum"],["due","Fällig am","date"],["wer","Wer","wer"],["done","Erledigt","bool"],["notiz","Notiz","area"]]},
  events:{t:"Termin",f:[["title","Titel","text",1],["date","Datum","date",1],["time","Uhrzeit","time"],["dauer","Dauer Minuten","num"],["ort","Ort","text"],["notiz","Notiz","area"]]},
  rooms:{t:"Raum",f:[["name","Name","text",1],["photos","Fotos","photos"],["notiz","Notiz","area"],["links","Links und Sonstiges (eine Zeile pro Eintrag, z. B. Titel | https://…)","area"]]},
@@ -580,7 +581,7 @@ function fld(f,d){var k=f[0],lab=f[1],t=f[2],id="m-"+k,v=d[k],L='<label for="'+i
   if(t==="dec")return sel(DEC_KEYS.map(function(x){return [x,DEC[x].l]}));
   if(t==="status")return sel(DEC[kd||"offen"].st.map(function(x){return [x,x]}));
   if(t==="her")return sel(HERK.map(function(x){return [x,x]}));
-  if(t==="prio")return sel([["",'–'],["1","1 · dringend"],["2","2"],["3","3 · irgendwann"]]);
+  if(t==="prio")return sel([["",'–'],["1","essenziell"],["2","später"],["3","Spinnerei"]]);
   if(t==="bereich")return sel(Object.keys(BEREICHE).map(function(x){return [x,BEREICHE[x]]}));
   if(t==="typ")return sel([["aus","Ausgabe"],["ein","Einnahme"]]);
   if(t==="raum")return sel([["","–"]].concat(rooms().map(function(r){return [r.id,r.name]})));
