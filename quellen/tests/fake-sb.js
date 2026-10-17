@@ -1,0 +1,11 @@
+// Nachgebaute Supabase für die Tests: Daten in localStorage "fake-rows", angemeldet wenn "fake-session" gesetzt ist.
+window.supabase={createClient:function(){
+ var rows=JSON.parse(localStorage.getItem("fake-rows")||"[]");function persist(){localStorage.setItem("fake-rows",JSON.stringify(rows))}
+ var sess=localStorage.getItem("fake-session")?{user:{email:"test@example.org"}}:null;
+ function q(){var f=[];var api={select:function(){return api},eq:function(k,v){f.push([k,v]);return api},or:function(){return api},
+  then:function(res,rej){return Promise.resolve({data:rows.filter(function(r){return f.every(function(x){return r[x[0]]===x[1]})}),error:null}).then(res,rej)},
+  upsert:function(x){(Array.isArray(x)?x:[x]).forEach(function(n){var i=rows.findIndex(function(r){return r.coll===n.coll&&r.id===n.id});if(i>=0)rows[i]=n;else rows.push(n)});persist();window.__ups=(window.__ups||0)+1;return Promise.resolve({error:null})},
+  delete:function(){var d={eq:function(k,v){f.push([k,v]);return d},then:function(res){rows=rows.filter(function(r){return !f.every(function(x){return r[x[0]]===x[1]})});persist();return Promise.resolve({error:null}).then(res)}};return d}};return api}
+ return {functions:{invoke:function(n,o){window.__inv=o.body.url;return Promise.resolve({data:{name:"Stuhl Eiche",w:45,d:52,h:80,preis:129,image:null},error:null})}},from:function(){return q()},channel:function(){var c={on:function(){return c},subscribe:function(){return c}};return c},
+  auth:{getSession:function(){return Promise.resolve({data:{session:sess}})},onAuthStateChange:function(){},signInWithOtp:function(){window.__otp=1;return Promise.resolve({error:null})},signInWithPassword:function(o){if(o.password==="geheim123"){localStorage.setItem("fake-session","1");setTimeout(function(){location.reload()},50);return Promise.resolve({error:null})}return Promise.resolve({error:{message:"Invalid login credentials"}})},updateUser:function(o){window.__pw=o.password;return Promise.resolve({error:null})},signOut:function(){localStorage.removeItem("fake-session");return Promise.resolve({})}}};
+}};

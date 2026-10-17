@@ -1,1 +1,10 @@
+# Private Daten, nie ins öffentliche Repository
 startdaten.json
+*.seed.json
+seed.json
+data.js
+feedback-*.jpg
+# Hilfsdateien
+node_modules/
+quellen/shots/
+__pycache__/

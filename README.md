@@ -1,6 +1,6 @@
 # Umzug-Dashboard
 
-Eigenständige Version des Umzugs-Dashboards. Läuft als statische Seite (GitHub Pages) mit einer Supabase-Datenbank. Startseite ist die Tafel (Grundriss, Möbel, Zeitleiste, Post-its), `liste.html` ist die Listenansicht fürs Handy.
+Eigenständige Version des Umzugs-Dashboards. Läuft als statische Seite (GitHub Pages) mit einer Supabase-Datenbank. Startseite ist der Canvas (Grundriss, Möbel, Zeitleiste, Post-its), `liste.html` ist die Listenansicht fürs Handy.
 
 ## Einrichten
 
@@ -9,16 +9,21 @@ Eigenständige Version des Umzugs-Dashboards. Läuft als statische Seite (GitHub
 3. **Anmelde-Link:** Unter Authentication → URL Configuration die Adresse der Seite als „Site URL“ eintragen.
 4. **GitHub Pages:** Settings → Pages „Deploy from a branch“, Branch `main`, Ordner `/ (root)`.
 5. **Zugang beschränken:** In `zugang-beschraenken.sql` die erlaubten Mailadressen eintragen und im SQL Editor ausführen. Danach kann niemand sonst ein Konto anlegen oder Daten lesen. Die letzte Abfrage muss leer sein.
-6. **Shop-Links (Maße und Foto):** Edge Functions → „Deploy a new function“ → „Via Editor“, Name `produkt`, Inhalt von `supabase/functions/produkt/index.ts` einfügen, „Deploy“. „Verify JWT“ bleibt an. Ohne diese Funktion rät die Tafel Name und Maße nur aus dem Link.
+6. **Shop-Links (Maße und Foto):** Edge Functions → „Deploy a new function“ → „Via Editor“, Name `produkt`, Inhalt von `supabase/functions/produkt/index.ts` einfügen, „Deploy“. „Verify JWT“ bleibt an. Ohne diese Funktion rät der Canvas Name und Maße nur aus dem Link.
 7. **Erste Daten:** In der Liste unter Daten → Sicherung `startdaten.json` importieren. Die Datei liegt bewusst nicht im Repository.
 
 Die Anmeldung bleibt im Browser gespeichert, bis man sich abmeldet.
 
+## Mitarbeiten
+
+`index.html`, `liste.html`, `3d.html` und `feedback.js` sind gebaut. Geändert wird in `quellen/`, danach `python3 quellen/bauen.py`. Aufbau, Tests und Ablauf stehen in [CLAUDE.md](CLAUDE.md), die festgelegten Regeln in [REGELN.md](REGELN.md).
+
 ## Dateien
 
-- `index.html`: die Tafel
+- `index.html`: der Canvas, `3d.html`: die 3D-Ansicht
 - `liste.html`: die Listenansicht
 - `config.js`: Zugang zur Datenbank (der anon-Schlüssel ist öffentlich gedacht, die Daten schützen die Regeln in der Datenbank)
 - `datenbank-einrichten.sql`, `zugang-beschraenken.sql`: Tabelle, Zugriffsregeln, Live-Abgleich
-- `feedback.js`: Knopf „feedback“ auf allen Seiten. Fehler, Wünsche und Bedienungsprobleme mit Bild und Seiteninfo landen in der Tabelle `docs` (`coll = feedback`), Claude liest und beantwortet sie mit `feedback.py`
+- `feedback.js`: Knopf „feedback“ auf allen Seiten. Fehler, Wünsche und Bedienungsprobleme mit Bild und Seiteninfo landen in der Tabelle `docs` (`coll = feedback`), Claude liest und beantwortet sie mit `quellen/feedback.py`
 - `supabase/functions/produkt/index.ts`: liest Maße, Preis und Foto aus Shop-Links
+- `quellen/`: Quellen und Build-Skripte, `quellen/tests/`: Rauchtest

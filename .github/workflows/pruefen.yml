@@ -1,0 +1,11 @@
+name: pruefen
+on: [push, pull_request]
+jobs:
+  bauen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Seiten aus den Quellen bauen
+        run: python3 quellen/bauen.py
+      - name: Gebaute Dateien passen zu den Quellen
+        run: git diff --exit-code || { echo "::error::Gebaute Dateien weichen ab. Quellen bearbeiten und python3 quellen/bauen.py ausführen."; exit 1; }
