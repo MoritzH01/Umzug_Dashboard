@@ -21,8 +21,8 @@ function login(){$("#modal").innerHTML='<div class="bg"><form id="lg"><h2>anmeld
 function toast(t){var e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display="none"},3000)}
 function load(session){if(started)return;started=true;$("#modal").innerHTML='<div class="bg"><form><h2>lade tafel …</h2></form></div>';
   sb.from("docs").select("coll,id,data").then(function(r){if(r.error){$("#modal").innerHTML='<div class="bg"><form><h2>datenbank antwortet nicht</h2><p class="note2">'+r.error.message+'</p></form></div>';return}
-    var S={rooms:{},items:{},tasks:{},contracts:{},events:{},utensils:{},plan:null,board:[],layout:null};
-    r.data.forEach(function(x){if(x.coll==="rooms"||x.coll==="items"||x.coll==="tasks"||x.coll==="contracts"||x.coll==="events"||x.coll==="utensils")S[x.coll][x.id]=x.data;else if(x.coll==="board")S.board.push(x.data);else if(x.coll==="meta"&&x.id==="plan")S.plan=x.data;else if(x.coll==="meta"&&x.id==="board")S.layout=x.data});
+    var S={rooms:{},items:{},tasks:{},contracts:{},events:{},utensils:{},costs:{},ausgleich:{},plan:null,settings:null,board:[],layout:null};
+    r.data.forEach(function(x){if(x.coll==="rooms"||x.coll==="items"||x.coll==="tasks"||x.coll==="contracts"||x.coll==="events"||x.coll==="utensils"||x.coll==="costs"||x.coll==="ausgleich")S[x.coll][x.id]=x.data;else if(x.coll==="board")S.board.push(x.data);else if(x.coll==="meta"&&x.id==="plan")S.plan=x.data;else if(x.coll==="meta"&&x.id==="settings")S.settings=x.data;else if(x.coll==="meta"&&x.id==="board")S.layout=x.data});
     window.SEED=S;
     window.TAFEL_STORE={
       put:function(c,id,data){return sb.from("docs").upsert({coll:c,id:id,data:data,updated_at:new Date().toISOString()}).then(function(x){if(x.error)toast("Speichern hat nicht geklappt: "+x.error.message)})},

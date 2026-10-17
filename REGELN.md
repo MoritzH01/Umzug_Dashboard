@@ -46,6 +46,15 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Verkauf läuft über Kleinanzeigen. Es gibt keine Anbindung, das Dashboard verfolgt nur den Stand.
 - Umzugstermin: 15.12.2026.
 
+## Geld (17.10.2026)
+
+- Gerechnet wird pro Person, nur auf dem Canvas (Bereich „Geld“). Namen in `meta/settings.namen` (`m`, `h`), im Repo nur „Moritz“ und „Person 2“.
+- Standard-Anteil: Käufe (kaufen, fest, aufarbeiten), Ablöse an den Vormieter, Utensilien und sonstige Kosten halbe-halbe. Verkauf und Ablöse vom Nachmieter gehören ganz der Person, aus deren Wohnung das Stück kommt (`items.von`, Standard Moritz).
+- Der Anteil ist je Eintrag änderbar (`anteil` = Prozent für Moritz, nur gespeichert, wenn er vom Standard abweicht). Dazu `zahler` (`m`/`h`): wer gezahlt bzw. das Geld bekommen hat.
+- Der Ausgleich („wer schuldet wem“) zählt nur Bestätigtes: Kauf und fest ab „Bestellt“, aufarbeiten ab „In Arbeit“, Ablösen bei „Bezahlt“, Verkauf ab „Verkauft“, Utensilien ab „bestellt“, sonstige Kosten, wenn „erledigt“. Geplante Beträge stehen nur in den Summen je Person.
+- Beim Bestätigen fragt die App, wer gezahlt hat. „ausgeglichen“ legt eine Ausgleichszahlung in der Collection `ausgleich` an; sonstige Kosten liegen in `costs`.
+- Keine Anbindung an Splitwise (die API braucht ein Pro-Konto). Die Ausgaben werden nur im Dashboard dokumentiert.
+
 ## Anmeldung und Zugang
 
 - Anmeldung nur per Mail-Link, kein Passwort. Man bleibt angemeldet, bis man sich abmeldet. (17.10.2026)
