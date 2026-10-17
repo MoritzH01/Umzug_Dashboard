@@ -11,7 +11,15 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 ## Namen
 
 - Die Startseite heißt **Canvas**, nie „Tafel“, in der Oberfläche wie in Nachrichten. (17.10.2026) Dateinamen wie `tafel.tpl.html` oder `build_tafel.py` bleiben aus historischen Gründen so.
-- Seiten: `index.html` = Canvas, `liste.html` = Listenansicht (fürs Handy), `3d.html` = 3D-Ansicht.
+- Seiten: `index.html` = Canvas, `3d.html` = 3D-Ansicht. `liste.html` leitet nur noch auf den Canvas weiter. (17.10.2026)
+
+## Alles auf dem Canvas (17.10.2026)
+
+- Alles findet auf dem Canvas statt. Die Listenansicht ist aufgelöst; was sie konnte, ist im Canvas: Möbel-Status, Herkunft, Notiz, Wandmontage, erzielter Preis, Ablöse, Abholtermin im Möbelformular; Wer und Notiz bei Aufgaben; Abhaken in „Jetzt dran“ und im Raumblatt; Google-Kalender-Link am Termin.
+- Menü „daten“ in der Leiste: Umzugsdatum und Deckenhöhe (`meta/settings.moveDate`, `ceiling`), Sicherung als Datei (Export/Import), Papierkorb mit Zurückholen und endgültig Löschen.
+- Konfliktprüfung im Grundriss, Umschalter „prüfen“ (Standard an): Möbel mit Konflikt rot gestrichelt (überlappt, ragt in die Wand, Türschwenk, Kaminvorsprung, zu hoch für die Decke), Abstände unter 60 cm orange, Türschwenk rot getönt. Hinweise stehen in der Leiste des ausgewählten Möbels. Wandansicht im Raumblatt.
+- Ideen aus der alten Liste (Collection `ideas`) sind einmalig ins Moodboard gewandert und dort als gelöscht markiert. Neue Ideen kommen als Bild oder Post-it ins Moodboard.
+- Handy: Knopf „bereiche“ und Antippen einer Bereichsüberschrift öffnen den Bereich als Vollbild; der Zeitplan erscheint dort als Liste.
 
 ## Gestaltung
 
@@ -24,11 +32,11 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 
 ## Grundriss und Räume
 
-- Der Grundriss stammt aus dem Originalplan (16.10.2026). Räume liegen fest; auf dem Canvas werden sie nicht nebenbei verschoben, in der Liste nur nach Rückfrage geändert.
+- Der Grundriss stammt aus dem Originalplan (16.10.2026). Räume liegen fest und werden nicht nebenbei verschoben. Geändert werden sie nur im Raumblatt nach „Grundriss entsperren“ mit Rückfrage: Name, Maße, Lage, Türen und Fenster, neuer Raum, Raum löschen (in den Papierkorb). (17.10.2026)
 - Kompass: Plan-rechts ist Nordost (`meta/plan.north = 45`).
 - Räume werden einzeln nach Plan und Fotos überarbeitet, ohne Einrichtung. Wo der Plan unklar ist, gelten die Fotos. (17.10.2026)
 - Wohnzimmer: ein Fenster, keine Tür zum Schlafzimmer, kein Kaminvorsprung. Schlafzimmer: ein Fenster, Kaminvorsprung in der Ecke. Flur: Eingangstür in der Längswand, Einbauschrank in die Stirnwand eingelassen (ragt nicht in den Flur). Bad: kein Fenster. Küche: Kaminvorsprung an der Ecke Brandwand/Flur, kein Fenster, nur die Balkontür; die Küchenzeile gehört nicht in den Grundriss. Büro: ein Fenster, Tür mit Scharnier im Süden. Klo: ein schmales Fenster, Tür mit Scharnier im Süden, Vorsprung bis zur Decke in der Ecke neben dem Fenster. (17.10.2026)
-- Türen haben eine Anschlagseite: ohne Angabe sitzt das Scharnier am Anfang der Öffnung (bei `off`), mit `hinge: "end"` am Ende. In der Liste schaltet der Knopf ⟳/⟲ um. (17.10.2026)
+- Türen haben eine Anschlagseite: ohne Angabe sitzt das Scharnier am Anfang der Öffnung (bei `off`), mit `hinge: "end"` am Ende. Im entsperrten Raumblatt schaltet der Knopf ⟳/⟲ um. (17.10.2026)
 
 ## 3D-Ansicht
 
@@ -44,7 +52,7 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Möbel per Shop-Link anlegen; Maße bleiben editierbar. Die Edge Function `produkt` liest Name, Maße, Preis und Foto.
 - Utensilien (Bereich „utensilien“) sind eine Checkliste nach Kategorie in der Collection `utensils`, getrennt von Möbeln. Status: brauchen, bestellt, haben.
 - Verkauf läuft über Kleinanzeigen. Es gibt keine Anbindung, das Dashboard verfolgt nur den Stand.
-- Umzugstermin: 15.12.2026.
+- Umzugstermin: 15.12.2026 (änderbar unter „daten“).
 
 ## Geld (17.10.2026)
 
@@ -69,5 +77,5 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 
 ## Feedback aus der App
 
-- Der Knopf „feedback“ ist auf Canvas, Liste und 3D. Einträge landen in `docs` mit `coll = "feedback"`.
+- Der Knopf „feedback“ ist auf Canvas und 3D. Einträge landen in `docs` mit `coll = "feedback"`.
 - „Feedback abarbeiten“ heißt: offene Einträge lesen, Status auf „in arbeit“, beheben, dann „erledigt“ mit einer kurzen Antwort auf Deutsch. Die Antwort sieht man in der App unter „bisher“. Werkzeug: `quellen/feedback.py`.

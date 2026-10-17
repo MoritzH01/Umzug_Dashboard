@@ -1,4 +1,4 @@
-// Feedback aus der App: kleiner Knopf unten links auf Tafel, Liste und 3D.
+// Feedback aus der App: kleiner Knopf unten links auf Canvas und 3D.
 // Einträge landen in Supabase docs (coll "feedback"), Claude liest sie mit quellen/feedback.py.
 (function(){
 var errs=[];
