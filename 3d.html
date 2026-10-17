@@ -5,6 +5,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M9.6 1.8c5.2-.6 8.6 3.1 8.3 8.4-.3 5-3.4 8.3-7.6 8-4.6-.3-8.4-3.4-8.3-8.1.1-4.6 3.2-7.8 7.6-8.3z' fill='%232f4ee0'/></svg>">
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="feedback.js"></script>
 </head><body>
 
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -342,7 +343,7 @@ var CFG=window.UMZUG_CONFIG||{},msg=document.getElementById("msg");
 function say(h,t){msg.firstElementChild.innerHTML="<h2>"+h+"</h2><p>"+t+"</p>";msg.classList.add("open")}
 if(!CFG.supabaseUrl||!window.supabase){say("keine datenbank","In config.js fehlt der Supabase-Zugang.");return}
 if(!window.THREE){say("3d lädt nicht","Die 3D-Bibliothek konnte nicht geladen werden. Bitte Seite neu laden.");return}
-var sb=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey,{auth:{persistSession:true,autoRefreshToken:true}});
+var sb=window.__sb=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey,{auth:{persistSession:true,autoRefreshToken:true}});
 document.getElementById("back").hidden=false;
 function load(){return sb.from("docs").select("coll,id,data").or("coll.eq.rooms,and(coll.eq.meta,id.eq.plan)").then(function(r){
   if(r.error)throw r.error;var S={rooms:{},plan:null};

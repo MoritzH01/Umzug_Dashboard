@@ -20,4 +20,5 @@ Die Anmeldung bleibt im Browser gespeichert, bis man sich abmeldet.
 - `liste.html`: die Listenansicht
 - `config.js`: Zugang zur Datenbank (der anon-Schlüssel ist öffentlich gedacht, die Daten schützen die Regeln in der Datenbank)
 - `datenbank-einrichten.sql`, `zugang-beschraenken.sql`: Tabelle, Zugriffsregeln, Live-Abgleich
+- `feedback.js`: Knopf „feedback“ auf allen Seiten. Fehler, Wünsche und Bedienungsprobleme mit Bild und Seiteninfo landen in der Tabelle `docs` (`coll = feedback`), Claude liest und beantwortet sie mit `feedback.py`
 - `supabase/functions/produkt/index.ts`: liest Maße, Preis und Foto aus Shop-Links
