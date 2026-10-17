@@ -8,3 +8,6 @@ feedback-*.jpg
 node_modules/
 quellen/shots/
 __pycache__/
+# Lokale Werkzeug-Dateien (Supabase-CLI, Claude Code)
+supabase/.temp/
+.claude/
