@@ -2,7 +2,7 @@
 //   NODE_PATH=$(npm root -g) node quellen/tests/smoke.js
 // Prüft: Seiten starten ohne JS-Fehler, Notiz auf dem Canvas wird gespeichert, Knopf „feedback“ ist überall da,
 // Konfliktprüfung, Ideen ins Moodboard, Menü „daten“, Raumblatt entsperren, Handy-Vollbild, liste.html leitet weiter,
-// Strom-Vergleich (Tabelle, Verbrauch, Preise holen, Karten auf dem Handy).
+// Strom-Vergleich (Tabelle, Verbrauch, Preise holen, Seitentext einfügen, Karten auf dem Handy).
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
 const R=path.join(__dirname,'..','..'),fake=fs.readFileSync(path.join(__dirname,'fake-sb.js'),'utf8');
 const rows=[
@@ -80,6 +80,15 @@ const types={html:'text/html',js:'application/javascript'};
  await p.click('#vtf button:not([type])');await p.waitForTimeout(600);
  db=await dbOf(p);
  ok(db.some(r=>r.coll==='contracts'&&r.data.anbieter==='Fakestrom · Grün 24'&&r.data.grundpreis==='11,5'&&r.data.arbeitspreis==='30,1'&&r.data.boni==='50'&&r.data.kfristE==='Monate'&&!r.data.preis),'strom: angebot mit grund- und arbeitspreis gespeichert');
+ await p.evaluate(()=>document.querySelector('[data-vadd="Strom"]').click());await p.waitForTimeout(200);
+ await p.click('#v-txb');await p.fill('#v-txt','Musterstrom Basis\nMindestlaufzeit:\n12 Monate\nArbeitspreis: 1)\n32,00 Cent/kWh\nGrundpreis: 1)\n12,00 €/Monat\nBestellen\nMusterstrom Plus\n100 €  Sofort-Bonus  2)\n60 €  Treue-Bonus  2)\nMindestlaufzeit:\n24 Monate\nArbeitspreis: 1)\n31,00 Cent/kWh\nGrundpreis: 1)\n13,00 €/Monat');await p.waitForTimeout(500);
+ ok(await p.evaluate(()=>document.querySelectorAll('#v-wahl .vw').length===2&&/Musterstrom Plus/.test(document.querySelector('#v-wahl .vw[data-i="1"]').textContent)),'strom: eingefügter seitentext zeigt beide tarife');
+ await p.click('#v-wahl .vw[data-i="1"]');
+ const w1=[await p.inputValue('#v-anb'),await p.inputValue('#v-gp'),await p.inputValue('#v-ap'),await p.inputValue('#v-boni'),await p.inputValue('#v-lz')].join('|');
+ await p.click('#v-wahl .vw[data-i="0"]');
+ const w0=[await p.inputValue('#v-anb'),await p.inputValue('#v-boni'),await p.inputValue('#v-lz')].join('|');
+ ok(w1==='Musterstrom Plus|13|31|160|24'&&w0==='Musterstrom Basis||12','strom: tarif wählen füllt das formular, anderer tarif ersetzt die werte');
+ await p.click('#v-x');
  const room=await p.$('rect.room-floor[data-room="kueche"]');const bx=await room.boundingBox();
  await p.mouse.click(bx.x+bx.width/2,bx.y+bx.height/3);await p.waitForTimeout(400);
  ok(await p.isVisible('#rb.open'),'raumblatt öffnet');
