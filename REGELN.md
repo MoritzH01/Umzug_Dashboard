@@ -26,6 +26,9 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 
 - Der Grundriss stammt aus dem Originalplan (16.10.2026). Räume liegen fest; auf dem Canvas werden sie nicht nebenbei verschoben, in der Liste nur nach Rückfrage geändert.
 - Kompass: Plan-rechts ist Nordost (`meta/plan.north = 45`).
+- Räume werden einzeln nach Plan und Fotos überarbeitet, ohne Einrichtung. Wo der Plan unklar ist, gelten die Fotos. (17.10.2026)
+- Wohnzimmer: ein Fenster, keine Tür zum Schlafzimmer, kein Kaminvorsprung. Schlafzimmer: ein Fenster, Kaminvorsprung in der Ecke. Flur: Eingangstür in der Längswand, Einbauschrank in die Stirnwand eingelassen (ragt nicht in den Flur). Bad: kein Fenster. Küche: Kaminvorsprung an der Ecke Brandwand/Flur, kein Fenster, nur die Balkontür; die Küchenzeile gehört nicht in den Grundriss. (17.10.2026)
+- Türen haben eine Anschlagseite: ohne Angabe sitzt das Scharnier am Anfang der Öffnung (bei `off`), mit `hinge: "end"` am Ende. In der Liste schaltet der Knopf ⟳/⟲ um. (17.10.2026)
 
 ## 3D-Ansicht
 
