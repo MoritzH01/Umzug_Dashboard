@@ -67,6 +67,9 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Möbel per Shop-Link anlegen; Maße bleiben editierbar. Die Edge Function `produkt` liest Name, Maße, Preis und Foto.
 - Utensilien (Bereich „utensilien“) sind eine Checkliste nach Kategorie in der Collection `utensils`, getrennt von Möbeln. Status: brauchen, bestellt, haben.
 - Verkauf läuft über Kleinanzeigen. Es gibt keine Anbindung, das Dashboard verfolgt nur den Stand.
+- Bereich „Verkaufen und weggeben“ (17.10.2026): Spalten für den Verkauf, dazu „Nachmieter“ (Übergabe an den Nachmieter) und „Verschenken / Sperrmüll“. Über „+ verkaufen“, „+ nachmieter“, „+ verschenken“ und „+ sperrmüll“ legt man dort direkt Stücke an.
+- Mehrere Labels je Möbel (17.10.2026): `items.dec` bleibt die Hauptentscheidung (Farbe, Status, Geld), `items.auch[]` sind weitere Möglichkeiten, z. B. erst Nachmieter fragen, sonst verkaufen. Ein Stück erscheint in jeder passenden Spalte. Kommt es anders, wird die Hauptentscheidung umgestellt.
+- Links sind anklickbar und öffnen in einem neuen Tab: Shop-Link (`items.link`) an Möbelkarten, Kleinanzeigen-Link (`items.anzeige`) an Verkaufskarten, Angebotslink und Links in der Notiz an Vertragskarten. (17.10.2026)
 - Umzugstermin: 15.12.2026 (änderbar unter „daten“).
 
 ## Geld (17.10.2026)

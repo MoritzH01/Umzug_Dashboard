@@ -9,6 +9,8 @@ const rows=[
  {coll:'rooms',id:'kueche',data:{name:'Küche',x:290,y:0,w:280,h:420,order:2,photos:[]}},
  {coll:'items',id:'sofa',data:{name:'Sofa',raum:'wohnen',prio:1,dec:'mitnehmen',w:200,d:90,h:80,x:40,y:40}},
  {coll:'items',id:'tisch',data:{name:'Tisch',raum:'wohnen',prio:1,dec:'kaufen',w:80,d:80,h:75,x:100,y:60}},
+ {coll:'items',id:'regal',data:{name:'Regal',prio:2,dec:'verkaufen',auch:['nachmieter'],status:'Online',preis:40,anzeige:'https://www.kleinanzeigen.de/s-anzeige/test/1',w:80,d:30,h:180}},
+ {coll:'contracts',id:'c1',data:{kat:'Strom',anbieter:'Teststrom',status:'vergleich',link:'https://strom.example.org/tarif'}},
  {coll:'tasks',id:'t1',data:{title:'Kartons besorgen',due:'2026-11-01',bereich:'orga',done:false}},
  {coll:'ideas',id:'i1',data:{title:'Leuchte aus Messing',notiz:'über dem Tisch'}},
  {coll:'meta',id:'settings',data:{moveDate:'2026-12-15'}},
@@ -39,6 +41,17 @@ const types={html:'text/html',js:'application/javascript'};
  await p.mouse.dblclick(700,600);await p.keyboard.type('Notiz aus dem Test');await p.mouse.click(1000,880);await p.waitForTimeout(800);
  db=await dbOf(p);
  ok(db.some(r=>r.coll==='board'&&/Notiz aus dem Test/.test(JSON.stringify(r.data))),'notiz wird in docs gespeichert');
+ ok(await p.evaluate(()=>{const f=document.querySelector('[data-frame="verkauf"]'),c=[...f.querySelectorAll('.col')].filter(x=>x.querySelector('[data-sell="regal"]')).map(x=>x.querySelector('h4').firstChild.textContent);return c.join()==='Online,Nachmieter'}),'verkauf: regal unter online und nachmieter');
+ ok(await p.evaluate(()=>!!document.querySelector('[data-sell="regal"] a[href^="https://www.kleinanzeigen.de"][target="_blank"]')&&!!document.querySelector('[data-vtr="c1"] a[href="https://strom.example.org/tarif"]')),'links an anzeige und vertrag anklickbar');
+ const sr=await p.evaluate(()=>{const b=document.querySelector('[data-sell="regal"] b').getBoundingClientRect();return {x:b.x,y:b.y}});
+ await p.mouse.move(720,450);await p.mouse.wheel(sr.x-720,sr.y-450);await p.waitForTimeout(200);
+ await p.mouse.click(725,455);await p.waitForTimeout(300);
+ ok(await p.evaluate(()=>!!document.querySelector('#itf')&&!document.querySelector('#f-anzo').hidden&&document.querySelector('#f-auch input[value="nachmieter"]').checked),'verkaufskarte öffnet formular mit labels und anzeige-link');
+ await p.click('#f-x');
+ await p.evaluate(()=>document.querySelector('[data-addweg="nachmieter"]').click());await p.waitForTimeout(200);
+ await p.fill('#f-name','Lampe aus dem Test');await p.check('#f-auch input[value="verkaufen"]');await p.click('#itf button:not([type])');await p.waitForTimeout(800);
+ db=await dbOf(p);
+ ok(db.some(r=>r.coll==='items'&&r.data.name==='Lampe aus dem Test'&&r.data.dec==='nachmieter'&&r.data.auch.join()==='verkaufen'),'verkauf: neues stück mit zwei labels gespeichert');
  await p.evaluate(()=>{document.querySelector('[data-z="plan"]').click()});await p.waitForTimeout(300);
  ok(await p.evaluate(()=>!!document.querySelector('#world .kz')&&!document.querySelector('#world .fixed')),'küchenlauf im grundriss, feste küchenzeile entfällt');
  await p.evaluate(()=>Kueche.open());await p.waitForTimeout(300);
