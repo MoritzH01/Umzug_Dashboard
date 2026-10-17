@@ -137,11 +137,23 @@ body.lod0 .l0b{display:flex}
 .rgrps{columns:3 240px;column-gap:20px}
 .rgrp{border-top:1px dashed var(--line);padding:8px 0 10px;break-inside:avoid}
 .rgrp h5{display:flex;justify-content:space-between;gap:8px;margin:0 0 8px;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
-.rgrp .cards{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
-.rgrp .card svg,.rgrp .card img.pic{height:52px}
-.pb{display:inline-block;font:600 9px var(--sans);padding:2px 6px;border-radius:8px;text-transform:uppercase;letter-spacing:.04em;margin:6px 4px 0 0;cursor:pointer;white-space:nowrap}
-.pb.p1{background:#e2412b;color:#fff}.pb.p2{background:#f2c230;color:var(--ink)}.pb.p3{background:#e6defa;color:#5a4a8a}
-.mbar .pb{margin:0;cursor:default}
+/* Möbelkacheln: Foto oben (4:3), Farbe nur für die Entscheidung, Wichtigkeit als Zwischenüberschrift */
+.rgrp .cards{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.rgrp .psub{display:flex;gap:6px;margin:10px 0 6px;font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+.rgrp .psub:first-of-type{margin-top:2px}.rgrp .psub span{opacity:.6}
+.rgrp .card{padding:0;display:flex;flex-direction:column}
+.rgrp .card>svg,.rgrp .card>img.pic{width:100%;height:auto;aspect-ratio:4/3;margin:0;border-bottom:1px solid var(--line);background:#fff;object-fit:contain}
+.rgrp .card>svg{background:#f6f4ef}
+.rgrp .card .cb{padding:8px 9px 9px;display:flex;flex-direction:column;gap:2px;flex:1}
+.rgrp .card b{font-size:13px;line-height:1.25}
+.rgrp .card .auch{font:500 10px var(--sans);color:var(--ink2)}
+.rgrp .card .cf{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:auto;padding-top:6px}
+.rgrp .card.placed::after{content:"im plan";display:flex;align-items:center;gap:4px;top:7px;right:7px;background:var(--paper);border:1px solid var(--line);padding:1px 6px}
+.dec{display:inline-flex;align-items:center;gap:5px;font:600 11px var(--sans);white-space:nowrap}
+.dec i{width:9px;height:9px;border:1.5px solid;flex:none}
+.dec.bestand{color:var(--ink2)}.dec.bestand i{border-color:var(--bestand);background:color-mix(in srgb,var(--bestand) 18%,#fff)}
+.dec.neu{color:var(--neu)}.dec.neu i{border-color:var(--neu);background:color-mix(in srgb,var(--neu) 18%,#fff)}
+.dec.abbruch{color:#9a7414}.dec.abbruch i{border-color:var(--abbruch);border-style:dashed}
 .mleer{font:400 11px var(--mono);color:var(--ink2);margin:8px 0 0}
 .card.placed::after{content:"im Plan";position:absolute;right:8px;top:8px;font:500 9px var(--mono);color:var(--blau)}
 .pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;height:100%}
@@ -170,6 +182,25 @@ a.ext{color:var(--blau);text-decoration:none;font:600 10px var(--sans);white-spa
 .vc.kd{border-left-color:var(--neu)}.vc.kd .st{border-color:var(--neu);color:var(--neu)}
 .vadd{display:block;width:100%;padding:7px;border:1px dashed var(--line);background:none;font:500 12px var(--sans);color:var(--ink2);cursor:pointer;text-transform:lowercase}
 .vadd:hover{border-color:var(--blau);color:var(--blau)}
+.vt .col.strom{grid-column:span 3}
+.verb{display:block;margin:-2px 0 8px;padding:0;border:0;background:none;font:500 10px var(--mono);color:var(--ink2);cursor:pointer;text-align:left}.verb:hover{color:var(--blau)}
+.vc .m.k{color:var(--ink)}
+.vc .st2{display:inline-block;font:600 9px var(--sans);padding:1px 5px;border:1.5px dashed var(--blau);color:var(--blau);margin-top:4px}
+table.vst{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);margin-bottom:8px}
+table.vst th{font:500 9px var(--mono);color:var(--ink2);text-align:right;padding:5px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.vst td{padding:6px;border-bottom:1px solid var(--line);text-align:right;font:11px var(--mono);white-space:nowrap;vertical-align:top}
+table.vst th:first-child,table.vst td:first-child{text-align:left}
+table.vst td:first-child{font:600 12px var(--sans);white-space:normal}
+table.vst tr{cursor:pointer}table.vst tr:hover td{background:#f7f8ff}
+table.vst td.j2{font:600 13px var(--sans)}table.vst td.j2 small{display:block;font:500 9px var(--mono);color:var(--ink2)}
+table.vst tr.best td.j2,table.vst tr.b1 td.j1{color:var(--blau);font-weight:600}
+table.vst tr.best td:first-child{box-shadow:inset 3px 0 var(--blau)}table.vst tr.ok td:first-child{box-shadow:inset 3px 0 #2e8b57}table.vst tr.kd td:first-child{box-shadow:inset 3px 0 var(--neu)}
+table.vst tr.weg td,table.vst tr.kd td{opacity:.6}
+table.vst .tag{display:inline-block;font:600 8px var(--sans);padding:1px 4px;border:1.5px solid var(--blau);color:var(--blau);margin-left:5px;vertical-align:1px;white-space:nowrap}
+table.vst .tag.b1{border-style:dashed}table.vst .tag.kd{border-color:var(--neu);color:var(--neu)}table.vst .tag.ok{border-color:#2e8b57;color:#2e8b57}
+table.vst a.ext{margin-left:5px;font-weight:500}
+.vleg{font:10px var(--mono);color:var(--ink2);margin:0 0 8px}
+#v-strom{display:grid;gap:14px}
 .vt .newcol{border-top:3px dashed var(--line);padding-top:8px}
 /* Utensilien: Checkliste nach Kategorie */
 .ucats{columns:3 260px;column-gap:18px}
@@ -610,9 +641,9 @@ function raumOf(it){if(it.x!=null&&it.x!==""){var d=dims(it),r=roomAt(+it.x+d.w/
 function moebelHTML(){var ids=Object.keys(I).filter(function(k){return !gehtWeg(I[k])&&!isPlant(I[k])}),g={};
   ids.forEach(function(id){var k=raumOf(I[id]);(g[k]=g[k]||[]).push(id)});
   var sum=function(l){return l.reduce(function(a,id){var it=I[id];return a+(it.dec==="kaufen"&&+it.preis?+it.preis:0)},0)},eur=function(n){return n?Math.round(n).toLocaleString("de-DE")+" €":""};
-  var card=function(id){var it=I[id],p=prioOf(it);return '<div class="card'+(it.x!=null&&it.x!==""?' placed':'')+'" data-card="'+id+'">'+(it.img?'<img class="pic" src="'+esc(it.img)+'" alt="">':iconSVG(it))+'<b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+it.w+' × '+it.d+' × '+it.h+' cm'+(it.dec==="kaufen"&&it.preis?' · '+eur(+it.preis):'')+'</div><span class="pb p'+p+'" data-prio="'+id+'" title="Antippen ändert die Wichtigkeit">'+PRIO[p]+'</span>'+chipsHTML(it)+(it.link?'<div class="lk">'+lnk(it.link,"Shop")+'</div>':'')+'</div>'};
-  var grp=function(name,l){l.sort(function(a,b){return prioOf(I[a])-prioOf(I[b])||String(I[a].name).localeCompare(String(I[b].name))});return '<div class="rgrp"><h5><span>'+esc(name)+' · '+l.length+'</span><span>'+eur(sum(l))+'</span></h5><div class="cards">'+l.map(card).join("")+'</div></div>'};
-  var s='<div class="mbar">'+[1,2,3].map(function(p){return '<span class="pb p'+p+'">'+PRIO[p]+'</span>'}).join("")+'<span class="sum">'+ids.length+' stück'+(sum(ids)?' · '+eur(sum(ids))+' zu kaufen':'')+'</span><button class="plus" data-add="moebel" title="Möbel hinzufügen" aria-label="Möbel hinzufügen">+</button></div>',leer=[];
+  var card=function(id){var it=I[id],l=labels(it),d=l[0]?DECL[l[0]]:(it.dec||"");return '<div class="card'+(it.x!=null&&it.x!==""?' placed':'')+'" data-card="'+id+'">'+(it.img?'<img class="pic" src="'+esc(it.img)+'" alt="">':iconSVG(it))+'<div class="cb"><b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+it.w+' × '+it.d+' × '+it.h+' cm'+(it.dec==="kaufen"&&it.preis?' · '+eur(+it.preis):'')+'</div>'+(l.length>1?'<div class="auch">auch: '+l.slice(1).map(function(k){return esc(DECL[k])}).join(", ")+'</div>':'')+'<div class="cf"><span class="dec '+cls(it)+'"><i></i>'+esc(d)+'</span>'+(it.link?lnk(it.link,"shop"):'')+'</div></div></div>'};
+  var grp=function(name,l){l.sort(function(a,b){return String(I[a].name).localeCompare(String(I[b].name))});return '<div class="rgrp"><h5><span>'+esc(name)+' · '+l.length+'</span><span>'+eur(sum(l))+'</span></h5>'+[1,2,3].map(function(p){var lp=l.filter(function(id){return prioOf(I[id])===p});return lp.length?'<div class="psub">'+PRIO[p]+' <span>· '+lp.length+'</span></div><div class="cards">'+lp.map(card).join("")+'</div>':''}).join("")+'</div>'};
+  var s='<div class="mbar"><span class="sum">'+ids.length+' stück'+(sum(ids)?' · '+eur(sum(ids))+' zu kaufen':'')+'</span><button class="plus" data-add="moebel" title="Möbel hinzufügen" aria-label="Möbel hinzufügen">+</button></div>',leer=[];
   s+='<div class="rgrps">';rooms().forEach(function(r){if(g[r.id])s+=grp(r.name,g[r.id]);else leer.push(r.name)});
   if(g[""])s+=grp("noch ohne Raum",g[""]);s+='</div>';
   if(!ids.length)s+='<p class="mleer">Noch keine Möbel. Mit + das erste eintragen.</p>';
@@ -679,37 +710,101 @@ var VST={vergleich:"Angebot",abgeschlossen:"Abgeschlossen",kuendigen:"Alt: künd
 var VKAT=["Strom","Internet","Hausrat","Haftpflicht","Gas","Rundfunkbeitrag","Handy","Umzugsfirma","Transporter","Halteverbot"];
 function vtrAll(){return Object.keys(C).map(function(k){return Object.assign({id:k},C[k])})}
 function euro(n){return (Math.round(n*100)/100).toLocaleString("de-DE",{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})+" €"}
-function jahr(v){var m=parseFloat(String(v.preis||"").replace(",",".")),e=parseFloat(String(v.einmal||"").replace(",","."));if(isNaN(m)&&isNaN(e))return null;return (isNaN(m)?0:m*12)+(isNaN(e)?0:e)}
+function pz(x){var n=parseFloat(String(x==null?"":x).replace(",","."));return isNaN(n)?null:n}
+function isStrom(v){return String(v&&v.kat||"").trim().toLowerCase()==="strom"}
+function verbStrom(){return +(SETT&&SETT.verbrauchStrom)||2500}
+// Strom: Monatspreis ab Jahr 2 = Grundpreis + Verbrauch × Arbeitspreis (ohne Boni), Ø 1. Jahr mit Boni und Einmalkosten. Alter negativer Einmalbetrag zählt als Bonus.
+function strom(v){var gp=pz(v.grundpreis),ap=pz(v.arbeitspreis),e=pz(v.einmal),b=Math.abs(pz(v.boni)||0),ein=0,kwh=verbStrom();
+  if(e!=null){if(e<0)b-=e;else ein=e}
+  var calc=gp!=null&&ap!=null,m2=calc?gp+kwh*ap/1200:pz(v.preis);if(m2==null)return null;
+  var m1=m2+(ein-b)/12;return {gp:gp,ap:ap,boni:b,ein:ein,m2:m2,m1:m1,c2:m2*1200/kwh,c1:m1*1200/kwh,calc:calc}}
+function jahr(v){if(isStrom(v)){var s=strom(v);return s?s.m1*12:null}
+  var m=parseFloat(String(v.preis||"").replace(",",".")),e=parseFloat(String(v.einmal||"").replace(",","."));if(isNaN(m)&&isNaN(e))return null;return (isNaN(m)?0:m*12)+(isNaN(e)?0:e)}
+function vwert(v){if(isStrom(v)){var s=strom(v);return s?s.m2:null}return jahr(v)}
+function eur2(n){return n.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"}
+function ct(n){return (Math.round(n*100)/100).toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:2})+" ct"}
+function kfr(v){return v.kfrist?v.kfrist+" "+(v.kfristE==="Monate"?(v.kfrist=="1"?"Monat":"Monate"):(v.kfrist=="1"?"Woche":"Wochen")):""}
 function vtrKats(){var m={},o=[];vtrAll().forEach(function(v){var k=(v.kat||"Sonstiges").trim();if(!m[k]){m[k]={kat:k,list:[]};o.push(m[k])}m[k].list.push(v)});
   o.forEach(function(g){var neu=g.list.filter(function(v){return v.status!=="kuendigen"&&v.status!=="gekuendigt"});g.ok=neu.filter(function(v){return v.status==="abgeschlossen"})[0]||null;
-    var pr=neu.filter(function(v){return jahr(v)!=null}).sort(function(a,b){return jahr(a)-jahr(b)});g.best=pr.length>1?pr[0].id:null;
-    g.list.sort(function(a,b){var r=function(v){return v.status==="abgeschlossen"?0:v.status==="vergleich"||!v.status?1:2};return r(a)-r(b)||((jahr(a)==null?1e9:jahr(a))-(jahr(b)==null?1e9:jahr(b)))})});
+    var pr=neu.filter(function(v){return vwert(v)!=null}).sort(function(a,b){return vwert(a)-vwert(b)});g.best=pr.length>1?pr[0].id:null;
+    g.best1=null;if(g.best&&isStrom({kat:g.kat})){var p1=pr.slice().sort(function(a,b){return jahr(a)-jahr(b)})[0];if(p1.id!==g.best&&jahr(p1)<jahr(pr[0]))g.best1=p1.id}
+    g.list.sort(function(a,b){var r=function(v){return v.status==="abgeschlossen"?0:v.status==="vergleich"||!v.status?1:2};return r(a)-r(b)||((vwert(a)==null?1e9:vwert(a))-(vwert(b)==null?1e9:vwert(b)))})});
   return o.sort(function(a,b){return a.kat.localeCompare(b.kat,"de")})}
-function vertraegeHTML(){var g=vtrKats();
-  return '<div class="vt">'+g.map(function(k){return '<div class="col'+(k.ok?' ok':'')+'"><h4>'+esc(k.kat)+'<small>'+(k.ok?(k.ok.ab?'ab '+fmtD(k.ok.ab):'abgeschlossen'):k.list.length+' im vergleich')+'</small></h4>'+
-    k.list.map(function(v){var j=jahr(v),st0=v.status||"vergleich",kd=st0==="kuendigen"||st0==="gekuendigt",weg=k.ok&&k.ok.id!==v.id&&!kd;
-      var lab=st0==="abgeschlossen"?(v.ab?'ab '+fmtD(v.ab):'ab wann?'):st0==="kuendigen"?(v.ab?'kündigen bis '+fmtD(v.ab):'kündigen'):st0==="gekuendigt"?(v.ab?'endet '+fmtD(v.ab):'gekündigt'):(k.best===v.id?'günstigstes':'angebot');
-      return '<div class="vc'+(st0==="abgeschlossen"?' ok':'')+(kd?' kd':'')+(weg?' weg':'')+(k.best===v.id?' best':'')+'" data-vtr="'+v.id+'"><span class="st">'+lab+'</span><b>'+esc(v.anbieter||"Ohne Namen")+'</b>'+
-        (v.preis?'<div class="pr">'+euro(parseFloat(String(v.preis).replace(",",".")))+' <small>/ monat</small></div>':'')+
-        '<div class="m">'+[j!=null?euro(j)+' im 1. jahr':'',v.laufzeit?v.laufzeit+' mon. laufzeit':'',v.einmal?'einmalig '+euro(parseFloat(String(v.einmal).replace(",","."))):''].filter(Boolean).join(' · ')+'</div>'+
-        (v.notiz?'<div class="m" style="font-family:var(--hand);font-size:11px;color:var(--ink)">'+linkify(v.notiz)+'</div>':'')+(v.link?'<div class="m">'+lnk(v.link,"Angebot")+'</div>':'')+'</div>'}).join("")+
+function vlab(k,v){var st0=v.status||"vergleich";return st0==="abgeschlossen"?(v.ab?'ab '+fmtD(v.ab):'ab wann?'):st0==="kuendigen"?(v.ab?'kündigen bis '+fmtD(v.ab):'kündigen'):st0==="gekuendigt"?(v.ab?'endet '+fmtD(v.ab):'gekündigt'):(k.best===v.id?'günstigstes':'angebot')}
+function vcard(k,v){var j=jahr(v),st0=v.status||"vergleich",kd=st0==="kuendigen"||st0==="gekuendigt",weg=k.ok&&k.ok.id!==v.id&&!kd,body;
+  if(isStrom(v)){var s=strom(v),kurz=[v.laufzeit?'mind. '+esc(v.laufzeit)+' mon.':'',v.kfrist?'frist '+esc(kfr(v)):'',v.garantie?'garantie '+esc(v.garantie)+' mon.':''].filter(Boolean).join(' · ');
+    body=(s?'<div class="pr">'+eur2(s.m2)+' <small>/ monat ab jahr 2 · '+ct(s.c2)+'/kWh</small></div>':'')+
+      (s&&s.calc?'<div class="m k">'+eur2(s.gp)+' grund · '+ct(s.ap)+'/kWh'+(s.boni?' · boni '+eur2(s.boni):'')+'</div>':'')+
+      (s&&(s.boni||s.ein)?'<div class="m">Ø 1. jahr '+eur2(s.m1)+' / monat · '+ct(s.c1)+'/kWh'+(s.ein?' · einmalig '+euro(s.ein):'')+'</div>':'')+
+      (kurz?'<div class="m">'+kurz+'</div>':'')+(k.best1===v.id?'<span class="st2">günstigstes 1. jahr</span>':'')}
+  else body=(v.preis?'<div class="pr">'+euro(parseFloat(String(v.preis).replace(",",".")))+' <small>/ monat</small></div>':'')+
+    '<div class="m">'+[j!=null?euro(j)+' im 1. jahr':'',v.laufzeit?v.laufzeit+' mon. laufzeit':'',v.einmal?'einmalig '+euro(parseFloat(String(v.einmal).replace(",","."))):''].filter(Boolean).join(' · ')+'</div>';
+  return '<div class="vc'+(st0==="abgeschlossen"?' ok':'')+(kd?' kd':'')+(weg?' weg':'')+(k.best===v.id?' best':'')+'" data-vtr="'+v.id+'"><span class="st">'+vlab(k,v)+'</span><b>'+esc(v.anbieter||"Ohne Namen")+'</b>'+body+
+    (v.notiz?'<div class="m" style="font-family:var(--hand);font-size:11px;color:var(--ink)">'+linkify(v.notiz)+'</div>':'')+(v.link?'<div class="m">'+lnk(v.link,"Angebot")+'</div>':'')+'</div>'}
+function stromTab(k){var d=function(x){return x==null||x===""?'–':x};
+  return '<table class="vst"><tr><th>anbieter</th><th>grund/mon.</th><th>arbeitspreis</th><th>boni</th><th>ab jahr 2</th><th>Ø 1. jahr</th><th>mind.</th><th>frist</th><th>garantie</th></tr>'+
+  k.list.map(function(v){var s=strom(v),st0=v.status||"vergleich",kd=st0==="kuendigen"||st0==="gekuendigt",ok=st0==="abgeschlossen",weg=k.ok&&k.ok.id!==v.id&&!kd;
+    var tag=ok||kd?'<span class="tag'+(kd?' kd':' ok')+'">'+vlab(k,v)+'</span>':k.best===v.id?'<span class="tag">günstigstes</span>':'';if(k.best1===v.id)tag+='<span class="tag b1">günstigstes 1. jahr</span>';
+    return '<tr data-vtr="'+v.id+'" class="'+[ok?'ok':'',kd?'kd':'',weg?'weg':'',k.best===v.id?'best':'',k.best1===v.id?'b1':''].join(' ').trim()+'"'+(v.notiz?' title="'+esc(v.notiz)+'"':'')+'><td>'+esc(v.anbieter||"Ohne Namen")+tag+(v.link?' '+lnk(v.link,"angebot"):'')+'</td>'+
+      '<td>'+d(s&&s.calc?eur2(s.gp):null)+'</td><td>'+d(s&&s.calc?ct(s.ap):null)+'</td><td>'+d(s&&s.boni?eur2(s.boni):null)+'</td><td class="j2">'+d(s?eur2(s.m2):null)+'<small>'+(s?ct(s.c2):'')+'</small></td><td class="j1">'+d(s?eur2(s.m1):null)+'</td>'+
+      '<td>'+d(v.laufzeit?esc(v.laufzeit)+' M':null)+'</td><td>'+d(v.kfrist?esc(v.kfrist)+' '+(v.kfristE==="Monate"?'M':'W'):null)+'</td><td>'+d(v.garantie?esc(v.garantie)+' M':null)+'</td></tr>'}).join("")+'</table>'+
+  '<p class="vleg">ab jahr 2 = grundpreis + verbrauch × arbeitspreis, ohne boni · Ø 1. jahr mit boni und einmalkosten · klick auf eine zeile zum bearbeiten</p>'}
+function vertraegeHTML(){var g=vtrKats(),mob=isMob();
+  return '<div class="vt">'+g.map(function(k){var sk=isStrom({kat:k.kat}),tab=sk&&!mob;
+    return '<div class="col'+(k.ok?' ok':'')+(tab?' strom':'')+'"><h4>'+esc(k.kat)+'<small>'+(k.ok?(k.ok.ab?'ab '+fmtD(k.ok.ab):'abgeschlossen'):k.list.length+' im vergleich')+'</small></h4>'+
+    (sk?'<button class="verb" data-verb>verbrauch '+verbStrom().toLocaleString("de-DE")+' kWh/jahr ✎</button>':'')+
+    (tab?stromTab(k):k.list.map(function(v){return vcard(k,v)}).join(""))+
     '<button class="vadd" data-vadd="'+esc(k.kat)+'">+ angebot</button></div>'}).join("")+
-    '<div class="newcol"><button class="vadd" data-vadd="">+ neuer vertrag</button><p class="tlh" style="position:static;margin-top:10px">Pro Thema mehrere Angebote eintragen, das günstigste im ersten Jahr wird markiert. Abgeschlossene Verträge und Kündigungen erscheinen mit Datum auf der Zeitleiste.</p></div></div>'}
+    '<div class="newcol"><button class="vadd" data-vadd="">+ neuer vertrag</button><p class="tlh" style="position:static;margin-top:10px">Pro Thema mehrere Angebote eintragen, das günstigste wird markiert (Strom nach dem Preis ab dem 2. Jahr, sonst nach dem 1. Jahr). Abgeschlossene Verträge und Kündigungen erscheinen mit Datum auf der Zeitleiste.</p></div></div>'}
+function verbForm(){
+  $("#modal").innerHTML='<div class="bg"><form id="vbf" autocomplete="off"><h2>stromverbrauch</h2><label>Verbrauch pro Jahr (kWh)<input id="vb-k" inputmode="numeric" value="'+verbStrom()+'"></label><p class="note2">Gilt für alle Stromangebote. Ohne Angabe wird mit 2500 kWh gerechnet.</p>'+
+  '<div class="foot"><button type="button" class="btn ghost" id="vb-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
+  $("#vb-x").onclick=function(){$("#modal").innerHTML=""};
+  $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
+  $("#vbf").addEventListener("submit",function(e){e.preventDefault();var n=Math.round(num($("#vb-k").value));if(n<100||n>100000){toast("Bitte den Verbrauch in kWh pro Jahr eintragen");return}
+    SETT=Object.assign({},SETT);if(n===2500)delete SETT.verbrauchStrom;else SETT.verbrauchStrom=n;if(!STORE)st.settings=SETT;save();$("#modal").innerHTML="";render();toast("Strom gerechnet mit "+n.toLocaleString("de-DE")+" kWh im Jahr")});
+  setTimeout(function(){$("#vb-k").select()},30)}
 function vtrForm(id,preset){var v=id?Object.assign({},C[id]):Object.assign({kat:"",status:"vergleich"},preset||{});
+  var boni0=v.boni||"",ein0=v.einmal||"";if(isStrom(v)&&pz(v.einmal)<0&&!pz(v.boni)){boni0=String(-pz(v.einmal)).replace(".",",");ein0=""}
+  var inl=function(a,b){return '<span style="display:flex;gap:6px">'+a+b+'</span>'};
   $("#modal").innerHTML='<div class="bg"><form id="vtf" autocomplete="off"><h2>'+(id?'vertrag bearbeiten':'neuer vertrag')+'</h2>'+
   '<div class="row"><label>Thema<input id="v-kat" list="v-kats" required value="'+esc(v.kat||"")+'" placeholder="z. B. Strom"><datalist id="v-kats">'+VKAT.map(function(k){return '<option value="'+k+'">'}).join("")+'</datalist></label><label>Anbieter / Tarif<input id="v-anb" required value="'+esc(v.anbieter||"")+'"></label></div>'+
-  '<div class="row"><label>Preis pro Monat (€)<input id="v-preis" inputmode="decimal" value="'+esc(v.preis||"")+'"></label><label>Einmalig (€, Bonus mit Minus)<input id="v-einmal" inputmode="decimal" value="'+esc(v.einmal||"")+'"></label></div>'+
-  '<div class="row"><label>Laufzeit (Monate)<input id="v-lz" inputmode="numeric" value="'+esc(v.laufzeit||"")+'"></label><label>Status<select id="v-st">'+Object.keys(VST).map(function(k){return '<option value="'+k+'"'+((v.status||"vergleich")===k?' selected':'')+'>'+VST[k]+'</option>'}).join("")+'</select></label></div>'+
+  '<div id="v-strom">'+
+  '<div class="row"><label>Grundpreis brutto'+inl('<input id="v-gp" inputmode="decimal" value="'+esc(v.grundpreis||"")+'">','<select id="v-gpe" style="width:auto"><option value="m">€/Monat</option><option value="j">€/Jahr</option></select>')+'</label><label>Arbeitspreis brutto (ct/kWh)<input id="v-ap" inputmode="decimal" value="'+esc(v.arbeitspreis||"")+'"></label></div>'+
+  '<div class="row"><label>Boni (€, zusammen)<input id="v-boni" inputmode="decimal" value="'+esc(boni0)+'" placeholder="Arten in die Notiz"></label><label>Preisgarantie (Monate)<input id="v-pg" inputmode="numeric" value="'+esc(v.garantie||"")+'"></label></div>'+
+  '<p class="note2" id="v-calc"></p></div>'+
+  '<div class="row"><label id="v-pl">Preis pro Monat (€)<input id="v-preis" inputmode="decimal" value="'+esc(v.preis||"")+'"></label><label id="v-el">Einmalig (€, Bonus mit Minus)<input id="v-einmal" inputmode="decimal" value="'+esc(ein0)+'"></label></div>'+
+  '<div class="row"><label id="v-lzl">Laufzeit (Monate)<input id="v-lz" inputmode="numeric" value="'+esc(v.laufzeit||"")+'"></label><label>Status<select id="v-st">'+Object.keys(VST).map(function(k){return '<option value="'+k+'"'+((v.status||"vergleich")===k?' selected':'')+'>'+VST[k]+'</option>'}).join("")+'</select></label></div>'+
+  '<div class="row" id="v-kfr"><label>Kündigungsfrist'+inl('<input id="v-kf" inputmode="numeric" value="'+esc(v.kfrist||"")+'">','<select id="v-kfe" style="width:auto"><option>Wochen</option><option'+(v.kfristE==="Monate"?' selected':'')+'>Monate</option></select>')+'</label><span></span></div>'+
   '<div class="row"><label><span id="v-dl">Ab wann</span><input id="v-ab" type="date" value="'+esc(v.ab||"")+'"></label><label>Link<input id="v-link" type="url" value="'+esc(v.link||"")+'" placeholder="https://"></label></div>'+
+  '<p class="note2" id="v-holp"><button type="button" class="btn ghost" id="v-hol">Preise holen</button> <span id="v-holst">liest Grund- und Arbeitspreis, Boni und Fristen von der Seite im Link</span></p>'+
   '<label>Notiz<input id="v-notiz" value="'+esc(v.notiz||"")+'" placeholder="Kundennummer, Kündigungsfrist …"></label>'+
   (v.link?'<p class="note2">'+lnk(v.link,"Angebot öffnen")+'</p>':'')+
   '<div class="foot">'+(id?'<button type="button" class="btn del" id="v-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="v-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
   var lab=function(){var x=$("#v-st").value;$("#v-dl").textContent=x==="kuendigen"?"Kündigen bis":x==="gekuendigt"?"Endet am":x==="abgeschlossen"?"Beginnt am":"Ab wann (geplant)"};lab();$("#v-st").onchange=lab;
+  var gpM=function(){var g=pz($("#v-gp").value);return g==null?"":String($("#v-gpe").value==="j"?Math.round(g/12*100)/100:g).replace(".",",")};
+  var calc=function(){var s=strom({grundpreis:gpM(),arbeitspreis:$("#v-ap").value,boni:$("#v-boni").value,einmal:$("#v-einmal").value,preis:$("#v-preis").value});
+    $("#v-calc").innerHTML=s?'<b>'+eur2(s.m2)+'</b> / monat ab jahr 2 · '+ct(s.c2)+'/kWh'+(s.m1!==s.m2?' · Ø 1. jahr '+eur2(s.m1):'')+' · bei '+verbStrom().toLocaleString("de-DE")+' kWh':'Grund- und Arbeitspreis eintragen, dann rechnet es hier.'};
+  var mode=function(){var s=isStrom({kat:$("#v-kat").value});$("#v-strom").style.display=$("#v-kfr").style.display=$("#v-holp").style.display=s?"":"none";
+    $("#v-pl").style.display=s&&!$("#v-preis").value.trim()?"none":"";$("#v-pl").firstChild.textContent=s?"Preis pro Monat (€, ohne Grund-/Arbeitspreis)":"Preis pro Monat (€)";
+    $("#v-lzl").firstChild.textContent=s?"Mindestlaufzeit (Monate)":"Laufzeit (Monate)";$("#v-el").firstChild.textContent=s?"Einmalkosten (€)":"Einmalig (€, Bonus mit Minus)";if(s)calc()};
+  mode();$("#v-kat").addEventListener("input",mode);["#v-gp","#v-gpe","#v-ap","#v-boni","#v-einmal","#v-preis"].forEach(function(q){$(q).addEventListener("input",calc)});
+  $("#v-hol").onclick=function(){var u=$("#v-link").value.trim(),b=this;if(!/^https?:\/\//i.test(u)){toast("Erst den Link zum Tarif eintragen");$("#v-link").focus();return}
+    if(!window.UMZUG_LINK_FN){toast("Preise holen geht nur angemeldet");return}
+    b.disabled=true;$("#v-holst").textContent="hole die Seite …";
+    window.UMZUG_LINK_FN(u,"tarif").then(function(d){var n=0,set=function(q,x){var el=$(q);if(x==null||x===""||el.value.trim())return false;el.value=String(x).replace(".",",");n++;return true};
+      set("#v-anb",[d.anbieter,d.tarif].filter(Boolean).join(" · "));if(set("#v-gp",d.grundpreis))$("#v-gpe").value="m";set("#v-ap",d.arbeitspreis);set("#v-boni",d.boni);set("#v-lz",d.laufzeit);set("#v-pg",d.garantie);
+      if(set("#v-kf",d.kfrist))$("#v-kfe").value=d.kfristE==="Monate"?"Monate":"Wochen";calc();
+      $("#v-holst").textContent=(n?n+" Felder gefüllt, bitte prüfen":"Nichts Neues gefunden, bitte von Hand eintragen")+(d.kwh&&d.kwh!==verbStrom()?". Die Seite rechnet mit "+d.kwh+" kWh.":"")})
+    .catch(function(e){$("#v-holst").textContent="Seite nicht lesbar ("+((e&&e.message)||"Fehler")+"). Bitte von Hand eintragen."}).then(function(){b.disabled=false})};
   $("#v-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
   if(id)$("#v-del").onclick=function(){delete C[id];save();$("#modal").innerHTML="";render();toast("Vertrag gelöscht")};
   $("#vtf").addEventListener("submit",function(e){e.preventDefault();var nid=id||("v"+Date.now().toString(36));
     var o=Object.assign({},v,{kat:$("#v-kat").value.trim(),anbieter:$("#v-anb").value.trim(),preis:$("#v-preis").value.trim(),einmal:$("#v-einmal").value.trim(),laufzeit:$("#v-lz").value.trim(),status:$("#v-st").value,ab:$("#v-ab").value,link:$("#v-link").value.trim(),notiz:$("#v-notiz").value.trim(),updated:new Date().toISOString()});
+    ["grundpreis","arbeitspreis","boni","garantie","kfrist","kfristE"].forEach(function(k){delete o[k]});
+    if(isStrom(o)){var sv={grundpreis:gpM(),arbeitspreis:$("#v-ap").value.trim(),boni:$("#v-boni").value.trim().replace(/^-/,""),garantie:$("#v-pg").value.trim(),kfrist:$("#v-kf").value.trim()};
+      if(sv.kfrist)sv.kfristE=$("#v-kfe").value;Object.keys(sv).forEach(function(k){if(sv[k])o[k]=sv[k]});if(o.grundpreis&&o.arbeitspreis)o.preis=""}
     if(o.status==="abgeschlossen")Object.keys(C).forEach(function(k){if(k!==nid&&C[k].kat===o.kat&&C[k].status==="abgeschlossen"){C[k].status="vergleich"}});
     C[nid]=o;save();$("#modal").innerHTML="";render();toast(o.status==="abgeschlossen"?(o.ab?o.kat+" läuft ab "+fmtD(o.ab):"Abgeschlossen. Trag noch ein, ab wann."):"Gespeichert")});
   setTimeout(function(){$(id||preset&&preset.kat?"#v-anb":"#v-kat").focus()},30)}
@@ -949,7 +1044,6 @@ board.addEventListener("pointerdown",function(e){if(e.target.closest('[contented
   else if(t.closest("[data-el]")){tbReset();var id=t.closest("[data-el]").dataset.el,el2=getEl(id);drag={kind:"el",el:el2,ox:w.x-el2.x,oy:w.y-el2.y,node:t.closest("[data-el]")};if(selId!==id){selId=id;world.querySelectorAll(".sel").forEach(function(n){n.classList.remove("sel")});drag.node.classList.add("sel")}}
   else if(t.closest("[data-fdrag]")){var fid=t.closest("[data-fdrag]").dataset.fdrag,fr=st.frames[fid]||st.frames.user[fid];drag={kind:"frame",id:fid,f:fr,ox:w.x-fr.x,oy:w.y-fr.y,node:t.closest("[data-fdrag]").parentNode}}
   else if(t.closest("[data-furn]")){var fid2=t.closest("[data-furn]").dataset.furn,it=I[fid2];drag={kind:"furn",id:fid2,ox:w.x-(+it.x),oy:w.y-(+it.y),node:t.closest("[data-furn]"),sx:e.clientX,sy:e.clientY};tbReset()}
-  else if(t.closest("[data-prio]")){drag={kind:"prio",id:t.closest("[data-prio]").dataset.prio}}
   else if(t.closest("[data-card]")){drag={kind:"card",id:t.closest("[data-card]").dataset.card,sx:e.clientX,sy:e.clientY}}
   else{tbReset();if(selFurn){selFurn=null;world.querySelectorAll(".furn.fsel").forEach(function(n){n.classList.remove("fsel")})}drag={kind:"pan",sx:e.clientX,sy:e.clientY,vx:V.x,vy:V.y,room:t.closest("[data-room]")};board.classList.add("panning");if(selId){selId=null;world.querySelectorAll(".sel").forEach(function(n){n.classList.remove("sel")})}}
   board.setPointerCapture(e.pointerId)});
@@ -973,7 +1067,6 @@ function end(e){delete pts[e.pointerId];if(pinch&&Object.keys(pts).length<2){pin
   if(d.kind==="frame"&&!moved&&isMob()){openFull(d.id);return}
   if(d.kind==="furn"&&moved&&d.nx!=null){var it=I[d.id],dd0=dims(it);if(!roomAt(d.nx+dd0.w/2,d.ny+dd0.h/2)){unplace(d.id);return}setPos(d.id,d.nx,d.ny);save();render();selectFurn(d.id);return}
   if(d.kind==="furn"){if(!moved)selectFurn(selFurn===d.id?null:d.id);else{render();selectFurn(d.id)}return}
-  if(d.kind==="prio"){var ip=I[d.id];if(ip){ip.prio=prioOf(ip)%3+1;if(st.itemData[d.id])st.itemData[d.id].prio=ip.prio;save();render();toast(((ip.name||"").split(/[,(]/)[0])+": "+PRIO[ip.prio])}return}
   if(d.kind==="card"&&!d.g){itemForm(d.id);return}
   if(d.kind==="vtr"){vtrForm(d.id);return}
   if(d.kind==="sell"){itemForm(d.id);return}
@@ -1037,6 +1130,7 @@ document.addEventListener("click",function(e){var t=e.target,b;if(t.closest("a[h
     if(u0==="brauchen"&&uPreis(uu))askPayer(uu.name||"Das Utensil",function(z){uu.zahler=z;save();render()})}return}
   if((b=t.closest("[data-uitem]"))){uForm(b.dataset.uitem);return}
   if((b=t.closest("[data-vadd]"))){vtrForm(null,b.dataset.vadd?{kat:b.dataset.vadd}:null);return}
+  if(t.closest("[data-verb]")){verbForm();return}
   if((b=t.closest("[data-sheet]"))){openSheet(b.dataset.sheet);return}
   if(t.closest("[data-kplan]")){if(window.Kueche)Kueche.open();return}
   if((b=t.closest("[data-undue]"))){var ue=getEl(b.dataset.undue);if(ue){delete ue.due;save();render();toast("Datum entfernt")}return}
@@ -1407,7 +1501,6 @@ function zeitListHTML(){var t0=today(),rows=[],nd=[];
   return s+'</div>'}
 $("#full").addEventListener("click",function(e){var t=e.target,b;if(t.closest("a[href]"))return;
   if(t.closest("[data-fullx]")){closeFull();return}
-  if((b=t.closest("[data-prio]"))){var ip=I[b.dataset.prio];if(ip){ip.prio=prioOf(ip)%3+1;save();render();toast(shortName(ip)+": "+PRIO[ip.prio])}return}
   if((b=t.closest("[data-card]"))){itemForm(b.dataset.card);return}
   if((b=t.closest("[data-vtr]"))){vtrForm(b.dataset.vtr);return}
   if((b=t.closest("[data-task]"))){taskForm(b.dataset.task);return}

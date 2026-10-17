@@ -31,7 +31,7 @@ function load(session){if(started)return;started=true;$("#modal").innerHTML='<di
     window.TAFEL_STORE={
       put:function(c,id,data){return sb.from("docs").upsert({coll:c,id:id,data:data,updated_at:new Date().toISOString()}).then(function(x){if(x.error)toast("Speichern hat nicht geklappt: "+x.error.message)})},
       del:function(c,id){return sb.from("docs").delete().eq("coll",c).eq("id",id).then(function(x){if(x.error)toast("Löschen hat nicht geklappt.")})}};
-    window.UMZUG_LINK_FN=function(url){return sb.functions.invoke("produkt",{body:{url:url}}).then(function(x){if(x.error){var c=x.error.context;return (c&&c.json?c.json().catch(function(){return {}}):Promise.resolve({})).then(function(j){throw new Error(j.error||(c&&c.status?"Status "+c.status:x.error.message))})}if(!x.data||x.data.error)throw new Error((x.data&&x.data.error)||"keine Antwort");return x.data})};
+    window.UMZUG_LINK_FN=function(url,art){return sb.functions.invoke("produkt",{body:art?{url:url,art:art}:{url:url}}).then(function(x){if(x.error){var c=x.error.context;return (c&&c.json?c.json().catch(function(){return {}}):Promise.resolve({})).then(function(j){throw new Error(j.error||(c&&c.status?"Status "+c.status:x.error.message))})}if(!x.data||x.data.error)throw new Error((x.data&&x.data.error)||"keine Antwort");return x.data})};
     $("#modal").innerHTML="";window.startTafel();
     var acct=$("#acct");acct.hidden=false;acct.innerHTML=(session.user.email||"")+' · <a href="#" id="logout">abmelden</a>';$("#to-3d").hidden=false;
     $("#logout").onclick=function(e){e.preventDefault();sb.auth.signOut().then(function(){location.reload()})};

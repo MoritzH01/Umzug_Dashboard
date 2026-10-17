@@ -1,7 +1,8 @@
 // Rauchtest: lädt Canvas und 3D mit nachgebauter Datenbank (fake-sb.js) und erfundenen Testdaten.
 //   NODE_PATH=$(npm root -g) node quellen/tests/smoke.js
 // Prüft: Seiten starten ohne JS-Fehler, Notiz auf dem Canvas wird gespeichert, Knopf „feedback“ ist überall da,
-// Konfliktprüfung, Ideen ins Moodboard, Menü „daten“, Raumblatt entsperren, Handy-Vollbild, liste.html leitet weiter.
+// Konfliktprüfung, Ideen ins Moodboard, Menü „daten“, Raumblatt entsperren, Handy-Vollbild, liste.html leitet weiter,
+// Strom-Vergleich (Tabelle, Verbrauch, Preise holen, Karten auf dem Handy).
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
 const R=path.join(__dirname,'..','..'),fake=fs.readFileSync(path.join(__dirname,'fake-sb.js'),'utf8');
 const rows=[
@@ -11,6 +12,8 @@ const rows=[
  {coll:'items',id:'tisch',data:{name:'Tisch',raum:'wohnen',prio:1,dec:'kaufen',w:80,d:80,h:75,x:100,y:60}},
  {coll:'items',id:'regal',data:{name:'Regal',prio:2,dec:'verkaufen',auch:['nachmieter'],status:'Online',preis:40,anzeige:'https://www.kleinanzeigen.de/s-anzeige/test/1',w:80,d:30,h:180}},
  {coll:'contracts',id:'c1',data:{kat:'Strom',anbieter:'Teststrom',status:'vergleich',link:'https://strom.example.org/tarif'}},
+ {coll:'contracts',id:'c2',data:{kat:'Strom',anbieter:'Probestrom',grundpreis:'12,90',arbeitspreis:'31,2',status:'vergleich'}},
+ {coll:'contracts',id:'c3',data:{kat:'Strom',anbieter:'Bonusstrom',grundpreis:'9,50',arbeitspreis:'33,9',boni:'120',status:'vergleich'}},
  {coll:'tasks',id:'t1',data:{title:'Kartons besorgen',due:'2026-11-01',bereich:'orga',done:false}},
  {coll:'ideas',id:'i1',data:{title:'Leuchte aus Messing',notiz:'über dem Tisch'}},
  {coll:'meta',id:'settings',data:{moveDate:'2026-12-15'}},
@@ -64,6 +67,16 @@ const types={html:'text/html',js:'application/javascript'};
  await p.click('[data-daten]');await p.fill('#d-move','2026-12-18');await p.click('#dtf button:not([type])');await p.waitForTimeout(600);
  db=await dbOf(p);
  ok(db.some(r=>r.coll==='meta'&&r.id==='settings'&&r.data.moveDate==='2026-12-18'),'daten: umzugsdatum gespeichert');
+ ok(await p.evaluate(()=>{const r=document.querySelector('table.vst tr[data-vtr="c2"]');return !!r&&r.classList.contains('best')&&/77,90 €/.test(r.querySelector('.j2').textContent)&&document.querySelector('table.vst tr[data-vtr="c3"]').classList.contains('b1')&&/70,13 €/.test(document.querySelector('table.vst tr[data-vtr="c3"] .j1').textContent)}),'strom: tabelle mit preis ab jahr 2 und günstigstem 1. jahr');
+ await p.evaluate(()=>document.querySelector('[data-verb]').click());await p.fill('#vb-k','3000');await p.click('#vbf button:not([type])');await p.waitForTimeout(600);
+ db=await dbOf(p);
+ ok(db.some(r=>r.coll==='meta'&&r.id==='settings'&&r.data.verbrauchStrom===3000)&&/90,90 €/.test(await p.textContent('table.vst tr[data-vtr="c2"] .j2')),'strom: verbrauch gespeichert und neu gerechnet');
+ await p.evaluate(()=>document.querySelector('[data-vadd="Strom"]').click());await p.waitForTimeout(200);
+ await p.fill('#v-link','https://strom.example.org/neu');await p.click('#v-hol');await p.waitForTimeout(300);
+ ok((await p.inputValue('#v-anb'))==='Fakestrom · Grün 24'&&(await p.inputValue('#v-gp'))==='11,5'&&(await p.inputValue('#v-kfe'))==='Monate'&&/€ \/ monat ab jahr 2/.test(await p.textContent('#v-calc')),'strom: preise holen füllt das formular');
+ await p.click('#vtf button:not([type])');await p.waitForTimeout(600);
+ db=await dbOf(p);
+ ok(db.some(r=>r.coll==='contracts'&&r.data.anbieter==='Fakestrom · Grün 24'&&r.data.grundpreis==='11,5'&&r.data.arbeitspreis==='30,1'&&r.data.boni==='50'&&r.data.kfristE==='Monate'&&!r.data.preis),'strom: angebot mit grund- und arbeitspreis gespeichert');
  const room=await p.$('rect.room-floor[data-room="kueche"]');const bx=await room.boundingBox();
  await p.mouse.click(bx.x+bx.width/2,bx.y+bx.height/3);await p.waitForTimeout(400);
  ok(await p.isVisible('#rb.open'),'raumblatt öffnet');
@@ -81,5 +94,7 @@ const types={html:'text/html',js:'application/javascript'};
  ok(await m.isVisible('#full.open')&&/Kartons besorgen/.test(await m.textContent('#full-b')),'handy: zeitplan als vollbild');
  await m.click('[data-fullx]');await m.click('[data-areas]');await m.click('[data-fullopen="moebel"]');await m.click('#full [data-card="tisch"]');await m.waitForTimeout(300);
  ok(await m.isVisible('#f-st')&&(await m.innerHTML('#f-geld')).trim().length>0,'möbelformular: status und geld-felder da');
+ await m.evaluate(()=>{document.querySelector('#modal').innerHTML=''});await m.click('[data-fullx]');await m.click('[data-areas]');await m.click('[data-fullopen="vertraege"]');await m.waitForTimeout(300);
+ ok(await m.evaluate(()=>!document.querySelector('#full table.vst')&&/77,90 €/.test(document.querySelector('#full .vc[data-vtr="c2"]').textContent)&&!!document.querySelector('#full .vc[data-vtr="c3"] .st2')),'handy: strom als karten');
  ok(!errs.length,'keine JS-Fehler'+(errs.length?':\n  '+errs.join('\n  '):''));
  await b.close();process.exit(fail?1:0)})();

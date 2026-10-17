@@ -81,6 +81,15 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Beim Bestätigen fragt die App, wer gezahlt hat. „ausgeglichen“ legt eine Ausgleichszahlung in der Collection `ausgleich` an; sonstige Kosten liegen in `costs`.
 - Keine Anbindung an Splitwise (die API braucht ein Pro-Konto). Die Ausgaben werden nur im Dashboard dokumentiert.
 
+## Verträge: Strom (17.10.2026)
+
+- Nur das Thema „Strom“ hat eigene Preisfelder, alle anderen Verträge bleiben bei Preis pro Monat und Einmalig.
+- Felder: Grundpreis in €/Monat brutto (`grundpreis`; eine Jahresangabe rechnet das Formular um), Arbeitspreis in ct/kWh brutto (`arbeitspreis`), Boni als eine positive Summe in € (`boni`, die Arten stehen in der Notiz), Preisgarantie in Monaten (`garantie`), Kündigungsfrist als Zahl mit Einheit (`kfrist`, `kfristE` = Wochen oder Monate). `laufzeit` heißt bei Strom „Mindestlaufzeit“. `einmal` bleibt für echte Einmalkosten; ein alter negativer Wert zählt beim Anzeigen als Bonus.
+- Verbrauch: Standard 2500 kWh im Jahr, änderbar oben in der Strom-Spalte. Gespeichert wird `meta/settings.verbrauchStrom` nur, wenn er vom Standard abweicht.
+- Rechnung, nie gespeichert: Monatspreis ab Jahr 2 = Grundpreis + Verbrauch × Arbeitspreis, ohne Boni. Das ist der Hauptwert und entscheidet „günstigstes“. Ø 1. Jahr = Monatspreis ab Jahr 2 + (Einmalkosten − Boni) / 12; ist dort ein anderes Angebot günstiger, bekommt es die Zusatzmarke „günstigstes 1. Jahr“. Dazu jeweils der effektive Preis in ct/kWh. Alte Angebote nur mit `preis` rechnen damit weiter; sind Grund- und Arbeitspreis da, wird `preis` geleert.
+- Ansicht: am Laptop eine Vergleichstabelle in der Strom-Spalte, auf dem Handy immer Karten. Nicht im Bereich Geld, keine Erinnerung an die Kündigungsfrist im Zeitplan.
+- „Preise holen“ im Formular ruft die Edge Function `produkt` mit `art: "tarif"` auf. Sie sucht allgemein im Seitentext (ohne Code für einzelne Anbieter) und liest PLZ und Verbrauch aus dem Link. Gefüllt werden nur leere Felder, geprüft wird vor dem Speichern, kein automatischer Neuabruf. Vergleichsportale klappen nur manchmal; dann von Hand eintragen.
+
 ## Anmeldung und Zugang
 
 - Anmeldung nur per Mail-Link, kein Passwort. Man bleibt angemeldet, bis man sich abmeldet. (17.10.2026)

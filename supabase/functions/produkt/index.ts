@@ -1,5 +1,7 @@
 // Holt zu einem Shop-Link Name, Maße, Preis und ein Vorschaufoto.
-// Aufruf aus der Tafel: supabase.functions.invoke("produkt", { body: { url } })
+// Aufruf aus dem Canvas: supabase.functions.invoke("produkt", { body: { url } })
+// Mit { url, art: "tarif" } liest sie stattdessen einen Stromtarif (Grund- und Arbeitspreis, Boni, Fristen).
+// Das ist bewusst allgemein gehalten, ohne Code für einzelne Anbieter; Vergleichsportale klappen nur manchmal.
 // Nur angemeldete Personen dürfen sie aufrufen (JWT-Prüfung bleibt an).
 // Blockiert ein Shop die Abfrage, wird die Seite einmal über den Lesedienst r.jina.ai geholt
 // (der sieht nur den Produktlink, sonst nichts).
@@ -179,6 +181,126 @@ async function holeBild(src: string, referer: string) {
   } catch (_) { return null; }
 }
 
+// ---------- Stromtarif ----------
+// Deutsche Zahl: "12,90", "31,234", "1.234,5"; ohne Komma normal lesen
+function dz(s: string) {
+  const n = parseFloat(/,/.test(s) ? s.replace(/\./g, "").replace(",", ".") : s);
+  return isNaN(n) ? null : n;
+}
+const Z = "(\\d{1,4}(?:[.,]\\d{1,4})?)";
+// Textstück hinter dem ersten passenden Stichwort (oder null)
+function nach(text: string, lab: string, len = 90) {
+  const m = text.match(new RegExp(`(?:${lab})`, "i"));
+  return m ? text.slice((m.index || 0) + m[0].length, (m.index || 0) + m[0].length + len) : null;
+}
+function monate(n: number, einheit: string) { return /jahr/i.test(einheit) ? n * 12 : n; }
+const rx = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+export function tarif(text: string, pageUrl: string, html = "") {
+  const out: Record<string, unknown> = {};
+  // Grundpreis in €/Monat; eine Jahresangabe wird umgerechnet, ohne Einheit entscheidet die Größe
+  const g = nach(text, "Grundpreis|Grundgebühr|Grundgebuehr|Basispreis");
+  if (g) {
+    const m = g.match(new RegExp(`^[^\\d]{0,40}?${Z}\\s*(?:€|EUR|Euro)([^\\d]{0,25})`, "i"));
+    const n = m ? dz(m[1]) : null;
+    if (m && n != null) {
+      const um = m[0], jahr = /jahr|jährl|p\.\s?a\./i.test(um), monat = /monat|mtl|\/\s*mon/i.test(um);
+      const v = jahr && !monat ? n / 12 : !monat && n > 40 ? n / 12 : n;
+      if (v > 0 && v < 100) out.grundpreis = Math.round(v * 100) / 100;
+    }
+  }
+  // Arbeitspreis in ct/kWh
+  const a = nach(text, "Arbeitspreis|Verbrauchspreis|Energiepreis|kWh-Preis|Preis (?:pro|je) kWh");
+  let ap: number | null = null;
+  if (a) {
+    const m = a.match(new RegExp(`^[^\\d]{0,40}?${Z}\\s*(ct|Cent|€|EUR|Euro)`, "i"));
+    const n = m ? dz(m[1]) : null;
+    if (m && n != null) ap = /ct|cent/i.test(m[2]) ? n : n * 100;
+  }
+  if (ap == null) {
+    const m = text.match(new RegExp(`${Z}\\s*(?:ct|Cent)\\s*(?:/|pro|je)\\s*kWh`, "i"));
+    if (m) ap = dz(m[1]);
+  }
+  if (ap != null && ap > 5 && ap < 150) out.arbeitspreis = Math.round(ap * 1000) / 1000;
+  // Boni: eine Gesamtangabe, sonst je Bonusart den ersten Betrag zusammenzählen
+  const ges = nach(text, "Boni gesamt|Gesamtbonus|Bonus gesamt", 50);
+  const gm = ges ? ges.match(new RegExp(`^[^\\d]{0,30}?${Z}\\s*(?:€|EUR|Euro)`, "i")) : null;
+  if (gm) out.boni = dz(gm[1]);
+  else {
+    const arten = new Map<string, number>();
+    for (const m of text.matchAll(new RegExp(`(Neukundenbonus|Sofortbonus|Wechselbonus|Treuebonus|Willkommensbonus|Bonus)[^\\d€]{0,40}?${Z}\\s*(?:€|EUR|Euro)`, "gi"))) {
+      const k = m[1].toLowerCase(), n = dz(m[2]);
+      if (n != null && n > 0 && n < 1000 && !arten.has(k)) arten.set(k, n);
+    }
+    if (arten.size > 1) arten.delete("bonus");
+    const sum = [...arten.values()].reduce((x, y) => x + y, 0);
+    if (sum) out.boni = Math.round(sum * 100) / 100;
+  }
+  // Mindestlaufzeit und Preisgarantie in Monaten (Zahl hinter oder vor dem Stichwort)
+  const dauer = (lab: string) => {
+    const w = nach(text, lab, 50);
+    const m = w ? w.match(/^[^\d]{0,25}?(\d{1,2})\s*(Monat|Jahr)/i) : null;
+    if (m) return monate(+m[1], m[2]);
+    const v = text.match(new RegExp(`(\\d{1,2})\\s*(Monate?|Jahre?)\\s*(?:[a-zäöü]+\\s)?(?:${lab})`, "i"));
+    return v ? monate(+v[1], v[2]) : null;
+  };
+  const lz = dauer("Mindestvertragslaufzeit|Mindestlaufzeit|Erstlaufzeit|Vertragslaufzeit");
+  if (lz && lz <= 48) out.laufzeit = lz;
+  else if (/monatlich kündbar|keine Mindestlaufzeit|ohne Mindestlaufzeit/i.test(text)) out.laufzeit = 1;
+  const pg = dauer("Preisgarantie|Preisfixierung|Preisbindung");
+  if (pg && pg <= 60) out.garantie = pg;
+  // Kündigungsfrist als Zahl plus Wochen oder Monate
+  const k = nach(text, "Kündigungsfrist|Kuendigungsfrist", 50);
+  const km = k ? k.match(/^[^\d]{0,25}?(\d{1,2})\s*(Woche|Monat|Tag)/i) : null;
+  if (km) {
+    const n = +km[1];
+    if (/woche/i.test(km[2])) { out.kfrist = n; out.kfristE = "Wochen"; }
+    else if (/monat/i.test(km[2])) { out.kfrist = n; out.kfristE = "Monate"; }
+    else if (n % 7 === 0 || n < 28) { out.kfrist = Math.ceil(n / 7); out.kfristE = "Wochen"; }
+    else { out.kfrist = Math.round(n / 30); out.kfristE = "Monate"; }
+  }
+  // Anbieter und Tarifname; auf Vergleichsportalen ist der Seitenname nicht der Anbieter
+  const u = new URL(pageUrl), host = u.hostname.replace(/^www\./, "");
+  const portal = /check24|verivox|tarifcheck|toptarif|stromauskunft|wechselpilot|idealo|vergleich/i.test(host);
+  if (!portal) out.anbieter = (html && meta(html, "og:site_name")) || host.split(".").slice(-2, -1)[0].replace(/^./, (c) => c.toUpperCase());
+  const titel = html ? (meta(html, "og:title") || (html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) || [])[1] || "") : "";
+  const t = decode(titel.replace(/<[^>]+>/g, " ")).replace(/\s*[-|–]\s*[^-|–]+$/, "").replace(/\s+/g, " ").trim();
+  if (t && t.length <= 60 && !(out.anbieter && new RegExp(`^${rx(String(out.anbieter))}$`, "i").test(t))) out.tarif = t;
+  // PLZ und Verbrauch aus dem Link
+  const q = (re: RegExp) => { for (const [key, val] of u.searchParams) if (re.test(key)) return val; return null; };
+  const plz = q(/^(plz|zip|zipcode|postcode|postleitzahl)$/i) || (u.pathname.match(/(?:^|\/)(\d{5})(?:\/|$)/) || [])[1];
+  if (plz && /^\d{5}$/.test(plz)) out.plz = plz;
+  const kwh = q(/verbrauch|consumption|kwh|usage/i) || (u.href.match(/(?:verbrauch|consumption|kwh)[=/_-]?(\d{3,5})/i) || [])[1];
+  if (kwh && +kwh >= 300 && +kwh <= 100000) out.kwh = +kwh;
+  return out;
+}
+const PREISFELDER = ["grundpreis", "arbeitspreis"];
+const mitPreis = (t: Record<string, unknown>) => PREISFELDER.some((k) => t[k] != null);
+
+async function lesedienst(url: string) {
+  try {
+    const r = await fetch("https://r.jina.ai/" + url, { headers: { "x-return-format": "html", "accept": "text/html" } });
+    if (r.ok) return (await r.text()).slice(0, 4_000_000);
+  } catch (_) { /* Lesedienst nicht erreichbar */ }
+  return "";
+}
+function seitenText(html: string) {
+  return decode(html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " "));
+}
+async function holeTarif(u: URL) {
+  const seite = await holeSeite(u.href);
+  let html = seite.html, quelle = seite.quelle;
+  let t = html ? tarif(seitenText(html), u.href, html) : {};
+  // Baut die Seite die Preise erst im Browser auf, einmal über den Lesedienst versuchen
+  if (!mitPreis(t) && quelle === "shop") {
+    const h2 = await lesedienst(u.href);
+    const t2 = h2 ? tarif(seitenText(h2), u.href, h2) : {};
+    if (mitPreis(t2)) { t = { ...t, ...t2 }; html = h2; quelle = "lesedienst"; }
+  }
+  if (!html) return json({ error: `Die Seite wurde nicht herausgegeben (Status ${seite.status || "keine Antwort"}).` }, 502);
+  return json({ ...t, info: { quelle, status: seite.status, preise: mitPreis(t) } });
+}
+
 // Nur angemeldete Personen (nicht der öffentliche anon-Schlüssel). Die Signatur prüft Supabase vorher.
 function angemeldet(req: Request): boolean {
   try {
@@ -194,10 +316,11 @@ async function handle(req: Request) {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (!angemeldet(req)) return json({ error: "Nicht angemeldet. Bitte neu anmelden." }, 401);
   try {
-    const { url } = await req.json();
+    const { url, art } = await req.json();
     const u = new URL(String(url).trim());
     if (!/^https?:$/.test(u.protocol)) return json({ error: "Nur http- und https-Links" }, 400);
-    if (/^(localhost|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[|0\.)/i.test(u.hostname)) return json({ error: "Nur öffentliche Shops" }, 400);
+    if (/^(localhost|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[|0\.)/i.test(u.hostname)) return json({ error: "Nur öffentliche Seiten" }, 400);
+    if (art === "tarif") return await holeTarif(u);
     const seite = await holeSeite(u.href);
     if (!seite.html) return json({ error: `Der Shop hat die Seite nicht herausgegeben (Status ${seite.status || "keine Antwort"}).` }, 502);
     const p = extract(seite.html, u.href);
