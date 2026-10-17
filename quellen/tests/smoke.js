@@ -19,6 +19,7 @@ const rows=[
  {coll:'meta',id:'settings',data:{moveDate:'2026-12-15'}},
  {coll:'meta',id:'plan',data:{doors:[],windows:[],fixed:[{room:'kueche',n:'Küchenzeile',dx:0,dy:0,w:60,h:200}]}},
  {coll:'meta',id:'kueche',data:{room:'kueche',laeufe:[{id:'la',name:'lauf a',wand:'e',start:0,unten:[{id:'a1',typ:'us',b:60,dec:'neu'}],oben:[]}]}}];
+for(let i=1;i<=24;i++)rows.push({coll:'items',id:'stuhl'+i,data:{name:'Stuhl '+i,raum:'kueche',prio:1+i%3,dec:'kaufen',preis:30,w:45,d:50,h:85}});
 const types={html:'text/html',js:'application/javascript'};
 (async()=>{const b=await chromium.launch({executablePath:fs.existsSync('/opt/pw-browsers/chromium')?'/opt/pw-browsers/chromium':undefined});
  let fail=0;const ok=(c,t)=>{console.log((c?'ok   ':'FEHLER ')+t);if(!c)fail++};
@@ -38,6 +39,8 @@ const types={html:'text/html',js:'application/javascript'};
  ok(!(await p.$('#modal .bg')),'canvas startet nach Anmeldung');
  ok(/test@example.org/.test(await p.textContent('#acct')),'canvas zeigt Konto');
  ok(!(await p.$('#to-list')),'kein Knopf mehr zur Liste');
+ ok(await p.evaluate(()=>[...document.querySelectorAll('.frame>.fbody')].every(b=>b.scrollHeight<=b.clientHeight+1&&!b.querySelector('.vt[style*=overflow]'))),'kein bereich schneidet inhalt ab');
+ ok(await p.evaluate(()=>{const m=document.querySelector('[data-frame="moebel"]').getBoundingClientRect(),v=document.querySelector('[data-frame="verkauf"]').getBoundingClientRect();return m.height/m.width>760/1080+.02&&v.top>m.bottom}),'möbel wächst mit, verkauf rückt nach unten');
  ok(/1 möbel mit konflikt|2 möbel mit konflikt/.test(await p.textContent('.sheethead')),'prüfung meldet überlappende möbel');
  let db=await dbOf(p);
  ok(db.some(r=>r.coll==='board'&&r.id==='idea-i1')&&db.some(r=>r.coll==='ideas'&&r.data.deleted),'idee liegt im moodboard');

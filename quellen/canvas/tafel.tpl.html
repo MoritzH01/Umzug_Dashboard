@@ -167,8 +167,8 @@ a.ext{color:var(--blau);text-decoration:none;font:600 10px var(--sans);white-spa
 .col{border-top:3px solid var(--neu);padding-top:8px;min-width:0}
 .col h4{margin:0 0 8px;font:600 12px var(--sans);text-transform:lowercase;letter-spacing:.05em;display:flex;justify-content:space-between}
 .col .card{padding:7px 8px;margin-bottom:8px;cursor:default}
-.vt{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,280px);gap:14px;height:100%;overflow-x:auto;align-items:start}
-.vt .col{border-top-color:var(--blau);height:100%;overflow-y:auto}
+.vt{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;align-items:start}
+.vt .col{border-top-color:var(--blau)}
 .vt .col.ok{border-top-color:#2e8b57}
 .vt .col h4 small{font:500 10px var(--mono);letter-spacing:0;color:var(--ink2)}
 .vc{background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--line);padding:8px 9px;margin-bottom:8px;font-size:12px;cursor:pointer;position:relative}
@@ -972,7 +972,16 @@ function render(){MOVE=(SETT&&SETT.moveDate)||"2026-12-15";CEIL=+(SETT&&SETT.cei
   if(F.utensilien&&!F.utensilien.hidden){var ul=uAll();s+=frameDiv("utensilien","Utensilien","was wir haben und was noch fehlt",F.utensilien,utensilienHTML(),ul.filter(function(u){return uSt(u)==="brauchen"}).length+" fehlen")}
   Object.keys(F.user||{}).forEach(function(id){var f=F.user[id];s+=frameDiv(id,f.title||"Rahmen","",f,"")});
   st.els.forEach(function(e){s+=elHTML(e)});
-  world.innerHTML=s;if(selFurn){var fn=world.querySelector('[data-furn="'+selFurn+'"]');if(fn)fn.classList.add("fsel");else{selFurn=null;tbReset()}}applyView();}
+  world.innerHTML=s;if(selFurn){var fn=world.querySelector('[data-furn="'+selFurn+'"]');if(fn)fn.classList.add("fsel");else{selFurn=null;tbReset()}}applyView();fitFrames()}
+/* Bereiche wachsen mit dem Inhalt: nichts wird abgeschnitten, kein Scrollen im Bereich. Was darunter liegt, rückt nach unten. */
+var GROW=["now","moebel","pflanzen","verkauf","utensilien","vertraege","geld"],GAP=100;
+function fitFrames(){var F=st.frames,ch=false;GROW.forEach(function(k){var f=F[k];if(!f||f.hidden)return;var n=world.querySelector('[data-frame="'+k+'"]>.fbody');if(!n)return;
+    var need=Math.ceil(n.scrollHeight+n.parentNode.offsetHeight-n.clientHeight);if(need<=f.h)return;var old=f.y+f.h;f.h=need;ch=true;pushBelow(f,old,{})});
+  if(ch){save();render()}}
+function pushBelow(f,old,seen){var F=st.frames,bot=f.y+f.h,L=[];Object.keys(F).forEach(function(k){if(k!=="user")L.push(k)});Object.keys(F.user||{}).forEach(function(k){L.push(k)});
+  L.forEach(function(k){var g=F[k]||F.user[k];if(!g||g===f||g.hidden||seen[k])return;var b=k==="plan"?planBox():g;
+    if(b.y<old||b.x>=f.x+f.w||b.x+b.w<=f.x)return;var dy=bot+GAP-b.y;if(dy<=0)return;seen[k]=1;
+    var o=b.y+b.h;st.els.forEach(function(e){if(e.x>=b.x&&e.x<b.x+b.w&&e.y>=b.y&&e.y<o)e.y+=dy});g.y+=dy;pushBelow(k==="plan"?planBox():g,o,seen)})}
 function titleBlock(sw,sh){var d=days(MOVE),area=rooms().filter(function(r){return !r.outdoor}).reduce(function(a,r){return a+r.w*r.h/1e4},0);
   return '<div class="tblock" style="left:'+PAD+'px;right:'+PAD+'px;bottom:'+(PAD-20)+'px">'+
   '<div><small>Projekt</small><div class="mid">Umzug Altbau</div><div class="legend"><span><i style="border-color:var(--bestand)"></i>Bestand</span><span><i style="border-color:var(--neu)"></i>Neu</span><span><i style="border-color:var(--abbruch);border-style:dashed"></i>Geht weg</span></div></div>'+
@@ -1083,6 +1092,7 @@ function end(e){delete pts[e.pointerId];if(pinch&&Object.keys(pts).length<2){pin
       if(r&&gehtWeg(I[d.id])){toast("Das Möbel geht weg und kommt nicht in die neue Wohnung. Ändere sonst die Entscheidung.");return}
       if(r){var it3=I[d.id],dd=dims(it3);it3.x=Math.round((cx-dd.w/2)/5)*5;it3.y=Math.round((cy-dd.h/2)/5)*5;it3.raum=r.id;st.itemPos[d.id]={x:it3.x,y:it3.y,rot:it3.rot||0};save();render();toast(((it3.name||"").split(/[,(]/)[0])+" steht jetzt in: "+r.name)}
       else toast("Zum Einplanen auf einen Raum im Grundriss ziehen.")}return}
+  if(d.kind==="res"&&d.frame&&moved){save();render();return}
   if(moved)save();if(d.kind==="el")placeTool()}
 board.addEventListener("pointerup",end);board.addEventListener("pointercancel",end);
 board.addEventListener("dblclick",function(e){var t=document.elementFromPoint(e.clientX,e.clientY)||e.target;
@@ -1535,6 +1545,7 @@ if(window.Kueche)Kueche.init({ceil:function(){return CEIL},R:function(){return R
   delItem:function(id){delete I[id];st.itemData[id]=null;delete st.itemPos[id];save()},fetchProduct:fetchProduct,esc:esc,toast:toast,IST:IST,DECL:DECL,render:function(){render()},modal:function(){return $("#modal")}});
 var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();last.plan=JSON.stringify(P);last.settings=JSON.stringify(SETT);migrateIdeas();
 if(sv){V=sv;applyView()}else fit(planBox(),40);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitFrames);
 };
 if(!window.TAFEL_DEFER)window.startTafel();
 </script>
