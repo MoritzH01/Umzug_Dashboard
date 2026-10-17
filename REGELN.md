@@ -32,6 +32,7 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Geometrie strikt nur aus dem Grundriss des Canvas (`rooms`, `meta/plan`). Nichts erfinden.
 - Oberflächen nur nach den Raumfotos (Tabelle `LOOK` je Raum in `quellen/3d/wohnung3d.tpl.html`); Räume ohne Foto bleiben neutral.
 - Hohe Wände fest, kein Umschalter. Vorerst keine Möbel.
+- Kaminvorsprünge (`meta/plan.fixed` mit „Kamin“ im Namen) gehen bis zur Decke. (17.10.2026)
 - Ansichten Puppenhaus, Draufsicht und Rundgang bleiben.
 
 ## Möbel, Utensilien, Verkauf

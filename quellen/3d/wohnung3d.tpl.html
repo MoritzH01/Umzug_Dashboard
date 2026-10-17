@@ -230,6 +230,7 @@ function buildFixed(){
       [-1,1].forEach(function(sx){box(dw,hh*.6,1.5,vv,sx*along/4,6+hh*.3,deep/2+.8,gg);box(dw,hh*.3,1.5,vv,sx*along/4,hh*.6+14+hh*.15,deep/2+.8,gg)});
       /* Türen zeigen in den Raum */
       if(w<d)gg.rotation.y=(+f.dx<r.w/2?1:-1)*Math.PI/2;else gg.rotation.y=(+f.dy<r.h/2?0:Math.PI)}
+    else if(/kamin/.test(n))b(w,H,d,MAT.white,0,H/2,0);/* Kaminvorsprung: gemauert bis zur Decke */
     else b(w,100,d,MAT.white,0,50,0);
     g.position.set(r.x+(+f.dx)+w/2,0,r.y+(+f.dy)+d/2);g.userData.room=f.room;built.fixed.add(g)});
   /* Details aus Fotos, die nicht im Grundriss stehen */
