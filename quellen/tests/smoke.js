@@ -59,6 +59,12 @@ const types={html:'text/html',js:'application/javascript'};
  const nf2=await fit();db=await dbOf(p);
  ok(nf2.ok&&nf2.f>nf.f&&db.some(r=>r.coll==='board'&&r.id===nf.id&&r.data.w>190),'post-it: größer ziehen vergrößert schrift und wird gespeichert');
  await p.evaluate(id=>document.querySelector('[data-el="'+id+'"] .x').click(),nf.id);await p.waitForTimeout(300);
+ const anc=()=>p.evaluate(()=>{for(const n of document.querySelectorAll('#world [data-el]')){const x=parseFloat(n.style.left),y=parseFloat(n.style.top);for(const f of document.querySelectorAll('#world .frame')){const fx=parseFloat(f.style.left),fy=parseFloat(f.style.top);if(x>=fx&&x<fx+f.offsetWidth&&y>=fy&&y<fy+f.offsetHeight){const h=f.querySelector('.fhead').getBoundingClientRect();return {id:n.dataset.el,fr:f.dataset.frame,x,y,fx,hx:h.x+20,hy:h.y+h.height/2}}}}return null});
+ {const a=await anc();if(a){await p.mouse.move(720,450);await p.mouse.wheel(a.hx-500,a.hy-300);await p.waitForTimeout(200)}}
+ const a0=await anc();if(!a0)ok(false,'bereich: post-it im bereich für den test gefunden');else{
+  await p.mouse.move(a0.hx,a0.hy);await p.mouse.down();await p.mouse.move(a0.hx+60,a0.hy+40,{steps:5});await p.mouse.up();await p.waitForTimeout(600);
+  const a1=await p.evaluate(a=>{const n=document.querySelector('[data-el="'+a.id+'"]'),f=document.querySelector('[data-frame="'+a.fr+'"]');return {dx:parseFloat(f.style.left)-a.fx,nx:parseFloat(n.style.left)-a.x,ny:parseFloat(n.style.top)-a.y,fy:parseFloat(f.style.top)}},a0);db=await dbOf(p);
+  ok(a1.dx!==0&&a1.nx===a1.dx&&db.some(r=>r.coll==='board'&&r.id===a0.id&&r.data.x===a0.x+a1.dx),'bereich verschieben nimmt post-its darauf mit')}
  ok(await p.evaluate(()=>{const f=document.querySelector('[data-frame="verkauf"]'),c=[...f.querySelectorAll('.col')].filter(x=>x.querySelector('[data-sell="regal"]')).map(x=>x.querySelector('h4').firstChild.textContent);return c.join()==='Online,Nachmieter'}),'verkauf: regal unter online und nachmieter');
  ok(await p.evaluate(()=>!!document.querySelector('[data-sell="regal"] a[href^="https://www.kleinanzeigen.de"][target="_blank"]')&&!!document.querySelector('[data-vtr="c1"] a[href="https://strom.example.org/tarif"]')),'links an anzeige und vertrag anklickbar');
  const sr=await p.evaluate(()=>{const b=document.querySelector('[data-sell="regal"] b').getBoundingClientRect();return {x:b.x,y:b.y}});
