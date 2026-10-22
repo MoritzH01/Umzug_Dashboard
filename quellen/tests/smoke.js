@@ -2,7 +2,8 @@
 //   NODE_PATH=$(npm root -g) node quellen/tests/smoke.js
 // Prüft: Seiten starten ohne JS-Fehler, Notiz auf dem Canvas wird gespeichert, Knopf „feedback“ ist überall da,
 // Konfliktprüfung, Ideen ins Moodboard, Menü „daten“, Raumblatt entsperren, Handy-Vollbild, liste.html leitet weiter,
-// Strom-Vergleich (Tabelle, Verbrauch, Preise holen, Seitentext einfügen, Karten auf dem Handy).
+// Strom-Vergleich (Tabelle, Verbrauch, Preise holen, Seitentext einfügen, Karten auf dem Handy),
+// Zeitplan als Kalender (Filter, Ziehen auf einen Tag, Ende ziehen, Doppelklick, Kalenderdatei, Agenda auf dem Handy).
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
 const R=path.join(__dirname,'..','..'),fake=fs.readFileSync(path.join(__dirname,'fake-sb.js'),'utf8');
 const rows=[
@@ -15,6 +16,8 @@ const rows=[
  {coll:'contracts',id:'c2',data:{kat:'Strom',anbieter:'Probestrom',grundpreis:'12,90',arbeitspreis:'31,2',status:'vergleich'}},
  {coll:'contracts',id:'c3',data:{kat:'Strom',anbieter:'Bonusstrom',grundpreis:'9,50',arbeitspreis:'33,9',boni:'120',status:'vergleich'}},
  {coll:'tasks',id:'t1',data:{title:'Kartons besorgen',due:'2026-11-01',bereich:'orga',done:false}},
+ {coll:'tasks',id:'t2',data:{title:'Streichen',von:'2026-11-09',due:'2026-11-13',bereich:'neu',done:false,sub:[{t:'Farbe kaufen',done:true},{t:'Abkleben',done:false}]}},
+ {coll:'events',id:'e1',data:{title:'Übergabe Test',date:'2026-11-05',time:'18:00',wer:'Person 2'}},
  {coll:'ideas',id:'i1',data:{title:'Leuchte aus Messing',notiz:'über dem Tisch'}},
  {coll:'meta',id:'settings',data:{moveDate:'2026-12-15'}},
  {coll:'meta',id:'plan',data:{doors:[],windows:[],fixed:[{room:'kueche',n:'Küchenzeile',dx:0,dy:0,w:60,h:200}]}},
@@ -109,10 +112,40 @@ const types={html:'text/html',js:'application/javascript'};
   ok(!!(await p.evaluate(()=>[...document.querySelectorAll('button,a')].some(e=>/feedback/i.test(e.textContent)))),name+': knopf feedback da')}
  await p.goto('http://app.test/liste.html');await p.waitForTimeout(800);
  ok(new URL(p.url()).pathname==='/','liste.html leitet auf den canvas');
+ const z=await page({width:1440,height:900});
+ await z.goto('http://app.test/');await z.waitForTimeout(1200);
+ const Z='[data-frame="zeit"] ';
+ ok(await z.evaluate(Z=>!!document.querySelector(Z+'[data-day="2026-11-01"] .zc[data-task="t1"]')&&!!document.querySelector(Z+'[data-day="2026-11-05"] .zc.zke[data-ev="e1"]')&&/1\/2/.test(document.querySelector(Z+'.zc.span[data-task="t2"]').textContent),Z),'zeitplan: kalender mit aufgabe, termin und zeitraum');
+ for(let i=0;i<3;i++)await z.click('[data-z="out"]');
+ const zr=await z.evaluate(()=>{const r=document.querySelector('[data-frame="zeit"]').getBoundingClientRect();return {x:r.x,y:r.y}});await z.mouse.move(720,450);await z.mouse.wheel(zr.x-40,zr.y-90);await z.waitForTimeout(300);
+ await z.click(Z+'[data-zf="art:t"]');await z.waitForTimeout(200);
+ ok(!(await z.$(Z+'[data-task="t1"]'))&&!!(await z.$(Z+'[data-ev="e1"]'))&&/"t":0/.test(await z.evaluate(()=>localStorage.getItem('zeitFilter'))),'zeitplan: filter blendet aufgaben aus und merkt sich das im browser');
+ await z.click(Z+'[data-zf="art:t"]');await z.waitForTimeout(200);
+ const box=async q=>{const r=await z.evaluate(q=>{const e=document.querySelector(q).getBoundingClientRect();return {x:e.x,y:e.y,w:e.width,h:e.height}},q);return {x:r.x+r.w/2,y:r.y+r.h/2,r:r}};
+ const drag=async(a,b)=>{await z.mouse.move(a.x,a.y);await z.mouse.down();await z.mouse.move(a.x+10,a.y+10,{steps:3});await z.mouse.move(b.x,b.y,{steps:6});await z.mouse.up();await z.waitForTimeout(600)};
+ let c1=await box(Z+'.zc[data-task="t1"] .t'),d3=await box(Z+'[data-day="2026-11-03"]');
+ await drag(c1,{x:d3.x,y:d3.r.y+d3.r.h-8});db=await dbOf(z);
+ ok(db.some(r=>r.coll==='tasks'&&r.id==='t1'&&r.data.due==='2026-11-03'),'zeitplan: aufgabe auf einen tag ziehen setzt das datum');
+ const h2=await box(Z+'.zc.span[data-task="t2"] .zrz'),d14=await box(Z+'[data-day="2026-11-14"]');
+ await drag({x:h2.r.x+h2.r.w-2,y:h2.y},{x:d14.x,y:d14.r.y+d14.r.h-8});db=await dbOf(z);
+ ok(db.some(r=>r.coll==='tasks'&&r.id==='t2'&&r.data.von==='2026-11-09'&&r.data.due==='2026-11-14'),'zeitplan: ende des zeitraums ziehen');
+ const d20=await box(Z+'[data-day="2026-11-20"]');await z.mouse.dblclick(d20.x,d20.r.y+d20.r.h-8);await z.waitForTimeout(200);
+ ok(/Termin oder Aufgabe/.test(await z.textContent('#modal')),'zeitplan: doppelklick fragt termin oder aufgabe');
+ await z.click('#modal [data-zneu^="t:"]');await z.fill('#k-title','Lampen aufhängen');await z.click('#k-sadd');await z.fill('#k-subs .zsr:last-child .zst','Leiter leihen');await z.click('#tkf button:not([type])');await z.waitForTimeout(600);
+ db=await dbOf(z);
+ ok(db.some(r=>r.coll==='tasks'&&r.data.title==='Lampen aufhängen'&&r.data.due==='2026-11-20'&&r.data.sub.length===1&&r.data.sub[0].t==='Leiter leihen'),'zeitplan: neue aufgabe mit unterpunkt am tag');
+ const [dl]=await Promise.all([z.waitForEvent('download'),z.click(Z+'[data-ics]')]);
+ const ics=fs.readFileSync(await dl.path(),'utf8');
+ ok(dl.suggestedFilename()==='umzug-zeitplan.ics'&&/SUMMARY:Übergabe Test/.test(ics)&&/SUMMARY:☐ Streichen/.test(ics)&&/DTSTART;VALUE=DATE:20261109/.test(ics)&&/DTEND;VALUE=DATE:20261115/.test(ics),'zeitplan: kalenderdatei mit terminen und aufgaben');
+ await z.close();
  const m=await page({width:375,height:812});
  await m.goto('http://app.test/');await m.waitForTimeout(1200);
  await m.click('[data-areas]');await m.click('[data-fullopen="zeit"]');await m.waitForTimeout(300);
  ok(await m.isVisible('#full.open')&&/Kartons besorgen/.test(await m.textContent('#full-b')),'handy: zeitplan als vollbild');
+ ok(await m.evaluate(()=>!!document.querySelector('#full .zms [data-zjump]')&&!!document.querySelector('#full h4[data-zh="2026-11-05"]')),'handy: agenda nach tagen mit monatsstreifen');
+ await m.click('#full [data-zsub="t2"]');await m.waitForTimeout(200);await m.click('#full [data-zsubt="t2:1"]');await m.waitForTimeout(600);
+ const mdb=await dbOf(m);
+ ok(mdb.some(r=>r.coll==='tasks'&&r.id==='t2'&&r.data.sub[1].done&&r.data.done),'handy: unterpunkte abhaken, letzte fragt nach erledigt');
  await m.click('[data-fullx]');await m.click('[data-areas]');await m.click('[data-fullopen="moebel"]');await m.click('#full [data-card="tisch"]');await m.waitForTimeout(300);
  ok(await m.isVisible('#f-st')&&(await m.innerHTML('#f-geld')).trim().length>0,'möbelformular: status und geld-felder da');
  await m.evaluate(()=>{document.querySelector('#modal').innerHTML=''});await m.click('[data-fullx]');await m.click('[data-areas]');await m.click('[data-fullopen="vertraege"]');await m.waitForTimeout(300);

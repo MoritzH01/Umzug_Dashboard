@@ -94,6 +94,19 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - „Preise holen“ im Formular ruft die Edge Function `produkt` mit `art: "tarif"` auf. Sie gibt nur Seitentext, Anbieter und Tarifname zurück; ausgewertet wird im Canvas, allgemein und ohne Code für einzelne Anbieter. PLZ und Verbrauch kommen aus dem Link. Gefüllt werden nur leere Felder, geprüft wird vor dem Speichern, kein automatischer Neuabruf.
 - „Seitentext einfügen“ (17.10.2026): Die meisten Anbieter zeigen Preise erst nach Eingabe der PLZ, die Function sieht sie dann nicht. Deshalb kann man den Text der Tarifseite im Browser kopieren (Strg+A, Strg+C) und ins Formular einfügen; er wird im Browser ausgewertet und nicht gespeichert. Stehen mehrere Tarife darin, wählt man einen aus; ein anderer Tarif ersetzt die Werte, die von dort kamen. Findet „Preise holen“ keine Preise, sagt es das und öffnet das Textfeld.
 
+## Zeitplan (22.10.2026)
+
+- Der Bereich „Zeitplan“ zeigt alle Aufgaben, Termine, Vertragsdaten und Post-its mit Datum. Abgeleitete Einträge nur, wenn sie ein echtes Datum haben; nichts davon wird zusätzlich gespeichert.
+- Form: Kalender, in dem man den Tag sofort erkennt, durchgehend über den ganzen Zeitraum. Zeitraum: 1 Woche vor heute bis 4 Wochen nach dem Umzug, erweitert bis zum frühesten bzw. spätesten Eintrag.
+- Pro Tag höchstens 3 Chips, sonst „+N weitere“ (öffnet die Liste des Tages). Links die Spalte „ohne datum“; Ziehen auf einen Tag plant, Zurückziehen entfernt das Datum. Chips ziehen verschiebt, Ende eines Zeitraum-Balkens ziehen ändert das Ende, Doppelklick auf einen Tag legt Termin oder Aufgabe an.
+- Unterschieden wird nach Art: Termine gefüllt Kobalt, Aufgaben weiß mit Kästchen zum Abhaken, Verträge mit §, Post-its in ihrer Farbe, Überfälliges rot. Heute umrandet, Umzugstag tomatenrot, Wochenende leicht getönt.
+- Filter Wer (Moritz, Person 2, alle) und Art; die Auswahl merkt sich nur der Browser. Erledigtes und Vergangenes ausgeblendet, Umschalter „erledigte zeigen“; Überfälliges immer sichtbar.
+- Aufgaben: optional `von` (Anfang), `due` bleibt Fälligkeit bzw. Ende. Unteraufgaben als `sub: [{t, done}]` in der Aufgabe, bearbeitet im Formular, am Chip „2/5“. Sind alle abgehakt, fragt die App, ob die Aufgabe auch erledigt ist. Termine bekommen optional `wer`; leer heißt beide.
+- Kalenderdatei enthält auch Aufgaben mit Datum (ganztägig, „☐“ vor dem Titel, Zeitraum mehrtägig).
+- Handy: Agenda nach Tagen mit Monatsstreifen zum Springen; Unteraufgaben aufklappbar. „Jetzt dran“ bleibt ein kurzer Auszug mit derselben Sortierung.
+- Bereich wächst nach der Regel „Bereiche wachsen mit dem Inhalt“, Tagesspalten teilen sich die Breite (mindestens etwa 90 px).
+- Umsetzung (22.10.2026): Variante A, durchgehender Wochenkalender (eine Zeile pro Woche, Mo bis So, Kalenderwoche links). Aufgaben mit Zeitraum laufen als Balken über die Tage. Die Filterauswahl liegt im Browser unter `zeitFilter`. Wer ist freier Text; der Filter erkennt die Namen aus `meta/settings.namen`, leer oder „beide“ zählt für beide.
+
 ## Anmeldung und Zugang
 
 - Anmeldung nur per Mail-Link, kein Passwort. Man bleibt angemeldet, bis man sich abmeldet. (17.10.2026)
