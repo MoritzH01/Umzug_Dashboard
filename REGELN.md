@@ -20,6 +20,7 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Konfliktprüfung im Grundriss, Umschalter „prüfen“ (Standard an): Möbel mit Konflikt rot gestrichelt (überlappt, ragt in die Wand, Türschwenk, Kaminvorsprung, zu hoch für die Decke), Abstände unter 60 cm orange, Türschwenk rot getönt. Hinweise stehen in der Leiste des ausgewählten Möbels. Wandansicht im Raumblatt.
 - Ideen aus der alten Liste (Collection `ideas`) sind einmalig ins Moodboard gewandert und dort als gelöscht markiert. Neue Ideen kommen als Bild oder Post-it ins Moodboard.
 - Bereiche schneiden nichts ab und scrollen nicht in sich (17.10.2026): Bereiche mit Inhalt (Jetzt dran, Möbel, Pflanzen, Verkaufen, Utensilien, Verträge, Geld) wachsen nach dem Zeichnen auf die Höhe ihres Inhalts; was darunter liegt (Bereiche, Grundriss, Post-its darin), rückt nach unten. Sie wachsen nur, schrumpfen nicht von selbst; von Hand kleiner ziehen geht nur bis zur Inhaltshöhe. Verträge brechen in Zeilen um statt seitlich zu scrollen.
+- Post-its (22.10.2026): Größe am Griff unten rechts änderbar (`w`, `h` im Element, Standard 190 × 170). Die Schrift wächst mit dem Zettel und wird kleiner, bis der Text ganz hineinpasst; nichts steht über den Rand.
 - Handy: Knopf „bereiche“ und Antippen einer Bereichsüberschrift öffnen den Bereich als Vollbild; der Zeitplan erscheint dort als Liste.
 
 ## Gestaltung
