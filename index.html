@@ -420,6 +420,7 @@ table.vst a.ext{margin-left:5px;font-weight:500}
 #rb .fg label,#rb .op label{display:grid;gap:3px;font:500 11px var(--sans);color:var(--ink2)}
 #rb select,#rb input.n{width:100%;font:14px var(--sans);color:var(--ink);padding:7px 9px;border:1px solid #d9d2c3;border-radius:8px;background:#fff;box-sizing:border-box}
 #rb .op{display:grid;grid-template-columns:1.3fr 1fr 1fr 34px 34px;gap:6px;align-items:end;margin-bottom:6px}
+#rb .op.dr{grid-template-columns:1.3fr 1fr 1fr 1fr 34px 34px}
 #rb .op button{height:34px;border:1px solid #d9d2c3;background:#fff;border-radius:8px;cursor:pointer;font:15px var(--sans);color:var(--ink)}
 #rb .rbtn.danger{color:var(--neu);border-color:var(--neu)}
 #rb .elev{width:100%;height:auto;background:#fff;border:1px solid var(--uiline)}
@@ -1234,6 +1235,8 @@ function iconSVG(it){var w=+it.w||50,d=+it.d||50,sc=Math.min(130/w,60/d,1.2),W=w
   return '<svg viewBox="-75 -35 150 70"><g class="furn '+cls(it)+'"><rect class="b" x="'+(-W/2)+'" y="'+(-H/2)+'" width="'+W+'" height="'+H+'"/>'+topView(it,-W/2,-H/2,W,H)+'</g></svg>'}
 
 /* ---------- Grundriss ---------- */
+/* Tür: w ist die Öffnung in der Wand, blatt das Türblatt; es sitzt mittig in der Öffnung */
+function leafOp(o){var b=+o.blatt;return b>0&&b<+o.w?Object.assign({},o,{off:(+o.off||0)+(+o.w-b)/2,w:b}):o}
 function opening(o){var r=R[o.room];if(!r)return null;var off=+o.off||0,w=+o.w||80;
   if(o.wall==="n")return {x1:r.x+off,y1:r.y,x2:r.x+off+w,y2:r.y,h:1,w:w,r:r};
   if(o.wall==="s")return {x1:r.x+off,y1:r.y+r.h,x2:r.x+off+w,y2:r.y+r.h,h:1,w:w,r:r};
@@ -1252,10 +1255,10 @@ function planSVG(){var b=PB,s='';
   if(window.Kueche)s+=Kueche.planSVG();
   rooms().forEach(function(r){s+='<rect class="wall" x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'"'+(r.outdoor?' style="stroke-width:3"':'')+'/>'});
   (P.windows||[]).map(opening).filter(Boolean).forEach(function(g){var o=g.h?[0,3]:[3,0];s+='<line class="gap" x1="'+g.x1+'" y1="'+g.y1+'" x2="'+g.x2+'" y2="'+g.y2+'" style="stroke-width:11"/><line class="win" x1="'+(g.x1-o[1])+'" y1="'+(g.y1-o[0])+'" x2="'+(g.x2-o[1])+'" y2="'+(g.y2-o[0])+'"/><line class="win" x1="'+(g.x1+o[1])+'" y1="'+(g.y1+o[0])+'" x2="'+(g.x2+o[1])+'" y2="'+(g.y2+o[0])+'"/><line class="win" x1="'+g.x1+'" y1="'+g.y1+'" x2="'+g.x2+'" y2="'+g.y2+'" style="stroke-width:.6"/>'});
-  (P.doors||[]).map(function(o){var g=opening(o);if(g)g.o=o;return g}).filter(Boolean).forEach(function(g){var r=g.r,w=g.w,ins;s+='<line class="gap" x1="'+g.x1+'" y1="'+g.y1+'" x2="'+g.x2+'" y2="'+g.y2+'"/>';
-    var e=g.o.hinge==="end",sg=e?-1:1;
-    if(g.h){ins=(g.y1===r.y)?1:-1;var hx=e?g.x2:g.x1,hy=g.y1,ex=hx,ey=hy+ins*w;s+='<line class="leaf" x1="'+hx+'" y1="'+hy+'" x2="'+ex+'" y2="'+ey+'"/><path class="swing" d="M'+ex+' '+ey+' A'+w+' '+w+' 0 0 '+((ins>0)!==e?0:1)+' '+(hx+sg*w)+' '+hy+'"/>'}
-    else{ins=(g.x1===r.x)?1:-1;var hx2=g.x1,hy2=e?g.y2:g.y1,ex2=hx2+ins*w,ey2=hy2;s+='<line class="leaf" x1="'+hx2+'" y1="'+hy2+'" x2="'+ex2+'" y2="'+ey2+'"/><path class="swing" d="M'+ex2+' '+ey2+' A'+w+' '+w+' 0 0 '+((ins>0)!==e?1:0)+' '+hx2+' '+(hy2+sg*w)+'"/>'}});
+  (P.doors||[]).map(function(o){var g=opening(o);if(g)g.o=o;return g}).filter(Boolean).forEach(function(g){var r=g.r,ins;s+='<line class="gap" x1="'+g.x1+'" y1="'+g.y1+'" x2="'+g.x2+'" y2="'+g.y2+'"/>';
+    var q=opening(leafOp(g.o))||g,w=q.w,e=g.o.hinge==="end",sg=e?-1:1;
+    if(q.h){ins=(q.y1===r.y)?1:-1;var hx=e?q.x2:q.x1,hy=q.y1,ex=hx,ey=hy+ins*w;s+='<line class="leaf" x1="'+hx+'" y1="'+hy+'" x2="'+ex+'" y2="'+ey+'"/><path class="swing" d="M'+ex+' '+ey+' A'+w+' '+w+' 0 0 '+((ins>0)!==e?0:1)+' '+(hx+sg*w)+' '+hy+'"/>'}
+    else{ins=(q.x1===r.x)?1:-1;var hx2=q.x1,hy2=e?q.y2:q.y1,ex2=hx2+ins*w,ey2=hy2;s+='<line class="leaf" x1="'+hx2+'" y1="'+hy2+'" x2="'+ex2+'" y2="'+ey2+'"/><path class="swing" d="M'+ex2+' '+ey2+' A'+w+' '+w+' 0 0 '+((ins>0)!==e?1:0)+' '+hx2+' '+(hy2+sg*w)+'"/>'}});
   /* Anschlüsse (Steckdose, Wasser, Internet …) als kleine Marke innen an der Wand */
   (P.anschluesse||[]).forEach(function(a){var r=R[a.room];if(!r)return;var o=+a.off||0,i=9,x=a.wall==="w"?r.x+i:a.wall==="e"?r.x+r.w-i:r.x+o,y=a.wall==="n"?r.y+i:a.wall==="s"?r.y+r.h-i:r.y+o,c=(window.KK&&KK.ANS[a.typ])||["?","#9aa1b3",a.typ||"Anschluss"];
     s+='<g class="ansch" pointer-events="none"><title>'+esc(c[2]+(a.hoehe?", "+a.hoehe+" cm hoch":""))+'</title><circle cx="'+x+'" cy="'+y+'" r="6" fill="'+c[1]+'" stroke="#fff" stroke-width="1.5"/><text x="'+x+'" y="'+(y+3)+'" text-anchor="middle" style="font:700 8px var(--sans);fill:#fff">'+esc(c[0])+'</text></g>'});
@@ -2174,7 +2177,7 @@ function addRoomLink(){var r=R[sheetId];if(!r)return;var t=$("#rb-lt").value.tri
 function inter(a,b){return a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h}
 function fbox(it){var d=dims(it);return {x:+it.x,y:+it.y,w:d.w,h:d.h}}
 function roomOfIt(it){var b=fbox(it);return roomAt(b.x+b.w/2,b.y+b.h/2)}
-function clearance(o){var g=opening(o);if(!g||o.type==="open")return null;var w=g.w,dp=o.type==="double"?w/2:w;
+function clearance(o){var g=opening(leafOp(o));if(!g||o.type==="open")return null;var w=g.w,dp=o.type==="double"?w/2:w;
   if(o.wall==="n")return {x:g.x1,y:g.y1,w:w,h:dp};if(o.wall==="s")return {x:g.x1,y:g.y1-dp,w:w,h:dp};
   if(o.wall==="w")return {x:g.x1,y:g.y1,w:dp,h:w};return {x:g.x1-dp,y:g.y1,w:dp,h:w}}
 function fixedAbs(f){var r=R[f.room];if(!r)return null;return {n:f.n,x:r.x+(+f.dx||0),y:r.y+(+f.dy||0),w:+f.w,h:+f.h}}
@@ -2212,12 +2215,12 @@ var sheetEdit=false,WALLS=[["n","oben"],["s","unten"],["w","links"],["e","rechts
 function editHTML(rid){var r=R[rid];if(!sheetEdit)return '<div class="rbrow" style="margin-top:22px"><button class="rbtn" data-rbunlock>Grundriss entsperren</button><span class="hint2">Räume liegen nach dem Originalplan fest.</span></div>';
   var num=function(k,l){return '<label>'+l+'<input class="n" data-rf="'+k+'" inputmode="numeric" value="'+esc(r[k])+'"></label>'};
   var ops=function(kind,lab){var L=(P[kind]||[]).map(function(o,i){return [o,i]}).filter(function(x){return x[0].room===rid});
-    return '<h3>'+lab+'</h3>'+L.map(function(x){var o=x[0],i=x[1];return '<div class="op"><label>Wand<select data-op="'+kind+':'+i+':wall">'+WALLS.map(function(w){return '<option value="'+w[0]+'"'+(o.wall===w[0]?' selected':'')+'>'+w[1]+'</option>'}).join("")+'</select></label><label>Abstand<input class="n" data-op="'+kind+':'+i+':off" inputmode="numeric" value="'+esc(o.off)+'" title="Abstand von der Ecke in cm"></label><label>Breite<input class="n" data-op="'+kind+':'+i+':w" inputmode="numeric" value="'+esc(o.w)+'"></label>'+
+    return '<h3>'+lab+'</h3>'+L.map(function(x){var o=x[0],i=x[1];return '<div class="op'+(kind==="doors"?' dr':'')+'"><label>Wand<select data-op="'+kind+':'+i+':wall">'+WALLS.map(function(w){return '<option value="'+w[0]+'"'+(o.wall===w[0]?' selected':'')+'>'+w[1]+'</option>'}).join("")+'</select></label><label>Abstand<input class="n" data-op="'+kind+':'+i+':off" inputmode="numeric" value="'+esc(o.off)+'" title="Abstand von der Ecke in cm"></label><label>'+(kind==="doors"?'Öffnung':'Breite')+'<input class="n" data-op="'+kind+':'+i+':w" inputmode="numeric" value="'+esc(o.w)+'"></label>'+(kind==="doors"?'<label>Türblatt<input class="n" data-op="'+kind+':'+i+':blatt" inputmode="numeric" value="'+esc(o.blatt||"")+'" placeholder="='+esc(o.w)+'" title="Breite des Türblatts, sitzt mittig in der Öffnung"></label>':'')+
       (kind==="doors"?'<button data-ophinge="'+i+'" title="Anschlag wechseln (Scharnier am Anfang oder Ende)" aria-label="Anschlag wechseln">'+(o.hinge==="end"?'⟲':'⟳')+'</button>':'<span></span>')+'<button data-opdel="'+kind+':'+i+'" aria-label="Entfernen" title="Entfernen">×</button></div>'}).join("")+
       '<button class="rbtn" data-opadd="'+kind+'">+ '+(kind==="doors"?'Tür':'Fenster')+'</button>'};
   return '<div class="edit"><div class="rbrow" style="margin:0 0 10px;justify-content:space-between"><b style="font:600 13px var(--sans);color:var(--blau)">Grundriss entsperrt</b><button class="rbtn" data-rblock>Sperren</button></div>'+
     '<div class="fg"><label>Name<input class="n" data-rf="name" value="'+esc(r.name)+'"></label><label>Art<select data-rf="outdoor"><option value="">Innenraum</option><option value="1"'+(r.outdoor?' selected':'')+'>Balkon / außen</option></select></label>'+num("w","Breite cm")+num("h","Länge cm")+num("x","Lage X")+num("y","Lage Y")+'</div>'+
-    ops("doors","türen (wand, abstand, breite, anschlag)")+ops("windows","fenster")+
+    ops("doors","türen (wand, abstand, öffnung, türblatt, anschlag)")+ops("windows","fenster")+
     '<div class="rbrow" style="margin-top:16px"><button class="rbtn" data-roomadd>+ Neuer Raum</button><button class="rbtn danger" data-roomdel>Raum löschen</button></div></div>'}
 function nval(v){var n=parseFloat(String(v).replace(",","."));return isNaN(n)?0:n}
 document.addEventListener("change",function(e){var t=e.target,a,r=R[sheetId];if(!r||!t.closest||!t.closest("#rb"))return;
