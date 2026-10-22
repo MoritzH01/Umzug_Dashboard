@@ -668,7 +668,7 @@ KK.ELT={us:"Unterschrank",hoch:"Hochschrank",blende:"Blende",passleiste:"Passlei
 KK.OBEN={hs:1,regal:1,abzug:1};
 KK.ART={kuehl:"Kühlschrank",gefrier:"Gefrierschrank",ofen:"Backofen",mikro:"Mikrowelle",spuele:"Spüle",gs:"Geschirrspüler",kochfeld:"Kochfeld",abzug:"Dunstabzug",waschm:"Waschmaschine",sonst:"Gerät"};
 KK.EINBAU={kuehl:1,gefrier:1,ofen:1,mikro:1,gs:1,waschm:1};
-KK.ANS={wasser:["W","#2f7fe0","Wasser"],abfluss:["A","#5b6580","Abfluss"],steckdose:["S","#c77a1f","Steckdose"],starkstrom:["⚡","#f28c28","Starkstrom"],abluft:["L","#7d8597","Abluft"],gas:["G","#b0413e","Gas"]};
+KK.ANS={wasser:["W","#2f7fe0","Wasser"],abfluss:["A","#5b6580","Abfluss"],steckdose:["S","#c77a1f","Steckdose"],starkstrom:["⚡","#f28c28","Starkstrom"],abluft:["L","#7d8597","Abluft"],gas:["G","#b0413e","Gas"],internet:["@","#2f4ee0","Internet"]};
 KK.WAND={n:"oben",e:"rechts",s:"unten",w:"links"};
 KK.ST=["brauchen","bestellt","haben"];
 KK.DECNEU={kaufen:1,fest:1};
@@ -1256,6 +1256,9 @@ function planSVG(){var b=PB,s='';
     var e=g.o.hinge==="end",sg=e?-1:1;
     if(g.h){ins=(g.y1===r.y)?1:-1;var hx=e?g.x2:g.x1,hy=g.y1,ex=hx,ey=hy+ins*w;s+='<line class="leaf" x1="'+hx+'" y1="'+hy+'" x2="'+ex+'" y2="'+ey+'"/><path class="swing" d="M'+ex+' '+ey+' A'+w+' '+w+' 0 0 '+((ins>0)!==e?0:1)+' '+(hx+sg*w)+' '+hy+'"/>'}
     else{ins=(g.x1===r.x)?1:-1;var hx2=g.x1,hy2=e?g.y2:g.y1,ex2=hx2+ins*w,ey2=hy2;s+='<line class="leaf" x1="'+hx2+'" y1="'+hy2+'" x2="'+ex2+'" y2="'+ey2+'"/><path class="swing" d="M'+ex2+' '+ey2+' A'+w+' '+w+' 0 0 '+((ins>0)!==e?1:0)+' '+hx2+' '+(hy2+sg*w)+'"/>'}});
+  /* Anschlüsse (Steckdose, Wasser, Internet …) als kleine Marke innen an der Wand */
+  (P.anschluesse||[]).forEach(function(a){var r=R[a.room];if(!r)return;var o=+a.off||0,i=9,x=a.wall==="w"?r.x+i:a.wall==="e"?r.x+r.w-i:r.x+o,y=a.wall==="n"?r.y+i:a.wall==="s"?r.y+r.h-i:r.y+o,c=(window.KK&&KK.ANS[a.typ])||["?","#9aa1b3",a.typ||"Anschluss"];
+    s+='<g class="ansch" pointer-events="none"><title>'+esc(c[2]+(a.hoehe?", "+a.hoehe+" cm hoch":""))+'</title><circle cx="'+x+'" cy="'+y+'" r="6" fill="'+c[1]+'" stroke="#fff" stroke-width="1.5"/><text x="'+x+'" y="'+(y+3)+'" text-anchor="middle" style="font:700 8px var(--sans);fill:#fff">'+esc(c[0])+'</text></g>'});
   /* Maßketten oben und links */
   var top=b.y-22,left=b.x-22;s+='<g class="l1">';
   for(var i=0;i<xs.length-1;i++){var a=xs[i],c=xs[i+1];s+='<line class="dim" x1="'+a+'" y1="'+top+'" x2="'+c+'" y2="'+top+'"/><line class="dim" x1="'+(a-4)+'" y1="'+(top+4)+'" x2="'+(a+4)+'" y2="'+(top-4)+'"/><line class="dim" x1="'+(c-4)+'" y1="'+(top+4)+'" x2="'+(c+4)+'" y2="'+(top-4)+'"/><text class="dimt" x="'+((a+c)/2)+'" y="'+(top-4)+'" text-anchor="middle">'+((c-a)/100).toFixed(2).replace(".",",")+'</text>'}
