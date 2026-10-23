@@ -12,6 +12,8 @@ const rows=[
  {coll:'items',id:'sofa',data:{name:'Sofa',raum:'wohnen',prio:1,dec:'mitnehmen',w:200,d:90,h:80,x:40,y:40}},
  {coll:'items',id:'tisch',data:{name:'Tisch',raum:'wohnen',prio:1,dec:'kaufen',w:80,d:80,h:75,x:100,y:60}},
  {coll:'items',id:'regal',data:{name:'Regal',prio:2,dec:'verkaufen',auch:['nachmieter'],status:'Online',preis:40,anzeige:'https://www.kleinanzeigen.de/s-anzeige/test/1',w:80,d:30,h:180}},
+ {coll:'items',id:'alt',data:{name:'Altschrank',prio:2,dec:'fest',status:'Bestellt',preis:100,her:'Neu',w:60,d:40,h:180}},
+ {coll:'items',id:'stuhl',data:{name:'Stuhl',prio:2,dec:'aufarbeiten',status:'Geplant',preis:30,her:'Alte Wohnung',w:45,d:45,h:90}},
  {coll:'contracts',id:'c1',data:{kat:'Strom',anbieter:'Teststrom',status:'vergleich',link:'https://strom.example.org/tarif'}},
  {coll:'contracts',id:'c2',data:{kat:'Strom',anbieter:'Probestrom',grundpreis:'12,90',arbeitspreis:'31,2',status:'vergleich'}},
  {coll:'contracts',id:'c3',data:{kat:'Strom',anbieter:'Bonusstrom',grundpreis:'9,50',arbeitspreis:'33,9',boni:'120',status:'vergleich'}},
@@ -70,12 +72,14 @@ const types={html:'text/html',js:'application/javascript'};
  const sr=await p.evaluate(()=>{const b=document.querySelector('[data-sell="regal"] b').getBoundingClientRect();return {x:b.x,y:b.y}});
  await p.mouse.move(720,450);await p.mouse.wheel(sr.x-720,sr.y-450);await p.waitForTimeout(200);
  await p.mouse.click(725,455);await p.waitForTimeout(300);
- ok(await p.evaluate(()=>!!document.querySelector('#itf')&&!document.querySelector('#f-anzo').hidden&&document.querySelector('#f-auch input[value="nachmieter"]').checked),'verkaufskarte öffnet formular mit labels und anzeige-link');
+ ok(await p.evaluate(()=>!!document.querySelector('#itf')&&!document.querySelector('#f-anzo').hidden&&document.querySelector('#f-sonst').value==='nachmieter'),'verkaufskarte öffnet formular mit plan b und anzeige-link');
  await p.click('#f-x');
  await p.evaluate(()=>document.querySelector('[data-addweg="nachmieter"]').click());await p.waitForTimeout(200);
- await p.fill('#f-name','Lampe aus dem Test');await p.check('#f-auch input[value="verkaufen"]');await p.click('#itf button:not([type])');await p.waitForTimeout(800);
+ await p.fill('#f-name','Lampe aus dem Test');await p.selectOption('#f-dec0','weg');await p.selectOption('#f-an','nachmieter');await p.selectOption('#f-sonst','verkaufen');await p.click('#itf button:not([type])');await p.waitForTimeout(800);
  db=await dbOf(p);
- ok(db.some(r=>r.coll==='items'&&r.data.name==='Lampe aus dem Test'&&r.data.dec==='nachmieter'&&r.data.auch.join()==='verkaufen'),'verkauf: neues stück mit zwei labels gespeichert');
+ ok(db.some(r=>r.coll==='items'&&r.data.name==='Lampe aus dem Test'&&r.data.dec==='nachmieter'&&r.data.auch.join()==='verkaufen'),'verkauf: neues stück mit plan b gespeichert');
+ ok(db.some(r=>r.coll==='items'&&r.id==='alt'&&r.data.dec==='kaufen'&&r.data.status==='Bestellt'&&!r.data.her)&&db.some(r=>r.coll==='items'&&r.id==='stuhl'&&r.data.dec==='mitnehmen'&&r.data.auf&&!r.data.aufOk),'labels: alte entscheidungen umgestellt');
+ ok(await p.evaluate(()=>{const t=document.querySelector('[data-frame="geld"]').textContent;return /Person 2 → Moritz: 50 €/.test(t)&&/noch geplant/.test(t)}),'geld: nur bestätigtes aufgeteilt, geplantes als summe');
  await p.evaluate(()=>{document.querySelector('[data-z="plan"]').click()});await p.waitForTimeout(300);
  ok(await p.evaluate(()=>!!document.querySelector('#world .kz')&&!document.querySelector('#world .fixed')),'küchenlauf im grundriss, feste küchenzeile entfällt');
  await p.evaluate(()=>Kueche.open());await p.waitForTimeout(300);
@@ -154,6 +158,9 @@ const types={html:'text/html',js:'application/javascript'};
  ok(mdb.some(r=>r.coll==='tasks'&&r.id==='t2'&&r.data.sub[1].done&&r.data.done),'handy: unterpunkte abhaken, letzte fragt nach erledigt');
  await m.click('[data-fullx]');await m.click('[data-areas]');await m.click('[data-fullopen="moebel"]');await m.click('#full [data-card="tisch"]');await m.waitForTimeout(300);
  ok(await m.isVisible('#f-st')&&(await m.innerHTML('#f-geld')).trim().length>0,'möbelformular: status und geld-felder da');
+ ok(await m.evaluate(()=>!document.querySelector('#a-box')&&/folgt/.test(document.querySelector('#f-geld').textContent)),'möbelformular: aufteilung erst nach dem kauf');
+ await m.selectOption('#f-st','Bestellt');await m.waitForTimeout(100);
+ ok(await m.isVisible('#a-box')&&await m.evaluate(()=>document.querySelector('[data-ant="50"]').classList.contains('on')),'möbelformular: bestellt zeigt wer gezahlt und aufteilung');
  await m.evaluate(()=>{document.querySelector('#modal').innerHTML=''});await m.click('[data-fullx]');await m.click('[data-areas]');await m.click('[data-fullopen="vertraege"]');await m.waitForTimeout(300);
  ok(await m.evaluate(()=>!document.querySelector('#full table.vst')&&/77,90 €/.test(document.querySelector('#full .vc[data-vtr="c2"]').textContent)&&!!document.querySelector('#full .vc[data-vtr="c3"] .st2')),'handy: strom als karten');
  ok(!errs.length,'keine JS-Fehler'+(errs.length?':\n  '+errs.join('\n  '):''));

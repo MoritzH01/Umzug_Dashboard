@@ -73,17 +73,19 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Utensilien (Bereich „utensilien“) sind eine Checkliste nach Kategorie in der Collection `utensils`, getrennt von Möbeln. Status: brauchen, bestellt, haben.
 - Verkauf läuft über Kleinanzeigen. Es gibt keine Anbindung, das Dashboard verfolgt nur den Stand.
 - Bereich „Verkaufen und weggeben“ (17.10.2026): Spalten für den Verkauf, dazu „Nachmieter“ (Übergabe an den Nachmieter) und „Verschenken / Sperrmüll“. Über „+ verkaufen“, „+ nachmieter“, „+ verschenken“ und „+ sperrmüll“ legt man dort direkt Stücke an.
-- Mehrere Labels je Möbel (17.10.2026): `items.dec` bleibt die Hauptentscheidung (Farbe, Status, Geld), `items.auch[]` sind weitere Möglichkeiten, z. B. erst Nachmieter fragen, sonst verkaufen. Ein Stück erscheint in jeder passenden Spalte. Kommt es anders, wird die Hauptentscheidung umgestellt.
+- Mehrere Labels je Möbel (17.10.2026): `items.dec` bleibt die Hauptentscheidung (Farbe, Status, Geld), `items.auch[]` ist der Plan B. Ein Stück erscheint in jeder passenden Spalte. Kommt es anders, wird die Hauptentscheidung umgestellt.
+- Sechs Entscheidungen (23.10.2026): Offen, Behalten (`mitnehmen`), Übernehmen, Kaufen, Verkaufen, Weggeben. Weggeben ist im Datensatz `nachmieter`, `verschenken` oder `entsorgen` (Feld „an wen“), damit die Spalten im Bereich Verkaufen bleiben. „Neu, fest“ ist in Kaufen aufgegangen. Aufarbeiten ist ein Häkchen bei Behalten (`auf`, Kosten im Preis, `aufOk` = bezahlt). Plan B heißt „sonst“, gibt es nur beim Verkaufen und Weggeben und hat höchstens einen Eintrag in `auch[]`. Die Herkunft entfällt; stattdessen „gehört“ (`items.von`: `m`, `h`, `b` = beiden, Standard Moritz), nur bei Behalten, Verkaufen, Weggeben und Offen. Alte Einträge stellt der Canvas beim Laden einmal um (fest → Kaufen, Aufarbeiten → Behalten mit Häkchen, Bleibt vom Vormieter → Übernehmen).
 - Links sind anklickbar und öffnen in einem neuen Tab: Shop-Link (`items.link`) an Möbelkarten, Kleinanzeigen-Link (`items.anzeige`) an Verkaufskarten, Angebotslink und Links in der Notiz an Vertragskarten. (17.10.2026)
 - Umzugstermin: 15.12.2026 (änderbar unter „daten“).
 
 ## Geld (17.10.2026)
 
 - Gerechnet wird pro Person, nur auf dem Canvas (Bereich „Geld“). Namen in `meta/settings.namen` (`m`, `h`), im Repo nur „Moritz“ und „Person 2“.
-- Standard-Anteil: Käufe (kaufen, fest, aufarbeiten), Ablöse an den Vormieter, Utensilien und sonstige Kosten halbe-halbe. Verkauf und Ablöse vom Nachmieter gehören ganz der Person, aus deren Wohnung das Stück kommt (`items.von`, Standard Moritz).
+- Standard-Anteil: Käufe, Aufarbeiten, Ablöse an den Vormieter, Utensilien und sonstige Kosten halbe-halbe. Verkauf und Ablöse vom Nachmieter gehören der Person, der das Stück gehört (`items.von`, Standard Moritz; „beiden“ = halbe-halbe).
 - Der Anteil ist je Eintrag änderbar (`anteil` = Prozent für Moritz, nur gespeichert, wenn er vom Standard abweicht). Dazu `zahler` (`m`/`h`): wer gezahlt bzw. das Geld bekommen hat.
-- Der Ausgleich („wer schuldet wem“) zählt nur Bestätigtes: Kauf und fest ab „Bestellt“, aufarbeiten ab „In Arbeit“, Ablösen bei „Bezahlt“, Verkauf ab „Verkauft“, Utensilien ab „bestellt“, sonstige Kosten, wenn „erledigt“. Geplante Beträge stehen nur in den Summen je Person.
-- Beim Bestätigen fragt die App, wer gezahlt hat. „ausgeglichen“ legt eine Ausgleichszahlung in der Collection `ausgleich` an; sonstige Kosten liegen in `costs`.
+- Bestätigt ist: Kauf ab „Bestellt“, Aufarbeiten mit „Aufarbeiten bezahlt“, Ablösen bei „Bezahlt“, Verkauf ab „Verkauft“, Utensilien ab „bestellt“, sonstige Kosten, wenn „erledigt“.
+- Aufteilung nur, wenn es wirklich gekauft ist (23.10.2026): Wer gezahlt hat und wie aufgeteilt wird, erscheint im Formular erst, wenn der Eintrag bestätigt ist; vorher steht dort nur ein Hinweis. Wird außerhalb eines Formulars bestätigt (Utensil abhaken, Gerät in der Küchen-Stückliste), fragt ein kleines Fenster beides. Aufteilung: halbe-halbe, nur Moritz, nur Person 2, anders (Prozent).
+- Bereich Geld (23.10.2026): je Person nur Bestätigtes, als „gezahlt“, „bekommen“ und „Anteil“ (Kosten minus Einnahmen), darunter der Ausgleich. Geplantes wird nicht aufgeteilt und steht nur als eine Summe „noch geplant“. „ausgeglichen“ legt eine Ausgleichszahlung in der Collection `ausgleich` an; sonstige Kosten liegen in `costs`.
 - Keine Anbindung an Splitwise (die API braucht ein Pro-Konto). Die Ausgaben werden nur im Dashboard dokumentiert.
 
 ## Verträge: Strom (17.10.2026)

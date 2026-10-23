@@ -17,7 +17,7 @@ KK.EINBAU={kuehl:1,gefrier:1,ofen:1,mikro:1,gs:1,waschm:1};
 KK.ANS={wasser:["W","#2f7fe0","Wasser"],abfluss:["A","#5b6580","Abfluss"],steckdose:["S","#c77a1f","Steckdose"],starkstrom:["⚡","#f28c28","Starkstrom"],abluft:["L","#7d8597","Abluft"],gas:["G","#b0413e","Gas"],internet:["@","#2f4ee0","Internet"]};
 KK.WAND={n:"oben",e:"rechts",s:"unten",w:"links"};
 KK.ST=["brauchen","bestellt","haben"];
-KK.DECNEU={kaufen:1,fest:1};
+KK.DECNEU={kaufen:1};
 var num=function(v){var n=parseFloat(String(v==null?"":v).replace(",","."));return isNaN(n)?null:n};
 KK.num=num;
 KK.newId=function(p){return (p||"k")+Date.now().toString(36)+Math.random().toString(36).slice(2,5)};

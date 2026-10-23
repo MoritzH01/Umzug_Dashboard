@@ -293,6 +293,7 @@ table.vst a.ext{margin-left:5px;font-weight:500}
 .gt tr:first-child th{border-top:0;font:500 11px var(--mono);color:var(--ink2);text-transform:lowercase}
 .gt td{font:500 13px var(--mono)}
 .gt tr.s th,.gt tr.s td{border-top:2px solid var(--ink);font-weight:700;color:var(--ink)}
+.gplan{margin-top:18px;display:grid;gap:2px;justify-items:start}.gplan small{font:500 11px var(--mono);color:var(--ink2)}.gplan b{font:700 18px var(--sans)}.gplan span{font:400 11px var(--mono);color:var(--ink2)}
 .gnote{font:400 11px var(--mono);color:var(--ink2);margin:8px 0 0}
 .gaus{margin-top:22px;border-top:3px solid var(--blau);padding-top:8px;display:grid;gap:8px;justify-items:start}
 .gaus small{font:500 11px var(--mono);color:var(--ink2)}
@@ -387,7 +388,10 @@ table.vst a.ext{margin-left:5px;font-weight:500}
 #modal .seg button+button{border-left:1px solid #d9d2c3}
 #modal .seg button.on{background:var(--ink);color:#fff}
 #modal .ant .pct{width:110px}
-#modal .ask select{border-color:var(--blau)}
+#modal .ant[hidden],#modal .pct[hidden]{display:none}
+#modal .paid{display:grid;gap:12px;border:1px solid var(--blau);background:#f5f7fe;border-radius:10px;padding:12px}
+#modal .seg button.on{background:var(--blau)}
+#modal .hint{background:#f4f1ea;border-radius:8px;padding:8px 10px;font:400 12px var(--sans);color:var(--ink2)}
 #modal .chk{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--ink)}
 #modal .chk input{width:auto}
 #modal .foot .del{margin-right:auto}
@@ -520,13 +524,16 @@ window.startTafel=function(){
 "use strict";
 var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
 var SEED=window.SEED,KEY="umzug-tafel-v1",STORE=window.TAFEL_STORE||null;
-var DEC={mitnehmen:"bestand",uebernehmen:"bestand",fest:"neu",kaufen:"neu",aufarbeiten:"bestand",offen:"bestand",verkaufen:"abbruch",verschenken:"abbruch",nachmieter:"abbruch",entsorgen:"abbruch"};
-var DECL={mitnehmen:"Bleibt",uebernehmen:"Übernehmen",fest:"Neu, fest",kaufen:"Kaufen",aufarbeiten:"Aufarbeiten",offen:"Offen",verkaufen:"Verkaufen",verschenken:"Verschenken",nachmieter:"An Nachmieter",entsorgen:"Sperrmüll"};
+/* Entscheidungen: Offen, Behalten, Übernehmen, Kaufen, Verkaufen, Weggeben. Weggeben ist im Datensatz nachmieter, verschenken oder entsorgen („an wen“). */
+var DEC={offen:"bestand",mitnehmen:"bestand",uebernehmen:"bestand",kaufen:"neu",verkaufen:"abbruch",nachmieter:"abbruch",verschenken:"abbruch",entsorgen:"abbruch"};
+var DECL={offen:"Offen",mitnehmen:"Behalten",uebernehmen:"Übernehmen",kaufen:"Kaufen",verkaufen:"Verkaufen",nachmieter:"An Nachmieter",verschenken:"Verschenken",entsorgen:"Sperrmüll"};
+var WEGG=["nachmieter","verschenken","entsorgen"];
 var MOVE="2026-12-15",CEIL=320;
 /* Statusschritte je Entscheidung; die Geld-Rechnung bringt dieselbe Liste als IST mit */
-var DST={mitnehmen:["Steht noch","Abgebaut","Transportiert","Aufgebaut"],uebernehmen:["Klären","Zugesagt","Bezahlt"],kaufen:["Idee","Suchen","Gefunden","Bestellt","Geliefert"],fest:["Geplant","Bestellt","Geliefert","Aufgebaut"],aufarbeiten:["Geplant","Material besorgen","In Arbeit","Fertig"],offen:["Offen"],verkaufen:["Fotos machen","Online","Reserviert","Verkauft","Abgeholt"],verschenken:["Anbieten","Reserviert","Abgeholt"],nachmieter:["Anbieten","Zugesagt","Bezahlt"],entsorgen:["Termin fehlt","Angemeldet","Weg"]};
+var DST={mitnehmen:["Steht noch","Abgebaut","Transportiert","Aufgebaut"],uebernehmen:["Klären","Zugesagt","Bezahlt"],kaufen:["Idee","Suchen","Gefunden","Bestellt","Geliefert"],offen:["Offen"],verkaufen:["Fotos machen","Online","Reserviert","Verkauft","Abgeholt"],verschenken:["Anbieten","Reserviert","Abgeholt"],nachmieter:["Anbieten","Zugesagt","Bezahlt"],entsorgen:["Termin fehlt","Angemeldet","Weg"]};
 function stList(dec){var L=typeof IST!=="undefined"&&IST[dec]?IST[dec]:DST[dec];return L||["Offen"]}
-var HERK=["Alte Wohnung","Vormieter","Neu","Geschenkt"];
+/* „gehört“ (items.von): m, h oder b (beiden); zählt bei Behalten, Verkaufen, Weggeben und Offen */
+function gehoert(it){return it.von==="h"||it.von==="b"?it.von:"m"}
 var MON=["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
 
 /* ---------- Zustand ---------- */
@@ -701,7 +708,7 @@ function raumOf(it){if(it.x!=null&&it.x!==""){var d=dims(it),r=roomAt(+it.x+d.w/
 function moebelHTML(){var ids=Object.keys(I).filter(function(k){return !gehtWeg(I[k])&&!isPlant(I[k])}),g={};
   ids.forEach(function(id){var k=raumOf(I[id]);(g[k]=g[k]||[]).push(id)});
   var sum=function(l){return l.reduce(function(a,id){var it=I[id];return a+(it.dec==="kaufen"&&+it.preis?+it.preis:0)},0)},eur=function(n){return n?Math.round(n).toLocaleString("de-DE")+" €":""};
-  var card=function(id){var it=I[id],l=labels(it),d=l[0]?DECL[l[0]]:(it.dec||"");return '<div class="card'+(it.x!=null&&it.x!==""?' placed':'')+'" data-card="'+id+'">'+(it.img?'<img class="pic" src="'+esc(it.img)+'" alt="">':iconSVG(it))+'<div class="cb"><b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+it.w+' × '+it.d+' × '+it.h+' cm'+(it.dec==="kaufen"&&it.preis?' · <span>'+eur(+it.preis)+'</span>':'')+'</div>'+(l.length>1?'<div class="auch">auch: '+l.slice(1).map(function(k){return esc(DECL[k])}).join(", ")+'</div>':'')+'<div class="cf"><span class="dec '+cls(it)+'"><i></i>'+esc(d)+'</span>'+(it.link?lnk(it.link,"shop"):'')+'</div></div></div>'};
+  var card=function(id){var it=I[id],l=labels(it),d=(l[0]?DECL[l[0]]:(it.dec||""))+(it.dec==="mitnehmen"&&it.auf?", aufarbeiten":"");return '<div class="card'+(it.x!=null&&it.x!==""?' placed':'')+'" data-card="'+id+'">'+(it.img?'<img class="pic" src="'+esc(it.img)+'" alt="">':iconSVG(it))+'<div class="cb"><b>'+esc((it.name||"").split(/[,(]/)[0])+'</b><div class="m">'+it.w+' × '+it.d+' × '+it.h+' cm'+(it.dec==="kaufen"&&it.preis?' · <span>'+eur(+it.preis)+'</span>':'')+'</div>'+(l.length>1?'<div class="auch">sonst: '+l.slice(1).map(function(k){return esc(DECL[k])}).join(", ")+'</div>':'')+'<div class="cf"><span class="dec '+cls(it)+'"><i></i>'+esc(d)+'</span>'+(it.link?lnk(it.link,"shop"):'')+'</div></div></div>'};
   var grp=function(name,l){l.sort(function(a,b){return String(I[a].name).localeCompare(String(I[b].name))});return '<div class="rgrp"><h5><span>'+esc(name)+' · '+l.length+'</span><span>'+eur(sum(l))+'</span></h5>'+[1,2,3].map(function(p){var lp=l.filter(function(id){return prioOf(I[id])===p});return lp.length?'<div class="psub">'+PRIO[p]+' <span>· '+lp.length+'</span></div><div class="cards">'+lp.map(card).join("")+'</div>':''}).join("")+'</div>'};
   var s='<div class="mbar"><span class="sum">'+ids.length+' stück'+(sum(ids)?' · '+eur(sum(ids))+' zu kaufen':'')+'</span><button class="plus" data-add="moebel" title="Möbel hinzufügen" aria-label="Möbel hinzufügen">+</button></div>',leer=[];
   s+='<div class="rgrps">';rooms().forEach(function(r){if(g[r.id])s+=grp(r.name,g[r.id]);else leer.push(r.name)});
@@ -709,13 +716,13 @@ function moebelHTML(){var ids=Object.keys(I).filter(function(k){return !gehtWeg(
   if(!ids.length)s+='<p class="mleer">Noch keine Möbel. Mit + das erste eintragen.</p>';
   if(leer.length)s+='<p class="mleer">Noch nichts für: '+leer.map(esc).join(", ")+'</p>';
   return s}
-/* Labels: dec ist die Hauptentscheidung (Farbe, Status, Geld), auch[] sind weitere Möglichkeiten, z. B. erst Nachmieter fragen, sonst verkaufen */
+/* Labels: dec ist die Hauptentscheidung (Farbe, Status, Geld), auch[] hat höchstens einen Plan B („sonst“), nur beim Verkaufen und Weggeben, z. B. erst Nachmieter fragen, sonst verkaufen */
 var WEG=["verkaufen","nachmieter","verschenken","entsorgen"];
 function labels(it){var l=[it.dec].concat(it.auch||[]);return l.filter(function(x,i){return DECL[x]&&l.indexOf(x)===i})}
 function hatLabel(it,k){return labels(it).indexOf(k)>=0}
 function imVerkauf(it){return !isPlant(it)&&labels(it).some(function(k){return WEG.indexOf(k)>=0})}
 function chipsHTML(it){var l=labels(it);if(!l.length)return '<span class="chip '+cls(it)+'">'+esc(it.dec||"")+'</span>';
-  return l.map(function(k,i){return '<span class="chip '+(DEC[k]||"bestand")+(i?' auch':'')+'">'+(i?'auch ':'')+esc(DECL[k])+'</span>'}).join(" ")}
+  return l.map(function(k,i){return '<span class="chip '+(DEC[k]||"bestand")+(i?' auch':'')+'">'+(i?'sonst ':'')+esc(DECL[k])+'</span>'}).join(" ")}
 /* Links: immer mit https, öffnen in neuem Tab */
 function href(u){u=String(u||"").trim();if(!u)return "";return /^https?:\/\//i.test(u)?u:"https://"+u}
 function lnk(u,t){var h=href(u);return h?'<a class="ext" href="'+esc(h)+'" target="_blank" rel="noopener" title="'+esc(h)+'">'+esc(t||"öffnen")+' ↗</a>':""}
@@ -998,10 +1005,10 @@ function uForm(id,preset){var u=id?Object.assign({},U[id]):Object.assign({kat:""
   '<div class="row"><label>Menge<input id="u-menge" value="'+esc(u.menge||"")+'"></label><label>Preis (€)<input id="u-preis" inputmode="decimal" value="'+esc(u.preis||"")+'"></label></div>'+
   '<div class="row"><label>Status<select id="u-st">'+UST.map(function(x){return '<option value="'+x+'"'+(uSt(u)===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label><label>Link<input id="u-link" type="url" value="'+esc(u.link||"")+'" placeholder="https://"></label></div>'+
   '<label>Notiz<input id="u-notiz" value="'+esc(u.notiz||"")+'" placeholder="Farbe, Größe, wer kauft …"></label>'+
-  antHTML(u.anteil!=null&&u.anteil!==""?+u.anteil:50,u.zahler==="h"?"h":"m","aus",uSt(u)!=="brauchen")+
+  '<div id="u-ant"></div>'+
   (u.link?'<p class="note2"><a href="'+esc(u.link)+'" target="_blank" rel="noopener">Im Shop öffnen</a></p>':'')+
   '<div class="foot">'+(id?'<button type="button" class="btn del" id="u-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="u-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
-  antWire();$("#u-st").onchange=function(){$("#a-zl").hidden=this.value==="brauchen"};
+  var ua=function(){antSlot("#u-ant",$("#u-st").value!=="brauchen",u,"utensils","aus")};ua();$("#u-st").onchange=ua;
   $("#u-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
   if(id)$("#u-del").onclick=function(){delete U[id];save();$("#modal").innerHTML="";render();toast("Utensil gelöscht")};
@@ -1014,82 +1021,102 @@ function nowHTML(){var L=zAll().filter(function(x){return x.k==="e"&&!x.done||x.
     return '<li class="nt'+(x.late?' late':'')+'"><button class="tbox" data-tdone="'+o.id+'" title="Erledigt" aria-label="'+esc(o.title)+' erledigt"></button><span>'+(x.a!==x.b?fmtD(x.a)+'–':'')+fmtD(o.due)+'</span><b data-task="'+o.id+'" style="font-weight:400;cursor:pointer">'+esc(o.title)+'</b>'+(zSubN(o)?' <small style="color:var(--ink2)">'+zSubN(o)+'</small>':'')+(o.wer?' <small style="color:var(--ink2)">· '+esc(o.wer)+'</small>':'')+'</li>'};
   return '<div class="nowg"><div><div style="font:800 110px/0.9 var(--sans);color:var(--neu);letter-spacing:-.04em" class="cdn">'+d+'</div><div style="font:500 13px var(--mono);margin-top:10px">Tage bis zum Umzug am '+fmtD(MOVE)+'</div></div><ol class="now" style="margin:0;padding-left:20px">'+L.map(li).join("")+'</ol></div>'}
 /* ---------- Geld pro Person ---------- */
-var IST={kaufen:["Idee","Suchen","Gefunden","Bestellt","Geliefert"],fest:["Geplant","Bestellt","Geliefert","Aufgebaut"],aufarbeiten:["Geplant","Material besorgen","In Arbeit","Fertig"],uebernehmen:["Klären","Zugesagt","Bezahlt"],mitnehmen:["Steht noch","Abgebaut","Transportiert","Aufgebaut"],verkaufen:["Fotos machen","Online","Reserviert","Verkauft","Abgeholt"],verschenken:["Anbieten","Reserviert","Abgeholt"],nachmieter:["Anbieten","Zugesagt","Bezahlt"],entsorgen:["Termin fehlt","Angemeldet","Weg"]};
-var IOK={kaufen:"Bestellt",fest:"Bestellt",aufarbeiten:"In Arbeit",uebernehmen:"Bezahlt",verkaufen:"Verkauft",nachmieter:"Bezahlt"};
-var GAUS={kaufen:1,fest:1,aufarbeiten:1,uebernehmen:1},GEIN={verkaufen:1,nachmieter:1};
+var IST=DST;
+var IOK={kaufen:"Bestellt",uebernehmen:"Bezahlt",verkaufen:"Verkauft",nachmieter:"Bezahlt"};
+var GAUS={kaufen:1,uebernehmen:1},GEIN={verkaufen:1,nachmieter:1};
 function nm(p){var n=SETT.namen||{};return p==="h"?(n.h||"Person 2"):(n.m||"Moritz")}
 function num(v){var n=parseFloat(String(v==null?"":v).replace(",","."));return isNaN(n)?0:n}
 function gEur(n){return (n<-.5?"−":"")+Math.abs(Math.round(n)).toLocaleString("de-DE")+" €"}
 function stOk(dec,s){var l=IST[dec],o=IOK[dec];return !!(l&&o&&l.indexOf(s)>=0&&l.indexOf(s)>=l.indexOf(o))}
-/* Standard-Anteil von Moritz in %: Verkauf und Nachmieter gehören der Person, aus deren Wohnung das Stück kommt, sonst halbe-halbe */
-function antDef(src,art,von){return src==="items"&&art==="ein"?(von==="h"?0:100):50}
-function zahlerDef(art,a,von){return art==="ein"?(a===100?"m":a===0?"h":von):"m"}
-function pst(src,id,name,art,b,d,ok){var von=d.von==="h"?"h":"m",a=d.anteil!=null&&d.anteil!==""?Math.max(0,Math.min(100,+d.anteil)):antDef(src,art,von),
+/* Behalten zählt nur mit „wird aufgearbeitet“ (Kosten im Preis, bestätigt mit aufOk) */
+function itemArt(it){return it.dec==="mitnehmen"?(it.auf?"aus":null):GAUS[it.dec]?"aus":GEIN[it.dec]?"ein":null}
+function itemOk(it){return it.dec==="mitnehmen"?!!it.aufOk:stOk(it.dec,it.status)}
+/* Standard-Anteil von Moritz in %: Verkauf und Nachmieter gehören der Person, der das Stück gehört, sonst halbe-halbe */
+function antDef(src,art,von){return src==="items"&&art==="ein"?(von==="h"?0:von==="b"?50:100):50}
+function zahlerDef(art,a,von){return art==="ein"?(a===100?"m":a===0?"h":von==="h"?"h":"m"):"m"}
+function pst(src,id,name,art,b,d,ok){var von=gehoert(d),a=d.anteil!=null&&d.anteil!==""?Math.max(0,Math.min(100,+d.anteil)):antDef(src,art,von),
     z=art==="ein"&&(a===100||a===0)?zahlerDef(art,a,von):(d.zahler==="h"||d.zahler==="m"?d.zahler:zahlerDef(art,a,von));
   return {src:src,id:id,name:name||"",art:art,b:b,a:a,z:z,ok:ok}}
 function itemBetrag(it){var has=function(k){return it[k]!=null&&it[k]!==""};
   if(it.dec==="verkaufen"&&has("erzielt"))return num(it.erzielt);if((it.dec==="uebernehmen"||it.dec==="nachmieter")&&has("abl"))return num(it.abl);return num(it.preis)}
 function posten(){var o=[];
-  Object.keys(I).forEach(function(k){var it=I[k],art=GAUS[it.dec]?"aus":GEIN[it.dec]?"ein":null;if(art)o.push(pst("items",k,it.name,art,itemBetrag(it),it,stOk(it.dec,it.status)))});
+  Object.keys(I).forEach(function(k){var it=I[k],art=itemArt(it);if(art)o.push(pst("items",k,it.name,art,itemBetrag(it),it,itemOk(it)))});
   Object.keys(U).forEach(function(k){var u=U[k];o.push(pst("utensils",k,u.name,"aus",uPreis(u),u,uSt(u)!=="brauchen"))});
   Object.keys(K).forEach(function(k){var c=K[k];o.push(pst("costs",k,c.title,c.typ==="ein"?"ein":"aus",num(c.betrag),c,!!c.bezahlt))});
   return o}
-/* bal > 0: Person 2 schuldet Moritz, bal < 0: umgekehrt. Zählt nur Bestätigtes und die Ausgleichszahlungen. */
-function bilanz(){var r={m:{aus:0,ein:0},h:{aus:0,ein:0},bal:0,ohne:0};
-  posten().forEach(function(p){if(!p.b){if(p.src==="items")r.ohne++;return}var m=p.b*p.a/100,h=p.b-m;r.m[p.art]+=m;r.h[p.art]+=h;
-    if(!p.ok)return;if(p.art==="aus")r.bal+=p.z==="m"?h:-m;else r.bal+=p.z==="m"?-h:m});
+/* Aufgeteilt wird nur Bestätigtes. gez/bek: was jemand gezahlt bzw. bekommen hat, ant: Anteil an Kosten minus Einnahmen.
+   bal > 0: Person 2 schuldet Moritz, bal < 0: umgekehrt. Geplantes steht nur als Summe. */
+function bilanz(){var r={gez:{m:0,h:0},bek:{m:0,h:0},ant:{m:0,h:0},bal:0,plan:{aus:0,ein:0,naus:0,nein:0},ohne:0};
+  posten().forEach(function(p){if(!p.b){if(p.src==="items")r.ohne++;return}
+    if(!p.ok){r.plan[p.art]+=p.b;r.plan["n"+p.art]++;return}
+    var m=p.b*p.a/100,sg=p.art==="aus"?1:-1;(p.art==="aus"?r.gez:r.bek)[p.z]+=p.b;r.ant.m+=sg*m;r.ant.h+=sg*(p.b-m)});
+  r.bal=r.gez.m-r.bek.m-r.ant.m;
   Object.keys(A).forEach(function(k){var x=A[k],b=num(x.betrag);r.bal+=x.von==="h"?-b:b});
   return r}
 function balText(b){var v=Math.round(b.bal);return v===0?"ausgeglichen":nm(v>0?"h":"m")+" → "+nm(v>0?"m":"h")+": "+gEur(Math.abs(v))}
-function geldHTML(){var b=bilanz(),v=Math.round(b.bal);
-  var row=function(l,k,c){var m=k==="s"?b.m.ein-b.m.aus:b.m[k],h=k==="s"?b.h.ein-b.h.aus:b.h[k];return '<tr'+(c?' class="'+c+'"':'')+'><th>'+l+'</th><td>'+gEur(m)+'</td><td>'+gEur(h)+'</td><td>'+gEur(m+h)+'</td></tr>'};
+function geldHTML(){var b=bilanz(),v=Math.round(b.bal),pl=b.plan;
+  var row=function(l,o,c){return '<tr'+(c?' class="'+c+'"':'')+'><th>'+l+'</th><td>'+gEur(o.m)+'</td><td>'+gEur(o.h)+'</td></tr>'};
   var kl=Object.keys(K).map(function(k){return Object.assign({id:k},K[k])}).sort(function(a,c){return String(a.title).localeCompare(String(c.title),"de")});
   var al=Object.keys(A).map(function(k){return Object.assign({id:k},A[k])}).sort(function(a,c){return String(c.datum||"").localeCompare(String(a.datum||""))});
+  var st=function(n,e,m){return n+" "+(n===1?e:m)};
   return '<div class="geld"><div>'+
-    '<table class="gt"><tr><th></th><th>'+esc(nm("m"))+'</th><th>'+esc(nm("h"))+'</th><th>zusammen</th></tr>'+row("Ausgaben","aus")+row("Einnahmen","ein")+row("Saldo","s","s")+'</table>'+
-    '<p class="gnote">Geplant: alles mit Preis, aufgeteilt nach Anteil.'+(b.ohne?' '+b.ohne+' '+(b.ohne===1?'Eintrag':'Einträge')+' ohne Preis.':'')+'</p>'+
-    '<div class="gaus"><small>ausgleich · nur bestätigte einträge</small><b>'+esc(balText(b))+'</b>'+(v?'<button class="gbtn" data-gausg="">ausgeglichen</button>':'')+'</div>'+
+    '<table class="gt"><tr><th></th><th>'+esc(nm("m"))+'</th><th>'+esc(nm("h"))+'</th></tr>'+row("gezahlt",b.gez)+(b.bek.m||b.bek.h?row("bekommen",b.bek):'')+row("Anteil",b.ant,"s")+'</table>'+
+    '<p class="gnote">Nur Bestätigtes: bestellt, bezahlt, verkauft. Anteil = Kosten minus Einnahmen, aufgeteilt wie beim Eintrag gewählt.</p>'+
+    '<div class="gaus"><small>ausgleich</small><b>'+esc(balText(b))+'</b>'+(v?'<button class="gbtn" data-gausg="">ausgeglichen</button>':'')+'</div>'+
+    '<div class="gplan"><small>noch geplant</small><b>'+gEur(pl.aus)+'</b><span>'+[pl.naus?st(pl.naus,"Ausgabe","Ausgaben"):'',pl.nein?st(pl.nein,"Einnahme","Einnahmen")+' über '+gEur(pl.ein):'',b.ohne?b.ohne+' Möbel ohne Preis':''].filter(Boolean).join(' · ')+'</span></div>'+
     '<button class="glink" data-gnamen="">namen ändern</button></div>'+
     '<div><div class="mbar"><span class="gh">sonstige kosten und einnahmen</span><button class="plus" data-cadd="" title="Kosten oder Einnahme hinzufügen" aria-label="Kosten oder Einnahme hinzufügen">+</button></div>'+
     (kl.length?kl.map(function(c){var e=c.typ==="ein";return '<div class="grow"><button class="uname" data-cost="'+esc(c.id)+'">'+esc(c.title||"Ohne Namen")+(c.bezahlt?'':'<small>offen</small>')+'</button><span class="q'+(e?' ein':'')+'">'+(e?'+':'−')+gEur(num(c.betrag))+'</span></div>'}).join(""):'<p class="mleer">Kaution, Transporter, Helfer … mit + eintragen.</p>')+
     (al.length?'<div class="gh" style="margin-top:18px">ausgleichszahlungen</div>'+al.map(function(x){return '<div class="grow"><button class="uname" data-ausg="'+esc(x.id)+'">'+(x.datum?fmtD(x.datum)+' ':'')+esc(nm(x.von==="h"?"h":"m"))+' → '+esc(nm(x.von==="h"?"m":"h"))+'</button><span class="q">'+gEur(num(x.betrag))+'</span></div>'}).join(""):'')+
     '</div></div>'}
-/* Formular-Baustein: Anteil (Moritz %) und wer gezahlt bzw. das Geld bekommen hat */
-function antHTML(a,z,art,showZ){return '<div class="ant"><span class="al">Anteil</span><div class="seg">'+[[50,"50/50"],[100,"nur "+nm("m")],[0,"nur "+nm("h")]].map(function(x){return '<button type="button" data-ant="'+x[0]+'"'+(a===x[0]?' class="on"':'')+'>'+esc(x[1])+'</button>'}).join("")+'</div><label class="pct">'+esc(nm("m"))+' %<input id="a-pct" inputmode="numeric" value="'+a+'"></label></div>'+
-  '<label id="a-zl" class="ask"'+(showZ?'':' hidden')+'><span>'+(art==="ein"?"Wer hat das Geld bekommen?":"Wer hat gezahlt?")+'</span><select id="a-z"><option value="m"'+(z==="m"?" selected":"")+'>'+esc(nm("m"))+'</option><option value="h"'+(z==="h"?" selected":"")+'>'+esc(nm("h"))+'</option></select></label>'}
-function antPct(){var v=$("#a-pct").value.trim();return v===""?null:Math.max(0,Math.min(100,Math.round(num(v))))}
-function antWire(onPct){var mark=function(){var p=antPct();document.querySelectorAll("#modal [data-ant]").forEach(function(bt){bt.classList.toggle("on",+bt.dataset.ant===p)})};
-  document.querySelectorAll("#modal [data-ant]").forEach(function(bt){bt.onclick=function(){$("#a-pct").value=bt.dataset.ant;mark();if(onPct)onPct()}});
-  $("#a-pct").oninput=function(){mark();if(onPct)onPct()}}
-/* schreibt anteil (nur wenn vom Standard abweichend) und zahler (nur wenn gefragt) in d */
-function antRead(d,defA){var p=antPct();if(p==null||p===defA)delete d.anteil;else d.anteil=p;if(!$("#a-zl").hidden)d.zahler=$("#a-z").value}
-/* Für das Möbelformular: rendert in #f-geld, liest #f-dec und #f-st (Status) des Formulars */
-function geldFormItem(it){var box=$("#f-geld");if(!box)return;var a0=it.anteil!=null&&it.anteil!==""?+it.anteil:null,von=it.von==="h"?"h":"m";
-  var val=function(s,d){var e=$(s);return e?e.value:d},cur=function(){var dec=val("#f-dec",it.dec),art=GAUS[dec]?"aus":GEIN[dec]?"ein":null;return {dec:dec,art:art,def:art?antDef("items",art,von):50,ok:stOk(dec,val("#f-st",it.status))}};
-  var showZ=function(c){var p=antPct();return c.ok&&(c.art==="aus"||(p!==0&&p!==100))};
-  var draw=function(){var c=cur();if(!c.art){box.innerHTML="";return}var a=a0==null?c.def:a0;
-    box.innerHTML=(c.art==="ein"?'<label>Aus der Wohnung von<select id="f-von"><option value="m"'+(von==="m"?" selected":"")+'>'+esc(nm("m"))+'</option><option value="h"'+(von==="h"?" selected":"")+'>'+esc(nm("h"))+'</option></select></label>':'')+
-      antHTML(a,it.zahler==="h"||it.zahler==="m"?it.zahler:zahlerDef(c.art,a,von),c.art,false);
-    if($("#f-von"))$("#f-von").onchange=function(){von=this.value;a0=null;draw()};
-    antWire(function(){a0=antPct();upd()});upd()};
-  var upd=function(){var c=cur(),zl=$("#a-zl");if(zl)zl.hidden=!showZ(c)};
-  var fm=box.closest("form");if(fm&&!box.dataset.wired){box.dataset.wired=1;fm.addEventListener("change",function(e){var t=e.target.id;if(t==="f-dec")setTimeout(draw,0);else if(t==="f-st")setTimeout(upd,0)})}
-  draw();geldFormItem.cur=function(){var c=cur();c.von=von;return c}}
-function geldReadItem(o){var c=geldFormItem.cur&&geldFormItem.cur();if(!$("#a-pct")||!c||!c.art){delete o.anteil;return}if(c.art==="ein")o.von=c.von;antRead(o,c.def)}
-function askPayer(name,cb){$("#modal").innerHTML='<div class="bg"><form id="apf"><h2>wer hat gezahlt?</h2><p class="note2">'+esc(name)+' ist bestellt.</p><div class="foot"><button type="button" class="btn ghost" data-pay="h">'+esc(nm("h"))+'</button><button class="btn" data-pay="m">'+esc(nm("m"))+'</button></div></form></div>';
-  var done=function(z){$("#modal").innerHTML="";cb(z)};
-  document.querySelectorAll("#apf [data-pay]").forEach(function(bt){bt.onclick=function(e){e.preventDefault();done(bt.dataset.pay)}});
-  $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)done("m")})}
-function costForm(id){var c=id?Object.assign({},K[id]):{typ:"aus",bezahlt:false},art0=c.typ==="ein"?"ein":"aus",a0=c.anteil!=null&&c.anteil!==""?+c.anteil:50;
+/* Formular-Baustein, erscheint erst, wenn etwas bestätigt ist: wer gezahlt bzw. das Geld bekommen hat und wie es aufgeteilt wird (Anteil Moritz in %) */
+function antHTML(a,z,art){var std=a===50||a===100||a===0;
+  return '<div class="paid" id="a-box"><div class="ant" id="a-zrow"><span class="al">'+(art==="ein"?"Wer hat das Geld bekommen?":"Wer hat gezahlt?")+'</span><div class="seg">'+["m","h"].map(function(p){return '<button type="button" data-zahl="'+p+'"'+(z===p?' class="on"':'')+'>'+esc(nm(p))+'</button>'}).join("")+'</div><input type="hidden" id="a-z" value="'+z+'"></div>'+
+  '<div class="ant"><span class="al">Aufteilung</span><div class="seg">'+[[50,"halbe-halbe"],[100,"nur "+nm("m")],[0,"nur "+nm("h")],["x","anders …"]].map(function(x){return '<button type="button" data-ant="'+x[0]+'"'+((x[0]==="x"?!std:a===x[0])?' class="on"':'')+'>'+esc(x[1])+'</button>'}).join("")+'</div>'+
+  '<label class="pct"'+(std?' hidden':'')+'>'+esc(nm("m"))+' %<input id="a-pct" inputmode="numeric" value="'+a+'"></label></div></div>'}
+function antPct(){var e=$("#a-pct");if(!e)return null;var v=e.value.trim();return v===""?null:Math.max(0,Math.min(100,Math.round(num(v))))}
+/* art "ein" mit 100 % oder 0 %: das Geld gehört einer Person, dann fragt die App nicht, wer es bekommen hat */
+function antWire(art,onPct){var box=$("#a-box");if(!box)return;var pl=$(".pct",box);
+  var mark=function(){var p=antPct(),std=p===50||p===100||p===0,x=!pl.hidden||!std;$$("[data-ant]",box).forEach(function(bt){bt.classList.toggle("on",bt.dataset.ant==="x"?x:!x&&+bt.dataset.ant===p)});
+    $("#a-zrow").hidden=art==="ein"&&(p===100||p===0)};
+  $$("[data-ant]",box).forEach(function(bt){bt.onclick=function(){if(bt.dataset.ant==="x"){pl.hidden=false;$("#a-pct").focus()}else{pl.hidden=true;$("#a-pct").value=bt.dataset.ant}mark();if(onPct)onPct()}});
+  $$("[data-zahl]",box).forEach(function(bt){bt.onclick=function(){$("#a-z").value=bt.dataset.zahl;$$("[data-zahl]",box).forEach(function(x){x.classList.toggle("on",x===bt)})}});
+  $("#a-pct").oninput=function(){mark();if(onPct)onPct()};mark()}
+/* schreibt anteil (nur wenn vom Standard abweichend) und zahler in d, nur wenn der Baustein da ist */
+function antRead(d,defA){if(!$("#a-box"))return;var p=antPct();if(p==null||p===defA)delete d.anteil;else d.anteil=p;if(!$("#a-zrow").hidden)d.zahler=$("#a-z").value;else delete d.zahler}
+function antVals(d,src,art){var von=gehoert(d),a=d.anteil!=null&&d.anteil!==""?+d.anteil:antDef(src,art,von);return {a:a,z:d.zahler==="h"||d.zahler==="m"?d.zahler:zahlerDef(art,a,von),def:antDef(src,art,von)}}
+/* Für das Möbelformular: rendert in #f-geld, liest #f-dec, #f-st, #f-auf, #f-aufok und #f-von des Formulars */
+function geldFormItem(it){var box=$("#f-geld");if(!box)return;var a0=it.anteil!=null&&it.anteil!==""?+it.anteil:null,z0=it.zahler,last="";
+  var val=function(s,d){var e=$(s);return e&&e.closest("label,div").style.display!=="none"?e.value:d},chk=function(s,d){var e=$(s);return e?e.checked:d};
+  var cur=function(){var o={dec:val("#f-dec",it.dec),status:val("#f-st",it.status),auf:chk("#f-auf",it.auf),aufOk:chk("#f-aufok",it.aufOk),von:val("#f-von",gehoert(it))};
+    if(o.dec!=="mitnehmen")o.auf=false;var art=itemArt(o);return {dec:o.dec,von:o.von,art:art,def:art?antDef("items",art,o.von):50,ok:!!art&&itemOk(o)}};
+  var draw=function(){var c=cur(),k=c.dec+"|"+c.art+"|"+c.ok+"|"+c.von;if(k===last)return;last=k;
+    if(!c.art){box.innerHTML="";return}
+    if(!c.ok){box.innerHTML='<div class="hint">Aufteilung folgt, sobald '+(c.dec==="mitnehmen"?'das Aufarbeiten bezahlt ist':c.dec==="verkaufen"?'es verkauft ist':c.dec==="kaufen"?'es bestellt ist':'die Ablöse bezahlt ist')+'.</div>';return}
+    var a=a0==null?c.def:a0;box.innerHTML=antHTML(a,z0==="h"||z0==="m"?z0:zahlerDef(c.art,a,c.von),c.art);
+    antWire(c.art,function(){a0=antPct()});$$("[data-zahl]",box).forEach(function(bt){bt.addEventListener("click",function(){z0=bt.dataset.zahl})})};
+  var fm=box.closest("form");if(fm&&!box.dataset.wired){box.dataset.wired=1;fm.addEventListener("change",function(e){if(!box.contains(e.target))setTimeout(draw,0)})}
+  draw();geldFormItem.cur=cur}
+function geldReadItem(o){var c=geldFormItem.cur&&geldFormItem.cur();if(!c||!c.art||!$("#a-box"))return;antRead(o,c.def)}
+/* Baustein in einem Formular nur zeigen, solange der Eintrag bestätigt ist; beim Umschalten bleibt die Auswahl erhalten */
+function antSlot(sel,on,d,src,art){var box=$(sel);if(!box)return;if($("#a-box",box))antRead(d,antVals(d,src,art).def);
+  if(!on){box.innerHTML="";return}var v=antVals(d,src,art);box.innerHTML=antHTML(v.a,v.z,art);antWire(art)}
+/* Abfrage, wenn etwas außerhalb eines Formulars bestätigt wird (Utensil abgehakt, Gerät in der Küchen-Stückliste bestellt) */
+function askPaid(name,d,src,art,cb){var v=antVals(d,src,art);
+  $("#modal").innerHTML='<div class="bg"><form id="apf"><h2>'+(art==="ein"?'geld bekommen':'bezahlt')+'</h2><p class="note2">'+esc(name)+'</p>'+antHTML(v.a,v.z,art)+'<div class="foot"><button type="button" class="btn ghost" id="ap-x">Später</button><button class="btn">Speichern</button></div></form></div>';
+  antWire(art);var close=function(){$("#modal").innerHTML=""};
+  $("#ap-x").onclick=close;$(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)close()});
+  $("#apf").addEventListener("submit",function(e){e.preventDefault();antRead(d,v.def);close();cb()})}
+function costForm(id){var c=id?Object.assign({},K[id]):{typ:"aus",bezahlt:false},art0=c.typ==="ein"?"ein":"aus";
   $("#modal").innerHTML='<div class="bg"><form id="cf" autocomplete="off"><h2>'+(id?'eintrag bearbeiten':'kosten oder einnahme')+'</h2>'+
   '<label>Was<input id="c-t" required value="'+esc(c.title||"")+'" placeholder="z. B. Transporter, Kaution zurück"></label>'+
   '<div class="row"><label>Art<select id="c-typ"><option value="aus"'+(art0==="aus"?" selected":"")+'>Ausgabe</option><option value="ein"'+(art0==="ein"?" selected":"")+'>Einnahme</option></select></label><label>Betrag €<input id="c-b" inputmode="decimal" value="'+esc(c.betrag==null?"":c.betrag)+'"></label></div>'+
   '<label class="chk"><input type="checkbox" id="c-ok"'+(c.bezahlt?" checked":"")+'> Erledigt (bezahlt bzw. bekommen)</label>'+
-  antHTML(a0,c.zahler==="h"?"h":"m",art0,!!c.bezahlt)+
+  '<div id="c-ant"></div>'+
   '<label>Notiz<input id="c-n" value="'+esc(c.notiz||"")+'"></label>'+
   '<div class="foot">'+(id?'<button type="button" class="btn del" id="c-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="c-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
-  var zl=function(){$("#a-zl span").textContent=$("#c-typ").value==="ein"?"Wer hat das Geld bekommen?":"Wer hat gezahlt?";$("#a-zl").hidden=!$("#c-ok").checked};
-  $("#c-typ").onchange=zl;$("#c-ok").onchange=zl;antWire();
+  var zl=function(){antSlot("#c-ant",$("#c-ok").checked,c,"costs",$("#c-typ").value==="ein"?"ein":"aus")};zl();
+  $("#c-typ").onchange=zl;$("#c-ok").onchange=zl;
   $("#c-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
   if(id)$("#c-del").onclick=function(){if(!confirm("Diesen Eintrag löschen?"))return;delete K[id];save();$("#modal").innerHTML="";render()};
@@ -1304,7 +1331,7 @@ document.addEventListener("click",function(e){var t=e.target,b;if(t.closest("a[h
     else if(bf){if(!confirm("Bereich ausblenden? Über „rahmen“ in der Leiste holst du ihn wieder zurück. Die Einträge darin bleiben erhalten."))return;bf.hidden=true}
     save();render();toast("Bereich entfernt");return}
   if((b=t.closest("[data-sell]"))){itemForm(b.dataset.sell);return}
-  if((b=t.closest("[data-addweg]"))){itemForm(null,{dec:b.dataset.addweg,her:"Alte Wohnung",prio:2});return}
+  if((b=t.closest("[data-addweg]"))){itemForm(null,{dec:b.dataset.addweg,prio:2});return}
   if(t.closest("[data-addplant]")){plantForm(null);return}
   if((b=t.closest("[data-ft]"))){furnAction(b.dataset.ft);return}
   if((b=t.closest("[data-nt]"))){noteAction(b.dataset.nt);return}
@@ -1321,7 +1348,7 @@ document.addEventListener("click",function(e){var t=e.target,b;if(t.closest("a[h
   if(t.closest("[data-gnamen]")){namenForm();return}
   if((b=t.closest("[data-uadd]"))){uForm(null,b.dataset.uadd?{kat:b.dataset.uadd}:null);return}
   if((b=t.closest("[data-ustat]"))){var uu=U[b.dataset.ustat];if(uu){var u0=uSt(uu);uu.status=UST[(UST.indexOf(u0)+1)%3];uu.updated=new Date().toISOString();save();render();
-    if(u0==="brauchen"&&uPreis(uu))askPayer(uu.name||"Das Utensil",function(z){uu.zahler=z;save();render()})}return}
+    if(u0==="brauchen"&&uPreis(uu))askPaid((uu.name||"Das Utensil")+" ist bestellt.",uu,"utensils","aus",function(){save();render()})}return}
   if((b=t.closest("[data-uitem]"))){uForm(b.dataset.uitem);return}
   if((b=t.closest("[data-vadd]"))){vtrForm(null,b.dataset.vadd?{kat:b.dataset.vadd}:null);return}
   if(t.closest("[data-verb]")){verbForm();return}
@@ -1367,17 +1394,21 @@ function guessFromLink(url){var u;try{u=new URL(url.trim())}catch(e){return null
 function fetchProduct(url){var api=window.UMZUG_LINK_API;if(window.UMZUG_LINK_FN)return window.UMZUG_LINK_FN(url).then(function(d){var g=guessFromLink(url)||{};if(!d)return g;Object.keys(d).forEach(function(k){if(d[k]==null||d[k]==="")delete d[k]});return Object.assign(g,d,{src:"Shop"})}).catch(function(e){var g=guessFromLink(url)||{};g.err=(e&&e.message)||String(e||"unbekannter Fehler");return g});
   if(api)return fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:url})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){var g=guessFromLink(url)||{};return Object.assign(g,d,{src:"Shop"})}).catch(function(){return guessFromLink(url)});
   return Promise.resolve(guessFromLink(url))}
-function itemForm(id,preset){if(id&&isPlant(I[id]))return plantForm(id);var it=id?Object.assign({},I[id]):Object.assign({dec:"kaufen",her:"Neu",prio:2},preset||{}),img=it.img||"",raum0=raumOf(it);
-  var opts=Object.keys(DECL).map(function(k){return '<option value="'+k+'"'+(it.dec===k?' selected':'')+'>'+DECL[k]+'</option>'}).join("");
+function itemForm(id,preset){if(id&&isPlant(I[id]))return plantForm(id);var it=id?Object.assign({},I[id]):Object.assign({dec:"kaufen",prio:2},preset||{}),img=it.img||"",raum0=raumOf(it);
+  var weg0=WEGG.indexOf(it.dec)>=0,von0=gehoert(it),
+    opts=[["offen","Offen"],["mitnehmen","Behalten"],["uebernehmen","Übernehmen"],["kaufen","Kaufen"],["verkaufen","Verkaufen"],["weg","Weggeben"]].map(function(x){return '<option value="'+x[0]+'"'+((weg0?"weg":it.dec)===x[0]?' selected':'')+'>'+x[1]+'</option>'}).join("");
   $("#modal").innerHTML='<div class="bg"><form id="itf" autocomplete="off"><h2>'+(id?'möbel bearbeiten':'möbel hinzufügen')+'</h2>'+
   '<div class="row"><label><span>Shop-Link <a class="ext" id="f-linko" target="_blank" rel="noopener" hidden>öffnen ↗</a></span><input id="f-link" type="url" placeholder="https://www.ikea.com/de/de/p/…" value="'+esc(it.link||"")+'"></label><button type="button" class="btn ghost" id="f-get">Holen</button></div>'+
   '<p class="note2" id="f-msg">Link einfügen und „Holen“ drücken. Name, Maße und Foto werden übernommen, du kannst alles ändern.</p>'+
   '<label>Name<input id="f-name" required value="'+esc(it.name||"")+'"></label>'+
   '<div class="g3"><label>Breite cm<input id="f-w" inputmode="decimal" value="'+esc(it.w||"")+'"></label><label>Tiefe cm<input id="f-d" inputmode="decimal" value="'+esc(it.d||"")+'"></label><label>Höhe cm<input id="f-h" inputmode="decimal" value="'+esc(it.h||"")+'"></label></div>'+
-  '<div class="row"><label>Entscheidung<select id="f-dec">'+opts+'</select></label><label>Status<select id="f-st"></select></label></div>'+
-  '<div class="auch" id="f-auch"><span>auch möglich:</span>'+Object.keys(DECL).map(function(k){return '<label data-k="'+k+'"><input type="checkbox" value="'+k+'"'+((it.auch||[]).indexOf(k)>=0?' checked':'')+'>'+DECL[k]+'</label>'}).join("")+'</div>'+
+  '<div class="row"><label>Entscheidung<select id="f-dec0">'+opts+'</select></label><label>Status<select id="f-st"></select></label></div><input type="hidden" id="f-dec" value="'+esc(it.dec||"kaufen")+'">'+
+  '<div class="row" id="f-wegrow"><label id="f-anl">An wen<select id="f-an">'+WEGG.map(function(k){return '<option value="'+k+'"'+(it.dec===k?' selected':'')+'>'+DECL[k]+'</option>'}).join("")+'</select></label>'+
+  '<label id="f-sonstl">Sonst<select id="f-sonst"><option value="">–</option>'+WEG.map(function(k){return '<option value="'+k+'"'+((it.auch||[])[0]===k?' selected':'')+'>'+DECL[k]+'</option>'}).join("")+'</select></label></div>'+
+  '<label class="chk" id="f-aufl"><input type="checkbox" id="f-auf"'+(it.auf?' checked':'')+'> wird aufgearbeitet</label>'+
   '<label id="f-anzl"><span>Anzeige-Link (Kleinanzeigen) <a class="ext" id="f-anzo" target="_blank" rel="noopener" hidden>öffnen ↗</a></span><input id="f-anz" type="url" placeholder="https://www.kleinanzeigen.de/s-anzeige/…" value="'+esc(it.anzeige||"")+'"></label>'+
-  '<div class="row"><label>Preis / Wunschpreis €<input id="f-preis" inputmode="decimal" value="'+esc(it.preis||"")+'"></label><label>Herkunft<select id="f-her">'+HERK.map(function(h){return '<option'+((it.her||"Alte Wohnung")===h?' selected':'')+'>'+h+'</option>'}).join("")+'</select></label></div>'+
+  '<div class="row" id="f-prow1"><label id="f-preisl"><span id="f-preist">Preis €</span><input id="f-preis" inputmode="decimal" value="'+esc(it.preis||"")+'"></label><label id="f-vonl">Gehört<select id="f-von">'+[["m",nm("m")],["h",nm("h")],["b","beiden"]].map(function(x){return '<option value="'+x[0]+'"'+(von0===x[0]?' selected':'')+'>'+esc(x[1])+'</option>'}).join("")+'</select></label></div>'+
+  '<label class="chk" id="f-aufokl"><input type="checkbox" id="f-aufok"'+(it.aufOk?' checked':'')+'> Aufarbeiten bezahlt</label>'+
   '<div class="row" id="f-prow"><label id="f-erzl">Erzielter Preis €<input id="f-erzielt" inputmode="decimal" value="'+esc(it.erzielt==null?"":it.erzielt)+'"></label><label id="f-abll">Ablöse €<input id="f-abl" inputmode="decimal" value="'+esc(it.abl==null?"":it.abl)+'"></label></div>'+
   '<div id="f-geld"></div>'+
   '<label>Notiz<input id="f-notiz" value="'+esc(it.notiz||"")+'" placeholder="Zustand, Farbe, Abholung …"></label>'+
@@ -1387,18 +1418,23 @@ function itemForm(id,preset){if(id&&isPlant(I[id]))return plantForm(id);var it=i
   '<div class="foot">'+(id?'<button type="button" class="btn del" id="f-del">Löschen</button><button type="button" class="btn ghost" id="f-pick" hidden>Abholtermin</button>':'')+'<button type="button" class="btn ghost" id="f-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
   var box=$("#f-img"),setImg=function(u){img=u;box.style.backgroundImage=u?'url("'+u+'")':"";box.textContent=u?"":"Kein Foto"};setImg(img);
   var msg=function(t){$("#f-msg").textContent=t};
-  /* Status passt zur Entscheidung; erzielter Preis nur beim Weggeben, Ablöse nur bei Vor- oder Nachmieter (auch als weiteres Label) */
-  var upd=function(){var dc=$("#f-dec").value,L=stList(dc),cur=$("#f-st").value||it.status;$("#f-st").innerHTML=L.map(function(x){return '<option'+(x===cur?' selected':'')+'>'+esc(x)+'</option>'}).join("");
-    var au=auchVal(),hat=function(k){return dc===k||au.indexOf(k)>=0};
-    $("#f-erzl").style.display=hat("verkaufen")||hat("verschenken")?"":"none";$("#f-abll").style.display=hat("nachmieter")||dc==="uebernehmen"||$("#f-her").value==="Vormieter"?"":"none";
-    $("#f-prow").style.display=$("#f-erzl").style.display==="none"&&$("#f-abll").style.display==="none"?"none":"";
+  /* Status passt zur Entscheidung; „an wen“ nur beim Weggeben, „sonst“ nur beim Verkaufen und Weggeben, erzielter Preis nur beim Verkaufen, Ablöse bei Übernehmen und Nachmieter */
+  var show=function(sel,on){$(sel).style.display=on?"":"none"};
+  var upd=function(){var d0=$("#f-dec0").value,dc=d0==="weg"?$("#f-an").value:d0;$("#f-dec").value=dc;
+    var L=stList(dc),cur=$("#f-st").value||it.status;$("#f-st").innerHTML=L.map(function(x){return '<option'+(x===cur?' selected':'')+'>'+esc(x)+'</option>'}).join("");
+    var wg=WEG.indexOf(dc)>=0;show("#f-anl",d0==="weg");show("#f-sonstl",wg);show("#f-wegrow",wg);
+    $$("#f-sonst option").forEach(function(o){o.hidden=o.value===dc});if($("#f-sonst").value===dc)$("#f-sonst").value="";
+    var auf=d0==="mitnehmen"&&$("#f-auf").checked,au=auchVal(),hat=function(k){return dc===k||au.indexOf(k)>=0};show("#f-aufl",d0==="mitnehmen");show("#f-aufokl",auf);
+    var pt=dc==="kaufen"||dc==="offen"?"Preis €":dc==="verkaufen"||dc==="nachmieter"?"Wunschpreis €":auf?"Kosten Aufarbeiten €":dc==="uebernehmen"&&$("#f-preis").value?"Preis €":"";
+    $("#f-preist").textContent=pt;show("#f-preisl",!!pt);show("#f-vonl",dc!=="kaufen"&&dc!=="uebernehmen");show("#f-prow1",!!pt||dc!=="kaufen"&&dc!=="uebernehmen");
+    show("#f-erzl",hat("verkaufen"));show("#f-abll",hat("nachmieter")||dc==="uebernehmen");
+    show("#f-prow",$("#f-erzl").style.display!=="none"||$("#f-abll").style.display!=="none");
     var pk=$("#f-pick");if(pk){pk.hidden=DEC[dc]!=="abbruch";pk.textContent=dc==="entsorgen"?"Sperrmülltermin":"Abholtermin"}
-    $$("#f-auch label").forEach(function(l){l.hidden=l.dataset.k===dc});
-    $("#f-anzl").style.display=hat("verkaufen")||hat("verschenken")||$("#f-anz").value?"":"none"};
-  var auchVal=function(){var dc=$("#f-dec").value;return $$("#f-auch input").filter(function(x){return x.checked&&x.value!==dc}).map(function(x){return x.value})};
+    show("#f-anzl",hat("verkaufen")||hat("verschenken")||$("#f-anz").value)};
+  var auchVal=function(){var dc=$("#f-dec").value,v=$("#f-sonst").value;return WEG.indexOf(dc)>=0&&v&&v!==dc?[v]:[]};
   var lko=function(i,a){var h=href($(i).value);$(a).hidden=!h;if(h)$(a).href=h};
   ["#f-link","#f-anz"].forEach(function(i){var a=i==="#f-link"?"#f-linko":"#f-anzo";lko(i,a);$(i).addEventListener("input",function(){lko(i,a)})});
-  upd();$("#f-dec").addEventListener("change",upd);$("#f-her").addEventListener("change",upd);$("#f-auch").addEventListener("change",upd);
+  upd();["#f-dec0","#f-an","#f-sonst","#f-auf"].forEach(function(x){$(x).addEventListener("change",upd)});
   if($("#f-pick"))$("#f-pick").onclick=function(){var nm=shortName(it)||$("#f-name").value;eventForm(null,{title:($("#f-dec").value==="entsorgen"?"Sperrmüll: ":"Abholung: ")+nm,notiz:it.link||""})};
   if(typeof geldFormItem==="function")geldFormItem(it);
   $("#f-get").onclick=function(){var url=$("#f-link").value;if(!url){msg("Bitte zuerst einen Link einfügen.");return}msg("Hole Daten …");
@@ -1414,8 +1450,10 @@ function itemForm(id,preset){if(id&&isPlant(I[id]))return plantForm(id);var it=i
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
   if(id)$("#f-del").onclick=function(){if(!confirm("Dieses Möbel löschen?"))return;delete I[id];st.itemData[id]=null;delete st.itemPos[id];save();$("#modal").innerHTML="";render()};
   $("#itf").addEventListener("submit",function(e){e.preventDefault();var n=function(k){var v=parseFloat(String($("#f-"+k).value).replace(",","."));return isNaN(v)?"":v};
-    var nid=id||("m"+Date.now().toString(36)),o=Object.assign({},it,{name:$("#f-name").value.trim(),w:n("w")||50,d:n("d")||50,h:n("h")||"",dec:$("#f-dec").value,preis:n("preis"),link:$("#f-link").value.trim(),img:img,prio:+$("#f-prio").value,raum:$("#f-raum").value,status:$("#f-st").value,her:$("#f-her").value,notiz:$("#f-notiz").value.trim(),wall:$("#f-wall").checked,auch:auchVal(),anzeige:$("#f-anz").value.trim()});
-    if(!o.auch.length)delete o.auch;if(!o.anzeige)delete o.anzeige;
+    var nid=id||("m"+Date.now().toString(36)),o=Object.assign({},it,{name:$("#f-name").value.trim(),w:n("w")||50,d:n("d")||50,h:n("h")||"",dec:$("#f-dec").value,preis:n("preis"),link:$("#f-link").value.trim(),img:img,prio:+$("#f-prio").value,raum:$("#f-raum").value,status:$("#f-st").value,notiz:$("#f-notiz").value.trim(),wall:$("#f-wall").checked,auch:auchVal(),anzeige:$("#f-anz").value.trim()});
+    if(!o.auch.length)delete o.auch;if(!o.anzeige)delete o.anzeige;delete o.her;
+    if($("#f-vonl").style.display!=="none"){var vv=$("#f-von").value;if(vv==="m")delete o.von;else o.von=vv}
+    if(o.dec==="mitnehmen"&&$("#f-auf").checked){o.auf=true;if($("#f-aufok").checked)o.aufOk=true;else delete o.aufOk}else{delete o.auf;delete o.aufOk}
     if($("#f-erzl").style.display!=="none")o.erzielt=n("erzielt");if($("#f-abll").style.display!=="none")o.abl=n("abl");if(!o.wall)delete o.wall;if(!o.notiz)delete o.notiz;
     if(typeof geldReadItem==="function")geldReadItem(o);
     if(o.raum!==raum0&&o.x!=null&&o.x!==""){o.x=null;o.y=null;st.itemPos[nid]={x:null,y:null,rot:o.rot||0}}if(!o.raum)delete o.raum;
@@ -1423,7 +1461,7 @@ function itemForm(id,preset){if(id&&isPlant(I[id]))return plantForm(id);var it=i
   setTimeout(function(){(id?$("#f-name"):$("#f-link")).focus()},30)}
 
 /* ---------- Pflanzen ---------- */
-function plantForm(id){var it=id?Object.assign({},I[id]):{typ:"pflanze",dec:"mitnehmen",her:"Alte Wohnung",round:true},img=it.img||"";
+function plantForm(id){var it=id?Object.assign({},I[id]):{typ:"pflanze",dec:"mitnehmen",round:true},img=it.img||"";
   var LI=["","hell, Sonne","hell, keine Sonne","halbschattig","schattig"];
   $("#modal").innerHTML='<div class="bg"><form id="plf" autocomplete="off"><h2>'+(id?'pflanze bearbeiten':'pflanze hinzufügen')+'</h2>'+
   '<div class="ph"><div class="box" id="p-img">'+(img?'':'Kein Foto')+'</div><div><p class="note2">Foto auswählen oder mit Strg+V einfügen. Auf dem Handy öffnet „Foto wählen“ auch die Kamera.</p><p style="margin:8px 0 0"><label class="btn ghost" style="display:inline-block;cursor:pointer">Foto wählen<input type="file" id="p-file" accept="image/*" hidden></label></p></div></div>'+
@@ -1666,6 +1704,19 @@ function migrateIdeas(){if(!STORE)return;var m=SEED.ideas||{},f=st.frames.mood,n
     STORE.put("ideas",id,Object.assign({},x,{deleted:now,moodboard:eid}))});
   if(add){save();render();toast("Ideen aus der Liste liegen jetzt im Moodboard")}}
 
+/* ---------- Labels einmalig auf die sechs Entscheidungen umstellen (23.10.2026) ----------
+   fest → Kaufen, Aufarbeiten → Behalten mit „wird aufgearbeitet“, Bleibt vom Vormieter → Übernehmen,
+   Herkunft entfällt (gehört steht in von), „auch“ nur noch ein Plan B beim Verkaufen und Weggeben */
+function migrateLabels(){var n=0,FST={Geplant:"Idee",Bestellt:"Bestellt",Geliefert:"Geliefert",Aufgebaut:"Geliefert"};
+  Object.keys(I).forEach(function(k){var it=I[k],o=Object.assign({},it);
+    if(o.dec==="fest"){o.dec="kaufen";o.status=FST[o.status]||"Idee"}
+    if(o.dec==="aufarbeiten"){o.dec="mitnehmen";o.auf=true;if(o.status==="In Arbeit"||o.status==="Fertig")o.aufOk=true;o.status="Steht noch"}
+    if(o.her==="Vormieter"&&(o.dec==="mitnehmen"||o.dec==="offen")&&!isPlant(o)){o.dec="uebernehmen";o.status="Zugesagt"}
+    delete o.her;
+    if(o.auch){var wg=WEG.indexOf(o.dec)>=0,b=wg?o.auch.filter(function(x){return WEG.indexOf(x)>=0&&x!==o.dec}).slice(0,1):o.auch;if(b.length)o.auch=b;else delete o.auch}
+    if(JSON.stringify(o)!==JSON.stringify(it)){I[k]=o;var keep=Object.assign({},o);delete keep.x;delete keep.y;delete keep.rot;st.itemData[k]=keep;n++}});
+  if(n){save();render()}}
+
 /* ---------- Handy: Bereich als Vollbild ---------- */
 var fullId=null;
 function isMob(){return window.matchMedia&&matchMedia("(max-width:760px)").matches}
@@ -1745,9 +1796,10 @@ document.addEventListener("click",function(e){var t=e.target,b;if(!t.closest)ret
 function syncTop(){$("#inp").textContent=st.input==="maus"?"maus":"touchpad";$("#chk").classList.toggle("on",!!st.check);document.querySelectorAll("[data-color]").forEach(function(b){b.classList.toggle("on",b.dataset.color===st.color)})}
 var kdSent=[],kdT;function saveKD(){if(!STORE){st.kueche=KD;save();return}clearTimeout(kdT);kdT=setTimeout(function(){var j=JSON.stringify(KD);kdSent.push(j);if(kdSent.length>8)kdSent.shift();STORE.put("meta","kueche",KD)},300)}
 if(window.Kueche)Kueche.init({ceil:function(){return CEIL},R:function(){return R},P:function(){return P},I:function(){return I},KD:function(){return KD},setKD:function(d){KD=d},saveKD:saveKD,
-  savePlan:function(){if(STORE)STORE.put("meta","plan",P);render()},setItem:function(id,o){I[id]=o;var k=Object.assign({},o);delete k.x;delete k.y;delete k.rot;st.itemData[id]=k;save()},
+  savePlan:function(){if(STORE)STORE.put("meta","plan",P);render()},setItem:function(id,o){var war=I[id]&&itemOk(I[id]);I[id]=o;var k=Object.assign({},o);delete k.x;delete k.y;delete k.rot;st.itemData[id]=k;save();
+    if(!war&&itemArt(o)&&itemOk(o)&&itemBetrag(o))askPaid((o.name||"Das Gerät")+" ist "+String(o.status||"").toLowerCase()+".",o,"items",itemArt(o),function(){save();render()})},
   delItem:function(id){delete I[id];st.itemData[id]=null;delete st.itemPos[id];save()},fetchProduct:fetchProduct,esc:esc,toast:toast,IST:IST,DECL:DECL,render:function(){render()},modal:function(){return $("#modal")}});
-var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();last.plan=JSON.stringify(P);last.settings=JSON.stringify(SETT);migrateIdeas();
+var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();last.plan=JSON.stringify(P);last.settings=JSON.stringify(SETT);migrateIdeas();migrateLabels();
 if(sv){V=sv;applyView()}else fit(planBox(),40);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitFrames);
 };

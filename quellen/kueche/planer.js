@@ -204,7 +204,7 @@ function devForm(elId){var M0=M(),f=KK.find(M0,elId);if(!f)return;var e=f.e,old=
   var body='<div class="row"><label>Shop-Link<input id="k-link" type="url" placeholder="https://…" value="'+esc(d.link||"")+'"></label><button type="button" class="btn ghost" id="k-get">Holen</button></div><p class="note2" id="k-msg">Link einfügen und „Holen“ drücken, dann kommen Name, Maße und Preis.</p>'+
     '<div class="row">'+sel("k-art","Gerät",Object.keys(KK.ART).map(function(k){return [k,KK.ART[k]]}),d.art)+txt("k-name","Name",d.name)+'</div>'+
     '<div class="g3">'+inp("k-w","Breite cm",d.w)+inp("k-d","Tiefe cm",d.d)+inp("k-h","Höhe cm",d.h)+'</div>'+
-    '<div class="row">'+sel("k-dec","Entscheidung",["kaufen","fest","mitnehmen","uebernehmen"].map(function(k){return [k,A.DECL[k]||k]}),d.dec)+inp("k-preis","Preis €",d.preis)+'</div>';
+    '<div class="row">'+sel("k-dec","Entscheidung",["kaufen","mitnehmen","uebernehmen"].map(function(k){return [k,A.DECL[k]||k]}),d.dec)+inp("k-preis","Preis €",d.preis)+'</div>';
   var md=modal(old?"gerät bearbeiten":"gerät einsetzen",body,function(v){var I=A.I(),gid=e.geraet&&I[e.geraet]?e.geraet:"m"+Date.now().toString(36),o=Object.assign({},I[gid]||{},{typ:"geraet",art:v("k-art"),name:v("k-name")||KK.ART[v("k-art")],w:nOrNull(v("k-w")),d:nOrNull(v("k-d")),h:nOrNull(v("k-h")),dec:v("k-dec"),preis:nOrNull(v("k-preis")),link:v("k-link"),raum:M0.rid,prio:d.prio||1});
     ["w","d","h","preis"].forEach(function(k){if(o[k]==null)o[k]=""});if(!o.link)delete o.link;A.setItem(gid,o);e.geraet=gid;e.art=o.art;commit()},
     old?function(){var gid=e.geraet;delete e.geraet;delete e.art;if(confirm("Gerät auch aus den Möbeln löschen? (Abbrechen = nur aus dem Schrank nehmen)"))A.delItem(gid);commit()}:null,
