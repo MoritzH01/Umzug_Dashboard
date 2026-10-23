@@ -397,6 +397,7 @@ table.vst a.ext{margin-left:5px;font-weight:500}
 #modal .foot .del{margin-right:auto}
 .card img.pic{display:block;width:100%;height:70px;object-fit:contain;margin-bottom:6px;background:#fff}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;font-size:13px;display:none}
+#toast button{background:none;border:0;padding:0 0 0 12px;color:#aebcff;font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
 /* Prüfung im Grundriss */
 .furn.bad rect.b{stroke:var(--neu)!important;stroke-width:3!important;stroke-dasharray:6 3!important}
 .clr{fill:var(--neu);fill-opacity:.07}
@@ -616,6 +617,11 @@ function pd(s){if(!s)return null;var p=s.split("-");return new Date(+p[0],+p[1]-
 function today(){var d=new Date();d.setHours(0,0,0,0);return d}
 function days(s){return Math.round((pd(s)-today())/864e5)}
 function toast(t){var e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display="none"},2400)}
+/* Löschen mit „rückgängig“: der Eintrag landet wie bisher im Papierkorb, die Meldung holt ihn 10 Sekunden lang mit einem Klick zurück */
+function undoToast(t,fn){var e=$("#toast");e.innerHTML=esc(t)+'<button type="button" id="toast-u">rückgängig</button>';e.style.display="block";clearTimeout(toast.t);
+  $("#toast-u").onclick=function(){clearTimeout(toast.t);e.style.display="none";fn()};toast.t=setTimeout(function(){e.style.display="none"},10000)}
+function gone(M,id,t){var o=M[id];if(!o)return;var isI=M===I,pos=isI&&st.itemPos[id];delete M[id];if(isI){st.itemData[id]=null;delete st.itemPos[id]}save();$("#modal").innerHTML="";render();
+  undoToast(t,function(){M[id]=o;if(isI){var k=Object.assign({},o);delete k.x;delete k.y;delete k.rot;st.itemData[id]=k;if(pos)st.itemPos[id]=pos}save();render();toast("Wiederhergestellt")})}
 function rooms(){return Object.keys(R).map(function(k){var r=Object.assign({},R[k]);r.id=k;return r}).sort(function(a,b){return a.order-b.order})}
 function roomAt(x,y){return rooms().filter(function(r){return x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h})[0]}
 function cls(it){return DEC[it.dec]||"bestand"}
@@ -975,7 +981,7 @@ function vtrForm(id,preset){var v=id?Object.assign({},C[id]):Object.assign({kat:
     .catch(function(e){$("#v-holst").textContent="Seite nicht lesbar ("+((e&&e.message)||"Fehler")+"). Seitentext einfügen oder von Hand eintragen.";zeigTxt()}).then(function(){b.disabled=false})};
   $("#v-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
-  if(id)$("#v-del").onclick=function(){delete C[id];save();$("#modal").innerHTML="";render();toast("Vertrag gelöscht")};
+  if(id)$("#v-del").onclick=function(){gone(C,id,"Vertrag gelöscht.")};
   $("#vtf").addEventListener("submit",function(e){e.preventDefault();var nid=id||("v"+Date.now().toString(36));
     var o=Object.assign({},v,{kat:$("#v-kat").value.trim(),anbieter:$("#v-anb").value.trim(),preis:$("#v-preis").value.trim(),einmal:$("#v-einmal").value.trim(),laufzeit:$("#v-lz").value.trim(),status:$("#v-st").value,ab:$("#v-ab").value,link:$("#v-link").value.trim(),notiz:$("#v-notiz").value.trim(),updated:new Date().toISOString()});
     ["grundpreis","arbeitspreis","boni","garantie","kfrist","kfristE"].forEach(function(k){delete o[k]});
@@ -1011,7 +1017,7 @@ function uForm(id,preset){var u=id?Object.assign({},U[id]):Object.assign({kat:""
   var ua=function(){antSlot("#u-ant",$("#u-st").value!=="brauchen",u,"utensils","aus")};ua();$("#u-st").onchange=ua;
   $("#u-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
-  if(id)$("#u-del").onclick=function(){delete U[id];save();$("#modal").innerHTML="";render();toast("Utensil gelöscht")};
+  if(id)$("#u-del").onclick=function(){gone(U,id,"Utensil gelöscht.")};
   $("#uf").addEventListener("submit",function(e){e.preventDefault();var nid=id||("u"+Date.now().toString(36));
     U[nid]=Object.assign({},u,{name:$("#u-name").value.trim(),kat:$("#u-kat").value.trim()||"Sonstiges",menge:$("#u-menge").value.trim(),preis:$("#u-preis").value.trim(),status:$("#u-st").value,link:$("#u-link").value.trim(),notiz:$("#u-notiz").value.trim(),updated:new Date().toISOString()});antRead(U[nid],50);
     save();$("#modal").innerHTML="";render();toast("Gespeichert")});
@@ -1119,7 +1125,7 @@ function costForm(id){var c=id?Object.assign({},K[id]):{typ:"aus",bezahlt:false}
   $("#c-typ").onchange=zl;$("#c-ok").onchange=zl;
   $("#c-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
-  if(id)$("#c-del").onclick=function(){if(!confirm("Diesen Eintrag löschen?"))return;delete K[id];save();$("#modal").innerHTML="";render()};
+  if(id)$("#c-del").onclick=function(){if(!confirm("Diesen Eintrag löschen?"))return;gone(K,id,"Kosten gelöscht.")};
   $("#cf").addEventListener("submit",function(e){e.preventDefault();var nid=id||("k"+Date.now().toString(36)),o=Object.assign({},c,{title:$("#c-t").value.trim(),typ:$("#c-typ").value,betrag:$("#c-b").value.trim()===""?null:num($("#c-b").value),bezahlt:$("#c-ok").checked,notiz:$("#c-n").value.trim(),updated:new Date().toISOString()});
     antRead(o,50);K[nid]=o;save();$("#modal").innerHTML="";render();toast("Gespeichert")});
   setTimeout(function(){$("#c-t").focus()},30)}
@@ -1131,7 +1137,7 @@ function ausgForm(id){var v=Math.round(bilanz().bal),x=id?Object.assign({},A[id]
   '<div class="foot">'+(id?'<button type="button" class="btn del" id="x-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="x-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
   $("#x-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
-  if(id)$("#x-del").onclick=function(){if(!confirm("Diese Ausgleichszahlung löschen?"))return;delete A[id];save();$("#modal").innerHTML="";render()};
+  if(id)$("#x-del").onclick=function(){if(!confirm("Diese Ausgleichszahlung löschen?"))return;gone(A,id,"Ausgleichszahlung gelöscht.")};
   $("#af").addEventListener("submit",function(e){e.preventDefault();var nid=id||("a"+Date.now().toString(36));
     A[nid]=Object.assign({},x,{von:$("#x-von").value,betrag:num($("#x-b").value),datum:$("#x-d").value,notiz:$("#x-n").value.trim(),updated:new Date().toISOString()});save();$("#modal").innerHTML="";render();toast("Ausgleich eingetragen")})}
 function namenForm(){var n=SETT.namen||{};
@@ -1448,7 +1454,7 @@ function itemForm(id,preset){if(id&&isPlant(I[id]))return plantForm(id);var it=i
   $("#itf").addEventListener("paste",function(e){Array.prototype.forEach.call((e.clipboardData&&e.clipboardData.items)||[],function(x){if(x.type.indexOf("image")===0){e.preventDefault();shrink(x.getAsFile(),setImg)}})});
   $("#f-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
-  if(id)$("#f-del").onclick=function(){if(!confirm("Dieses Möbel löschen?"))return;delete I[id];st.itemData[id]=null;delete st.itemPos[id];save();$("#modal").innerHTML="";render()};
+  if(id)$("#f-del").onclick=function(){if(!confirm("Dieses Möbel löschen?"))return;gone(I,id,"„"+(I[id].name||"Möbel")+"“ gelöscht.")};
   $("#itf").addEventListener("submit",function(e){e.preventDefault();var n=function(k){var v=parseFloat(String($("#f-"+k).value).replace(",","."));return isNaN(v)?"":v};
     var nid=id||("m"+Date.now().toString(36)),o=Object.assign({},it,{name:$("#f-name").value.trim(),w:n("w")||50,d:n("d")||50,h:n("h")||"",dec:$("#f-dec").value,preis:n("preis"),link:$("#f-link").value.trim(),img:img,prio:+$("#f-prio").value,raum:$("#f-raum").value,status:$("#f-st").value,notiz:$("#f-notiz").value.trim(),wall:$("#f-wall").checked,auch:auchVal(),anzeige:$("#f-anz").value.trim()});
     if(!o.auch.length)delete o.auch;if(!o.anzeige)delete o.anzeige;delete o.her;
@@ -1474,7 +1480,7 @@ function plantForm(id){var it=id?Object.assign({},I[id]):{typ:"pflanze",dec:"mit
   $("#plf").addEventListener("paste",function(e){Array.prototype.forEach.call((e.clipboardData&&e.clipboardData.items)||[],function(x){if(x.type.indexOf("image")===0){e.preventDefault();shrink(x.getAsFile(),setImg)}})});
   $("#p-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
-  if(id)$("#p-del").onclick=function(){if(!confirm("Diese Pflanze löschen?"))return;delete I[id];st.itemData[id]=null;delete st.itemPos[id];save();$("#modal").innerHTML="";render()};
+  if(id)$("#p-del").onclick=function(){if(!confirm("Diese Pflanze löschen?"))return;gone(I,id,"„"+(I[id].name||"Pflanze")+"“ gelöscht.")};
   $("#plf").addEventListener("submit",function(e){e.preventDefault();var n=function(k){var v=parseFloat(String($("#p-"+k).value).replace(",","."));return isNaN(v)?"":v};
     var nid=id||("p"+Date.now().toString(36)),dm=n("w")||40,o=Object.assign({},it,{typ:"pflanze",round:true,name:$("#p-name").value.trim()||"Pflanze",w:dm,d:dm,h:n("h"),licht:$("#p-licht").value,notiz:$("#p-notiz").value.trim(),img:img});
     if(it.x!=null&&it.x!==""&&it.w&&it.w!==dm){o.x=Math.round((+it.x+it.w/2-dm/2)/5)*5;o.y=Math.round((+it.y+it.w/2-dm/2)/5)*5}
@@ -1497,7 +1503,7 @@ function taskForm(id,preset){var t=id?Object.assign({},T[id]):Object.assign({tit
   '<div class="foot">'+(id?'<button type="button" class="btn del" id="k-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="k-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
   $("#k-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
-  if(id)$("#k-del").onclick=function(){delete T[id];save();$("#modal").innerHTML="";render();toast("Eintrag gelöscht")};
+  if(id)$("#k-del").onclick=function(){gone(T,id,"Aufgabe gelöscht.")};
   $("#k-sadd").onclick=function(){$("#k-subs").insertAdjacentHTML("beforeend",subRow({t:"",done:false}));var l=$("#k-subs").lastElementChild.querySelector(".zst");if(l)l.focus()};
   $("#k-subs").addEventListener("click",function(e){var x=e.target.closest(".zsx");if(x)x.parentNode.remove()});
   $("#tkf").addEventListener("submit",function(e){e.preventDefault();var nid=id||("k"+Date.now().toString(36)),von=$("#k-von").value,due=$("#k-due").value;if(von&&!due){due=von;von=""}if(von>=due)von="";
@@ -1529,7 +1535,7 @@ function eventForm(id,preset,onSaved){var ev=id?Object.assign({},E[id]):Object.a
   '<div class="foot">'+(id?'<button type="button" class="btn del" id="e-del">Löschen</button>':'')+'<button type="button" class="btn ghost" id="e-x">Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
   $("#e-x").onclick=function(){$("#modal").innerHTML=""};
   $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
-  if(id)$("#e-del").onclick=function(){if(!confirm("Diesen Termin löschen?"))return;delete E[id];save();$("#modal").innerHTML="";render();toast("Termin gelöscht")};
+  if(id)$("#e-del").onclick=function(){if(!confirm("Diesen Termin löschen?"))return;gone(E,id,"Termin gelöscht.")};
   $("#evf").addEventListener("submit",function(e){e.preventDefault();var nid=id||("e"+Date.now().toString(36)),dv=parseInt($("#e-dauer").value,10);
     E[nid]=Object.assign({},ev,{title:$("#e-title").value.trim(),date:$("#e-date").value,time:$("#e-time").value,dauer:isNaN(dv)?"":dv,ort:$("#e-ort").value.trim(),wer:$("#e-wer").value.trim(),notiz:$("#e-notiz").value.trim()});if(!E[nid].wer)delete E[nid].wer;
     $("#modal").innerHTML="";if(onSaved)onSaved(nid);save();render();toast("Termin am "+fmtD(E[nid].date)+(E[nid].time?" um "+E[nid].time:""))});
