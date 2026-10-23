@@ -40,7 +40,7 @@ NODE_PATH=$(npm root -g) node quellen/tests/smoke.js       # Rauchtest, braucht 
 
 ## Supabase
 
-- Projekt `hexbxjcnlpwrcolefrrk`, Tabelle `docs(coll, id, data)`. Collections: `rooms`, `items`, `tasks`, `contracts`, `events`, `utensils`, `ideas`, `board` (Post-its), `feedback`, `meta` (`settings`, `plan`, `board`).
+- Projekt `hexbxjcnlpwrcolefrrk`, Tabelle `docs(coll, id, data)`. Collections: `rooms`, `items`, `tasks`, `contracts`, `events`, `utensils`, `geraete` (Küchengeräte), `ideas`, `board` (Post-its), `feedback`, `meta` (`settings`, `plan`, `board`).
 - Die Seiten lesen und schreiben mit dem öffentlichen anon-Schlüssel; geschützt wird über die Zugriffsregeln (RLS) und die Freigabeliste.
 - Skripte mit vollem Zugriff (z. B. `feedback.py`) brauchen die Umgebungsvariable `SUPABASE_SERVICE_KEY`. Sie ist in Moritz' Cloud-Umgebung gesetzt; lokal selbst setzen. Nie committen, nie ausgeben.
 - Datenbank-Änderungen (SQL, Edge Function) führt Moritz im Supabase-Dashboard aus. Claude schreibt nur die Datei und sagt, was auszuführen ist.

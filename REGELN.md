@@ -66,6 +66,15 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Handy: nur ansehen (Stückliste, Wandansicht). Bearbeiten am Laptop.
 - Umsetzung (17.10.2026): Quellen in `quellen/kueche/` (`kern.js` rechnet, `planer.js` und `planer.css` sind das Overlay, Variante 1: Grundriss links, Wandansicht rechts, Prüfung unten). Geöffnet wird der Planer im Raumblatt der Küche mit „Küche planen“. `start` und Positionen eines Laufs zählen von links, so wie man von innen auf die Wand schaut; Anschlüsse zählen wie Türen ab oben/links im Plan. Hochschränke stehen in der unteren Reihe, die obere Reihe springt über sie. Geräte sind `items` mit `typ: "geraet"` und `art`; das Element merkt sich `art`, damit die 3D-Ansicht keine Möbel laden muss. Schränke und Arbeitsplatte stehen nur in der Stückliste, nicht im Bereich Geld; Geräte zählen dort als Möbel mit. Gespeichert wird entprellt nur `meta/kueche`.
 
+## Küchengeräte (23.10.2026)
+
+- Eigener Bereich „Küchengeräte“ auf dem Canvas mit drei Spalten: Kochfeld (Induktion), Spülmaschine (METOD-tauglich: XXL mit varioScharnier), Waschmaschine (höchstens 88 cm hoch, 60 cm breit). Über jeder Spalte steht die Passungsregel mit Quelle.
+- Kandidaten liegen in der Collection `geraete` (`art`, `rang`, `name`, `note`, `tag` = empfehlung/spar, `preis`, `preisTxt` mit Quelle und Datum, `fakten[]`, `fazit`, `notiz`, `aus` = Ausschlussgrund, `links[]` als `{t, u}`, `fav`). Die Recherche vom 23.10.2026 steht in `quellen/kueche/geraete.js` und wird einmal geschrieben (`meta/settings.kgSeed`); danach gilt nur die Datenbank.
+- Jede Zahl auf einer Karte hat eine Quelle (Warentest-Note, Shop- oder Vergleichspreis mit Datum, Herstellerdaten); eigene Schlussfolgerungen sind als solche markiert.
+- Links: Hersteller (bzw. IKEA), „preisvergleich“ (testbericht.de, zeigt den gerade günstigsten Shop) und „test“. Direkte Shop-Links nur, wo der günstigste Händler eine feste Seite hat.
+- Produktbilder (23.10.2026): `bild` ist nur die Adresse des Bildes beim Bildserver von testbericht.de bzw. IKEA. Die Bilder werden nicht kopiert, nicht in Supabase gespeichert und nicht ins öffentliche Repo gelegt. Lädt ein Bild nicht, verschwindet es von der Karte. Im Formular ist die Adresse änderbar.
+- ★ markiert einen Favoriten je Gerät, er steht oben. Ausgeschlossene stehen gestrichen unten mit Grund. × und „Löschen“ legen die Karte in den Papierkorb unter „daten“. Mit + und „+ kochfeld“ usw. legt man eigene Kandidaten an, ein Klick auf den Namen öffnet das Formular.
+
 ## Möbel, Utensilien, Verkauf
 
 - Möbel-Wichtigkeit (`items.prio`): 1 essenziell, 2 später, 3 Spinnerei. `items.raum` ist der Raum für noch nicht platzierte Möbel. Pflanzen sind `items` mit `typ: "pflanze"`, `round: true`.

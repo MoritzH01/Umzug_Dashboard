@@ -223,6 +223,38 @@ table.vst a.ext{margin-left:5px;font-weight:500}
 .urow.haben .uname{text-decoration:line-through;color:var(--ink2)}
 .urow .q{font:400 11px var(--mono);color:var(--ink2);white-space:nowrap}
 .ucat .vadd{margin-top:6px;padding:4px}
+/* Küchengeräte: Kandidaten je Gerät, Favorit oben */
+.kgcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;align-items:start}
+.kgcol h5{display:flex;justify-content:space-between;gap:8px;margin:0;font:600 17px var(--sans);text-transform:lowercase;letter-spacing:-.01em}
+.kgcol h5 span{font:400 11px var(--mono);color:var(--ink2)}
+.kgreq{margin:2px 0 10px;font:400 11px/1.4 var(--mono);color:var(--ink2)}
+.kgc{background:var(--paper);border:1px solid var(--line);padding:10px 12px;margin-bottom:10px}
+.kgc.fav{border-color:var(--blau);box-shadow:inset 3px 0 var(--blau)}
+.kgc.kgb{display:grid;grid-template-columns:76px minmax(0,1fr);gap:4px 10px}
+.kgi{width:76px;height:96px;object-fit:contain;background:#fff;align-self:start}
+.kgaus .kgc.kgb{grid-template-columns:44px minmax(0,1fr)}.kgaus .kgi{width:44px;height:56px;filter:grayscale(1);opacity:.6}
+.kgc.kgb .kgm,.kgc.kgb .kgpt,.kgc.kgb .kgf,.kgc.kgb .kgz,.kgc.kgb .kgl{margin-left:0}
+.kgt{display:flex;align-items:baseline;gap:8px}
+.kgr{font:500 11px var(--mono);color:var(--ink2);min-width:14px}
+.kgt .uname{flex:1;font:600 14px var(--sans)}
+.kgt button.kb{border:0;background:none;padding:0 2px;font:500 16px/1 var(--sans);color:var(--ink2);cursor:pointer}
+.kgt button.kb:hover{color:var(--blau)}.kgt button.kb.on{color:var(--blau)}
+.kgm{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:6px 0 2px 22px}
+.kgn{font:500 11px var(--mono);border:1px solid var(--ink);padding:1px 5px}
+.kgtag{font:600 10px var(--mono);text-transform:uppercase;letter-spacing:.04em;padding:2px 5px;color:#fff;background:var(--blau)}
+.kgtag.spar{background:#2e8b57}
+.kgp{margin-left:auto;font:600 16px var(--sans)}
+.kgpt{margin-left:22px;font:400 10.5px/1.4 var(--mono);color:var(--ink2)}
+.kgf{margin:6px 0 0 22px;padding:0;list-style:none;font:400 12px/1.45 var(--sans)}
+.kgf li:before{content:"– ";color:var(--ink2)}
+.kgz{margin:6px 0 0 22px;font:400 12px/1.45 var(--sans);color:var(--ink)}
+.kgz.no{color:var(--ink2)}
+.kgl{display:flex;flex-wrap:wrap;gap:4px 12px;margin:7px 0 0 22px;font:500 11px var(--mono)}
+.kgl a{color:var(--blau);text-decoration:none}.kgl a:hover{text-decoration:underline}
+.kgaus{margin:4px 0 10px;border-top:1px dashed var(--line);padding-top:6px}
+.kgaus h6{margin:0 0 4px;font:500 11px var(--mono);color:var(--ink2);text-transform:lowercase}
+.kgaus .kgc{background:none;border-style:dashed;padding:7px 10px;margin-bottom:6px}
+.kgaus .uname{color:var(--ink2);text-decoration:line-through}
 .uleg{display:inline-flex;align-items:center;gap:5px;font:500 11px var(--mono);color:var(--ink2);margin-right:8px}
 .uleg .ubox{width:12px;height:12px;font-size:9px;cursor:default}
 .tlh{font:12px var(--sans);color:var(--ink2);margin:8px 0 0}
@@ -542,7 +574,7 @@ var st=null;try{st=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
 if(STORE){var pr={};try{pr=JSON.parse(localStorage.getItem("umzug-tafel-prefs")||"{}")}catch(e){}var df=defaults();st={v:1,view:pr.view||null,color:pr.color||"gelb",input:pr.input||"touchpad",check:pr.check!==false,itemPos:{},itemData:{},els:(SEED.board||[]).slice(),frames:Object.assign(df.frames,SEED.layout||{})};st.frames.user=st.frames.user||{}}
 if(!st||st.v!==1)st=defaults();st.skin="zeichentisch";st.tasks=st.tasks||null;st.itemData=st.itemData||{};st.input=st.input||"touchpad";
 function defaults(){return {v:1,skin:"zeichentisch",view:null,color:"gelb",itemPos:{},
-  frames:{plan:{x:-70,y:-90},utensilien:{x:2020,y:640,w:1100,h:640},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:620,pp:1},vertraege:{x:2020,y:-90,w:1100,h:620},pflanzen:{x:-70,y:1010,w:1400,h:420},notizen:{x:960,y:-580,w:1500,h:440,cols:["Eingang","Fragen an Vermieter","Ideen","Infos"]},user:{}},
+  frames:{plan:{x:-70,y:-90},utensilien:{x:2020,y:640,w:1100,h:640},geraete:{x:3220,y:-90,w:1320,h:900},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:620,pp:1},vertraege:{x:2020,y:-90,w:1100,h:620},pflanzen:{x:-70,y:1010,w:1400,h:420},notizen:{x:960,y:-580,w:1500,h:440,cols:["Eingang","Fragen an Vermieter","Ideen","Infos"]},user:{}},
   els:[
     {id:"n1",type:"note",x:1110,y:-20,color:"gelb",text:"Küche: Edelstahl-Arbeitsplatte + offene Regale aus Eiche?"},
     {id:"n2",type:"note",x:1330,y:10,color:"rosa",text:"Pendelleuchte am Kabel über den Esstisch"},
@@ -555,8 +587,8 @@ var save=(function(){var t;return function(){clearTimeout(t);t=setTimeout(functi
   if(STORE){try{localStorage.setItem("umzug-tafel-prefs",JSON.stringify({view:st.view,color:st.color,input:st.input,check:st.check}))}catch(e){}sync();return}
   try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){toast("Im Browser ist kein Platz mehr für weitere Bilder.")}},250)}})();
 /* Abgleich mit der Datenbank: nur geänderte Einträge schreiben */
-var last={els:{},items:{},tasks:{},contracts:{},rooms:{},events:{},utensils:{},costs:{},ausgleich:{},frames:""};
-function snap(){last.els={};st.els.forEach(function(e){last.els[e.id]=JSON.stringify(e)});last.items={};Object.keys(I).forEach(function(k){last.items[k]=JSON.stringify(I[k])});last.tasks={};Object.keys(T).forEach(function(k){last.tasks[k]=JSON.stringify(T[k])});last.contracts={};Object.keys(C).forEach(function(k){last.contracts[k]=JSON.stringify(C[k])});last.events={};Object.keys(E).forEach(function(k){last.events[k]=JSON.stringify(E[k])});last.utensils={};Object.keys(U).forEach(function(k){last.utensils[k]=JSON.stringify(U[k])});last.costs={};Object.keys(K).forEach(function(k){last.costs[k]=JSON.stringify(K[k])});last.ausgleich={};Object.keys(A).forEach(function(k){last.ausgleich[k]=JSON.stringify(A[k])});last.rooms={};Object.keys(R).forEach(function(k){last.rooms[k]=JSON.stringify(R[k])});last.frames=JSON.stringify(st.frames)}
+var last={els:{},items:{},tasks:{},contracts:{},rooms:{},events:{},utensils:{},geraete:{},costs:{},ausgleich:{},frames:""};
+function snap(){last.els={};st.els.forEach(function(e){last.els[e.id]=JSON.stringify(e)});last.items={};Object.keys(I).forEach(function(k){last.items[k]=JSON.stringify(I[k])});last.tasks={};Object.keys(T).forEach(function(k){last.tasks[k]=JSON.stringify(T[k])});last.contracts={};Object.keys(C).forEach(function(k){last.contracts[k]=JSON.stringify(C[k])});last.events={};Object.keys(E).forEach(function(k){last.events[k]=JSON.stringify(E[k])});last.utensils={};Object.keys(U).forEach(function(k){last.utensils[k]=JSON.stringify(U[k])});last.geraete={};Object.keys(G).forEach(function(k){last.geraete[k]=JSON.stringify(G[k])});last.costs={};Object.keys(K).forEach(function(k){last.costs[k]=JSON.stringify(K[k])});last.ausgleich={};Object.keys(A).forEach(function(k){last.ausgleich[k]=JSON.stringify(A[k])});last.rooms={};Object.keys(R).forEach(function(k){last.rooms[k]=JSON.stringify(R[k])});last.frames=JSON.stringify(st.frames)}
 function sync(){if(!STORE)return;var now={};
   st.els.forEach(function(e){var j=JSON.stringify(e);now[e.id]=1;if(last.els[e.id]!==j){last.els[e.id]=j;STORE.put("board",e.id,e)}});
   Object.keys(last.els).forEach(function(id){if(!now[id]){delete last.els[id];STORE.del("board",id)}});
@@ -570,7 +602,7 @@ function sync(){if(!STORE)return;var now={};
   Object.keys(last.events).forEach(function(k){if(!E[k]){var o=JSON.parse(last.events[k]);delete last.events[k];o.deleted=new Date().toISOString();STORE.put("events",k,o)}});
   Object.keys(U).forEach(function(k){var j=JSON.stringify(U[k]);if(last.utensils[k]!==j){last.utensils[k]=j;STORE.put("utensils",k,U[k])}});
   Object.keys(last.utensils).forEach(function(k){if(!U[k]){var o=JSON.parse(last.utensils[k]);delete last.utensils[k];o.deleted=new Date().toISOString();STORE.put("utensils",k,o)}});
-  [["costs",K],["ausgleich",A]].forEach(function(p){var c=p[0],M=p[1];
+  [["costs",K],["ausgleich",A],["geraete",G]].forEach(function(p){var c=p[0],M=p[1];
     Object.keys(M).forEach(function(k){var j=JSON.stringify(M[k]);if(last[c][k]!==j){last[c][k]=j;STORE.put(c,k,M[k])}});
     Object.keys(last[c]).forEach(function(k){if(!M[k]){var o=JSON.parse(last[c][k]);delete last[c][k];o.deleted=new Date().toISOString();STORE.put(c,k,o)}})});
   Object.keys(R).forEach(function(k){var j=JSON.stringify(R[k]);if(last.rooms[k]!==j){last.rooms[k]=j;STORE.put("rooms",k,R[k])}});
@@ -587,7 +619,7 @@ window.TAFEL_APPLY=function(c,id,data){var j=data?JSON.stringify(data):null;
   else if(c==="events"){if(!data||data.deleted){delete E[id];delete last.events[id]}else{var je=JSON.stringify(data);if(last.events[id]===je)return;E[id]=data;last.events[id]=je}}
   else if(c==="contracts"){if(!data||data.deleted){delete C[id];delete last.contracts[id]}else{if(last.contracts[id]===j)return;C[id]=data;last.contracts[id]=j}}
   else if(c==="utensils"){if(!data||data.deleted){delete U[id];delete last.utensils[id]}else{if(last.utensils[id]===j)return;U[id]=data;last.utensils[id]=j}}
-  else if(c==="costs"||c==="ausgleich"){var M=c==="costs"?K:A;if(!data||data.deleted){delete M[id];delete last[c][id]}else{if(last[c][id]===j)return;M[id]=data;last[c][id]=j}}
+  else if(c==="costs"||c==="ausgleich"||c==="geraete"){var M=c==="costs"?K:c==="geraete"?G:A;if(!data||data.deleted){delete M[id];delete last[c][id]}else{if(last[c][id]===j)return;M[id]=data;last[c][id]=j}}
   else if(c==="meta"&&id==="settings"&&data)SETT=data;
   else if(c==="rooms"){if(!data||data.deleted){delete R[id];delete last.rooms[id]}else{if(last.rooms[id]===j)return;R[id]=data;last.rooms[id]=j}}
   else if(c==="meta"&&id==="plan"&&data)P=data;
@@ -597,7 +629,7 @@ window.TAFEL_APPLY=function(c,id,data){var j=data?JSON.stringify(data):null;
   if(busy())pending=true;else render()};
 setInterval(function(){if(pending&&!busy()){pending=false;render()}},700);
 /* Papierkorb: gelöschte Einträge (deleted gesetzt) bleiben in der Datenbank und lassen sich zurückholen */
-var TRASH={},TRC={rooms:"Raum",items:"Möbel",tasks:"Aufgabe",events:"Termin",contracts:"Vertrag",utensils:"Utensil",costs:"Kosten",ausgleich:"Ausgleich"};
+var TRASH={},TRC={rooms:"Raum",items:"Möbel",tasks:"Aufgabe",events:"Termin",contracts:"Vertrag",utensils:"Utensil",geraete:"Küchengerät",costs:"Kosten",ausgleich:"Ausgleich"};
 Object.keys(TRC).forEach(function(c){var m=SEED[c]||{};Object.keys(m).forEach(function(id){if(m[id]&&m[id].deleted)TRASH[c+":"+id]={c:c,id:id,d:m[id]}})});
 (function(){var ap=window.TAFEL_APPLY;window.TAFEL_APPLY=function(c,id,data){
   if(c==="meta"&&id==="plan"&&data)last.plan=JSON.stringify(data);
@@ -605,11 +637,11 @@ Object.keys(TRC).forEach(function(c){var m=SEED[c]||{};Object.keys(m).forEach(fu
   if(TRC[c]){if(data&&data.deleted)TRASH[c+":"+id]={c:c,id:id,d:data};else delete TRASH[c+":"+id]}
   return ap(c,id,data)}})();
 
-var R=SEED.rooms||{},P=SEED.plan||{doors:[],windows:[],fixed:[]},I=SEED.items||{},T=SEED.tasks||{},C=SEED.contracts||{},E=SEED.events||{},U=SEED.utensils||{},K=SEED.costs||{},A=SEED.ausgleich||{},SETT=SEED.settings||{},KD=SEED.kueche||null;
-[R,I,T,C,E,U,K,A].forEach(function(m){Object.keys(m).forEach(function(k){if(m[k]&&m[k].deleted)delete m[k]})});
+var R=SEED.rooms||{},P=SEED.plan||{doors:[],windows:[],fixed:[]},I=SEED.items||{},T=SEED.tasks||{},C=SEED.contracts||{},E=SEED.events||{},U=SEED.utensils||{},K=SEED.costs||{},A=SEED.ausgleich||{},G=SEED.geraete||{},SETT=SEED.settings||{},KD=SEED.kueche||null;
+[R,I,T,C,E,U,K,A,G].forEach(function(m){Object.keys(m).forEach(function(k){if(m[k]&&m[k].deleted)delete m[k]})});
 Object.keys(st.itemData).forEach(function(id){if(st.itemData[id]===null)delete I[id];else I[id]=Object.assign({},I[id]||{},st.itemData[id])});
 Object.keys(st.itemPos).forEach(function(id){if(I[id])Object.assign(I[id],st.itemPos[id])});
-if(!STORE&&st.tasks)T=st.tasks;if(!STORE)st.tasks=T;if(!STORE&&st.contracts)C=st.contracts;if(!STORE)st.contracts=C;if(!STORE&&st.events)E=st.events;if(!STORE)st.events=E;if(!STORE&&st.utensils)U=st.utensils;if(!STORE)st.utensils=U;if(!STORE&&st.costs)K=st.costs;if(!STORE)st.costs=K;if(!STORE&&st.ausgleich)A=st.ausgleich;if(!STORE)st.ausgleich=A;if(!STORE&&st.settings)SETT=st.settings;if(!STORE)st.settings=SETT;if(!STORE&&st.kueche)KD=st.kueche;
+if(!STORE&&st.tasks)T=st.tasks;if(!STORE)st.tasks=T;if(!STORE&&st.contracts)C=st.contracts;if(!STORE)st.contracts=C;if(!STORE&&st.events)E=st.events;if(!STORE)st.events=E;if(!STORE&&st.utensils)U=st.utensils;if(!STORE)st.utensils=U;if(!STORE&&st.costs)K=st.costs;if(!STORE)st.costs=K;if(!STORE&&st.ausgleich)A=st.ausgleich;if(!STORE)st.ausgleich=A;if(!STORE&&st.geraete)G=st.geraete;if(!STORE)st.geraete=G;if(!STORE&&st.settings)SETT=st.settings;if(!STORE)st.settings=SETT;if(!STORE&&st.kueche)KD=st.kueche;
 
 /* ---------- Helfer ---------- */
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -1022,6 +1054,54 @@ function uForm(id,preset){var u=id?Object.assign({},U[id]):Object.assign({kat:""
     U[nid]=Object.assign({},u,{name:$("#u-name").value.trim(),kat:$("#u-kat").value.trim()||"Sonstiges",menge:$("#u-menge").value.trim(),preis:$("#u-preis").value.trim(),status:$("#u-st").value,link:$("#u-link").value.trim(),notiz:$("#u-notiz").value.trim(),updated:new Date().toISOString()});antRead(U[nid],50);
     save();$("#modal").innerHTML="";render();toast("Gespeichert")});
   setTimeout(function(){$("#u-name").focus()},30)}
+/* ---------- Küchengeräte: Kandidaten je Gerät (Collection geraete), Favorit ★ oben, ausgeschlossene unten ---------- */
+var KGART=[["kochfeld","Kochfeld","Induktion, 60 cm. Über der Schublade 65 mm frei, nicht über Spül- oder Waschmaschine (Bosch-Montageanleitung)."],
+  ["gs","Spülmaschine","Vollintegriert. In METOD passen nur XXL-Geräte (Nische 86,5–92,5 cm) mit varioScharnier (draussendrinnen)."],
+  ["waschm","Waschmaschine","Unter der Arbeitsplatte neben der Spüle: höchstens 88 cm hoch, 60 cm breit (IKEA METOD: Korpus 80 + Füße 8)."]];
+function kgAll(){return Object.keys(G).map(function(k){return Object.assign({id:k},G[k])})}
+function kgEur(n){return n==null||n===""||isNaN(+n)?"":(+n).toLocaleString("de-DE",{minimumFractionDigits:+n%1?2:0,maximumFractionDigits:2})+" €"}
+function kgCard(g){var tag={empfehlung:"empfehlung",spar:"sparvariante"}[g.tag];
+  return '<div class="kgc'+(g.fav?' fav':'')+(g.bild?' kgb':'')+'">'+(g.bild?'<img class="kgi" src="'+esc(g.bild)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove(&quot;kgb&quot;);this.remove()">':'')+'<div><div class="kgt"><span class="kgr">'+(g.aus?'–':esc(g.rang||""))+'</span><button class="uname" data-kgitem="'+g.id+'">'+esc(g.name||"Ohne Namen")+'</button>'+
+    (g.aus?'':'<button class="kb'+(g.fav?' on':'')+'" data-kgfav="'+g.id+'" title="Favorit" aria-label="'+esc(g.name)+' als Favorit">'+(g.fav?'★':'☆')+'</button>')+
+    '<button class="kb" data-kgdel="'+g.id+'" title="Löschen (Papierkorb)" aria-label="'+esc(g.name)+' löschen">×</button></div>'+
+    (g.aus?'<p class="kgz no">'+esc(g.aus)+(g.note?' · '+esc(g.note):'')+'</p>':
+    '<div class="kgm">'+(g.note?'<span class="kgn">'+esc(g.note)+'</span>':'')+(tag?'<span class="kgtag '+g.tag+'">'+tag+'</span>':'')+'<b class="kgp">'+kgEur(g.preis)+'</b></div>'+
+    (g.preisTxt?'<div class="kgpt">'+esc(g.preisTxt)+'</div>':'')+
+    ((g.fakten||[]).length?'<ul class="kgf">'+g.fakten.map(function(f){return '<li>'+esc(f)+'</li>'}).join("")+'</ul>':'')+
+    (g.fazit?'<p class="kgz">'+esc(g.fazit)+'</p>':'')+(g.notiz?'<p class="kgz no">'+esc(g.notiz)+'</p>':''))+
+    ((g.links||[]).length?'<div class="kgl">'+g.links.filter(function(l){return l&&l.u}).map(function(l){return '<a href="'+esc(l.u)+'" target="_blank" rel="noopener">'+esc(l.t||"link")+' ↗</a>'}).join("")+'</div>':'')+'</div></div>'}
+function geraeteHTML(){var l=kgAll(),inF=l.filter(function(g){return !g.aus});
+  var s='<div class="mbar"><span class="uleg">★ favorit · „preisvergleich“ zeigt den heute günstigsten Shop · Noten: Stiftung Warentest</span><span class="sum">'+inF.length+' kommen in Frage</span><button class="plus" data-kgadd="" title="Gerät hinzufügen" aria-label="Gerät hinzufügen">+</button></div>';
+  return s+'<div class="kgcols">'+KGART.map(function(a){var g=l.filter(function(x){return x.art===a[0]}),ok=g.filter(function(x){return !x.aus}).sort(function(x,y){return (y.fav?1:0)-(x.fav?1:0)||(+x.rang||99)-(+y.rang||99)}),no=g.filter(function(x){return x.aus}).sort(function(x,y){return (+x.rang||99)-(+y.rang||99)});
+    return '<div class="kgcol"><h5>'+esc(a[1].toLowerCase())+'<span>'+ok.length+' in frage</span></h5><p class="kgreq">'+esc(a[2])+'</p>'+
+      (ok.length?ok.map(kgCard).join(""):'<p class="mleer">Keine Kandidaten. Mit + eines anlegen.</p>')+
+      (no.length?'<div class="kgaus"><h6>ausgeschlossen · '+no.length+'</h6>'+no.map(kgCard).join("")+'</div>':'')+
+      '<button class="vadd" data-kgadd="'+a[0]+'">+ '+esc(a[1].toLowerCase())+'</button></div>'}).join("")+'</div>'}
+function kgForm(id,art){var g=id?Object.assign({},G[id]):{art:art||"kochfeld",links:[]},ln=function(i){var x=(g.links||[])[i]||{};return x};
+  $("#modal").innerHTML='<div class="bg"><form id="kgf" autocomplete="off"><h2>'+(id?'gerät bearbeiten':'neues gerät')+'</h2>'+
+  '<div class="row"><label>Name<input id="kg-name" required value="'+esc(g.name||"")+'"></label><label>Gerät<select id="kg-art">'+KGART.map(function(a){return '<option value="'+a[0]+'"'+(g.art===a[0]?' selected':'')+'>'+a[1]+'</option>'}).join("")+'</select></label></div>'+
+  '<div class="row"><label>Rang<input id="kg-rang" inputmode="numeric" value="'+esc(g.rang||"")+'"></label><label>Preis (€)<input id="kg-preis" inputmode="decimal" value="'+esc(g.preis==null?"":String(g.preis).replace(".",","))+'"></label></div>'+
+  '<label>Testnote<input id="kg-note" value="'+esc(g.note||"")+'" placeholder="z. B. gut (2,0), Warentest 11/2025"></label>'+
+  '<label>Preis, Quelle und Datum<input id="kg-ptxt" value="'+esc(g.preisTxt||"")+'"></label>'+
+  '<label>Daten (eine Zeile je Punkt)<textarea id="kg-fak" rows="3">'+esc((g.fakten||[]).join("\n"))+'</textarea></label>'+
+  '<label>Fazit<input id="kg-fazit" value="'+esc(g.fazit||"")+'"></label>'+
+  '<label>Notiz<input id="kg-notiz" value="'+esc(g.notiz||"")+'" placeholder="eigene Gedanken"></label>'+
+  '<label>Bild (Adresse)<input id="kg-bild" type="url" value="'+esc(g.bild||"")+'" placeholder="https://… .jpg"></label>'+
+  '<label>Ausgeschlossen, weil<input id="kg-aus" value="'+esc(g.aus||"")+'" placeholder="leer = kommt in Frage"></label>'+
+  [0,1,2].map(function(i){var x=ln(i);return '<div class="row"><label>Link '+(i+1)+'<input data-kgln="'+i+'" value="'+esc(x.t||"")+'" placeholder="hersteller, shop …"></label><label>Adresse<input data-kglu="'+i+'" type="url" value="'+esc(x.u||"")+'" placeholder="https://"></label></div>'}).join("")+
+  '<div class="foot">'+(id?'<button type="button" class="btn del" id="kg-del">Löschen</button>':'')+'<button type="button" class="btn ghost" data-mx>Abbrechen</button><button class="btn">Speichern</button></div></form></div>';
+  $(".bg",$("#modal")).addEventListener("pointerdown",function(e){if(e.target===this)$("#modal").innerHTML=""});
+  if(id)$("#kg-del").onclick=function(){kgDel(id)};
+  $("#kgf").addEventListener("submit",function(e){e.preventDefault();var nid=id||("kg"+Date.now().toString(36)),v=function(q){return $(q).value.trim()},pr=parseFloat(v("#kg-preis").replace(",","."));
+    var links=(g.links||[]).slice(3);[2,1,0].forEach(function(i){var u=$('[data-kglu="'+i+'"]').value.trim();if(u)links.unshift({t:$('[data-kgln="'+i+'"]').value.trim()||"link",u:u})});
+    G[nid]=Object.assign({},g,{name:v("#kg-name"),art:$("#kg-art").value,rang:v("#kg-rang"),preis:isNaN(pr)?null:pr,note:v("#kg-note"),preisTxt:v("#kg-ptxt"),fakten:$("#kg-fak").value.split("\n").map(function(x){return x.trim()}).filter(Boolean),fazit:v("#kg-fazit"),notiz:v("#kg-notiz"),aus:v("#kg-aus"),bild:v("#kg-bild"),links:links});
+    ["notiz","bild"].forEach(function(k){if(!G[nid][k])delete G[nid][k]});save();$("#modal").innerHTML="";render();toast("Gespeichert")});
+  setTimeout(function(){$("#kg-name").focus()},30)}
+function kgDel(id){var g=G[id];if(!g)return;var od=Object.assign({},g,{deleted:new Date().toISOString()});TRASH["geraete:"+id]={c:"geraete",id:id,d:od};delete G[id];save();$("#modal").innerHTML="";render();toast((g.name||"Gerät")+" im Papierkorb (unter „daten“)")}
+/* Kandidaten aus der Recherche einmal in die Datenbank (quellen/kueche/geraete.js) */
+function seedGeraete(){if(typeof KG_SEED==="undefined")return;
+  if(SETT.kgSeed&&!SETT.kgBild){Object.keys(G).forEach(function(id){if(!G[id].bild&&KG_SEED[id]&&KG_SEED[id].bild)G[id].bild=KG_SEED[id].bild});SETT.kgBild=1;save();render()}
+  if(SETT.kgSeed)return;SETT.kgBild=1;Object.keys(KG_SEED).forEach(function(id){if(!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(KG_SEED[id]))});SETT.kgSeed=1;save();render()}
 function nowHTML(){var L=zAll().filter(function(x){return x.k==="e"&&!x.done||x.k==="t"&&!x.o.done}).slice(0,6),d=days(MOVE);
   var li=function(x){var o=x.o;if(x.k==="e")return '<li data-ev="'+o.id+'" style="cursor:pointer"><span style="color:var(--blau)">'+fmtD(o.date)+(o.time?' '+esc(o.time):'')+'</span><b style="color:var(--blau)">Termin:</b> '+esc(o.title)+(o.ort?' <small style="color:var(--ink2)">· '+esc(o.ort)+'</small>':'')+'</li>';
     return '<li class="nt'+(x.late?' late':'')+'"><button class="tbox" data-tdone="'+o.id+'" title="Erledigt" aria-label="'+esc(o.title)+' erledigt"></button><span>'+(x.a!==x.b?fmtD(x.a)+'–':'')+fmtD(o.due)+'</span><b data-task="'+o.id+'" style="font-weight:400;cursor:pointer">'+esc(o.title)+'</b>'+(zSubN(o)?' <small style="color:var(--ink2)">'+zSubN(o)+'</small>':'')+(o.wer?' <small style="color:var(--ink2)">· '+esc(o.wer)+'</small>':'')+'</li>'};
@@ -1171,6 +1251,7 @@ function render(){MOVE=(SETT&&SETT.moveDate)||"2026-12-15";CEIL=+(SETT&&SETT.cei
   if(!F.geld.hidden){if(!F.geld.pp){F.geld.pp=1;F.geld.h=Math.max(F.geld.h||0,620);save()}s+=frameDiv("geld","Geld","pro Person, Ausgleich zwischen euch",F.geld,geldHTML(),balText(bilanz()))}
   var vk=vtrKats();if(!F.vertraege.hidden)s+=frameDiv("vertraege","Verträge","vergleichen und abschließen",F.vertraege,vertraegeHTML(),vk.filter(function(k){return k.ok}).length+" / "+vk.length+" abgeschlossen");
   if(F.utensilien&&!F.utensilien.hidden){var ul=uAll();s+=frameDiv("utensilien","Utensilien","was wir haben und was noch fehlt",F.utensilien,utensilienHTML(),ul.filter(function(u){return uSt(u)==="brauchen"}).length+" fehlen")}
+  if(F.geraete&&!F.geraete.hidden){var kgf=kgAll().filter(function(g){return g.fav&&!g.aus}).length;s+=frameDiv("geraete","Küchengeräte","Kochfeld, Spülmaschine, Waschmaschine · Tests und Preise vom 23.10.2026",F.geraete,geraeteHTML(),kgf+" / 3 gewählt")}
   Object.keys(F.user||{}).forEach(function(id){var f=F.user[id];s+=frameDiv(id,f.title||"Rahmen","",f,"")});
   st.els.forEach(function(e){s+=elHTML(e)});
   world.innerHTML=s;if(selFurn){var fn=world.querySelector('[data-furn="'+selFurn+'"]');if(fn)fn.classList.add("fsel");else{selFurn=null;tbReset()}}applyView();fitFrames();fitNotes()}
@@ -1179,7 +1260,7 @@ function fitNote(n){var e=getEl(n.dataset.el);if(!e)return;var t=n.querySelector
   t.style.overflow="hidden";n.style.fontSize=f+"px";while(f>8&&t.scrollHeight>t.clientHeight+1){f--;n.style.fontSize=f+"px"}t.style.overflow=""}
 function fitNotes(){Array.prototype.forEach.call(world.querySelectorAll(".el.note"),fitNote)}
 /* Bereiche wachsen mit dem Inhalt: nichts wird abgeschnitten, kein Scrollen im Bereich. Was darunter liegt, rückt nach unten. */
-var GROW=["now","moebel","pflanzen","verkauf","zeit","utensilien","vertraege","geld"],GAP=100;
+var GROW=["now","moebel","pflanzen","verkauf","zeit","utensilien","geraete","vertraege","geld"],GAP=100;
 function fitFrames(){var F=st.frames,ch=false;GROW.forEach(function(k){var f=F[k];if(!f||f.hidden)return;var n=world.querySelector('[data-frame="'+k+'"]>.fbody');if(!n)return;
     var need=Math.ceil(n.scrollHeight+n.parentNode.offsetHeight-n.clientHeight);if(need<=f.h)return;var old=f.y+f.h;f.h=need;ch=true;pushBelow(f,old,{})});
   if(ch){save();render()}}
@@ -1215,14 +1296,14 @@ function zoomAt(sx,sy,f){var k=Math.max(.08,Math.min(4,V.k*f));var wx=(sx-V.x)/V
 function fit(b,pad){var W=innerWidth,H=innerHeight,k=Math.min((W-pad*2)/b.w,(H-pad*2-60)/b.h,2.5);V.k=k;V.x=W/2-(b.x+b.w/2)*k;V.y=(H+40)/2-(b.y+b.h/2)*k;applyView()}
 function planBox(){var f=st.frames.plan;return {x:f.x,y:f.y,w:PB.w+2*PAD+70,h:PB.h+2*PAD+190}}
 function allBox(){var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9,add=function(x,y,w,h){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x+w);y1=Math.max(y1,y+h)};
-  var pb=planBox();add(pb.x,pb.y-40,pb.w,pb.h+40);["now","moebel","verkauf","zeit","mood","geld","vertraege","utensilien"].forEach(function(k){var f=st.frames[k];if(f&&!f.hidden)add(f.x,f.y-44,f.w,f.h+44)});
+  var pb=planBox();add(pb.x,pb.y-40,pb.w,pb.h+40);["now","moebel","verkauf","zeit","mood","geld","vertraege","utensilien","geraete"].forEach(function(k){var f=st.frames[k];if(f&&!f.hidden)add(f.x,f.y-44,f.w,f.h+44)});
   Object.keys(st.frames.user).forEach(function(k){var f=st.frames.user[k];add(f.x,f.y,f.w,f.h)});st.els.forEach(function(e){add(e.x,e.y,e.w||190,e.h||170)});return {x:x0,y:y0,w:x1-x0,h:y1-y0}}
 function toWorld(sx,sy){return {x:(sx-V.x)/V.k,y:(sy-V.y)/V.k}}
 
 /* ---------- Übersichtskarte ---------- */
 function drawMini(){var c=$("#mini");if(!c||getComputedStyle(c).display==="none")return;var g=c.getContext("2d"),b=allBox(),W=c.width,H=c.height,k=Math.min(W/b.w,H/b.h)*.9,ox=(W-b.w*k)/2-b.x*k,oy=(H-b.h*k)/2-b.y*k;
   var cs=getComputedStyle(document.body);g.clearRect(0,0,W,H);g.fillStyle=cs.getPropertyValue("--ink2");g.globalAlpha=.25;
-  ["now","moebel","verkauf","zeit","mood","geld","vertraege","utensilien"].forEach(function(n){var f=st.frames[n];if(f)g.fillRect(ox+f.x*k,oy+f.y*k,f.w*k,f.h*k)});
+  ["now","moebel","verkauf","zeit","mood","geld","vertraege","utensilien","geraete"].forEach(function(n){var f=st.frames[n];if(f)g.fillRect(ox+f.x*k,oy+f.y*k,f.w*k,f.h*k)});
   g.globalAlpha=.6;var pb=planBox();g.fillRect(ox+pb.x*k,oy+pb.y*k,pb.w*k,pb.h*k);
   g.globalAlpha=1;st.els.forEach(function(e){g.fillStyle=e.type==="note"?"#f2c94c":cs.getPropertyValue("--ink2");g.fillRect(ox+e.x*k,oy+e.y*k,(e.w||190)*k,(e.h||170)*k)});
   g.strokeStyle=cs.getPropertyValue("--neu");g.lineWidth=3;var tl=toWorld(0,0),br=toWorld(innerWidth,innerHeight);g.strokeRect(ox+tl.x*k,oy+tl.y*k,(br.x-tl.x)*k,(br.y-tl.y)*k);
@@ -1314,7 +1395,7 @@ board.addEventListener("pointerup",end);board.addEventListener("pointercancel",e
 board.addEventListener("dblclick",function(e){var t=document.elementFromPoint(e.clientX,e.clientY)||e.target;
   var zf=t.closest('[data-frame="zeit"]');if(zf){if(t.closest(".fhead,.zc,button,.nbtn"))return;var dy=t.closest("[data-day]");if(dy){zNew(dy.dataset.day);return}if(t.closest(".znd"))taskForm(null,{});return}if(t.closest("[data-el]")){editEl(t.closest("[data-el]").dataset.el);return}
   if(t.closest('[data-frame="vertraege"]')&&!t.closest(".fhead")){if(!t.closest("[data-vtr]"))vtrForm(null);return}
-  if(t.closest(".fhead,.card,[data-furn],.tblock,.rinfo"))return;var w=toWorld(e.clientX,e.clientY);addNote(w.x,w.y)});
+  if(t.closest(".fhead,.card,[data-furn],.tblock,.rinfo,.kgc"))return;var w=toWorld(e.clientX,e.clientY);addNote(w.x,w.y)});
 board.addEventListener("wheel",function(e){if(e.target.closest("#modal"))return;e.preventDefault();
   var dy=e.deltaMode===1?e.deltaY*16:e.deltaY,dx=e.deltaMode===1?e.deltaX*16:e.deltaX;
   if(e.ctrlKey||e.metaKey){zoomAt(e.clientX,e.clientY,Math.exp(-Math.max(-40,Math.min(40,dy))*.012))}
@@ -1356,6 +1437,10 @@ document.addEventListener("click",function(e){var t=e.target,b;if(t.closest("a[h
   if((b=t.closest("[data-ustat]"))){var uu=U[b.dataset.ustat];if(uu){var u0=uSt(uu);uu.status=UST[(UST.indexOf(u0)+1)%3];uu.updated=new Date().toISOString();save();render();
     if(u0==="brauchen"&&uPreis(uu))askPaid((uu.name||"Das Utensil")+" ist bestellt.",uu,"utensils","aus",function(){save();render()})}return}
   if((b=t.closest("[data-uitem]"))){uForm(b.dataset.uitem);return}
+  if((b=t.closest("[data-kgadd]"))){kgForm(null,b.dataset.kgadd);return}
+  if((b=t.closest("[data-kgitem]"))){kgForm(b.dataset.kgitem);return}
+  if((b=t.closest("[data-kgdel]"))){kgDel(b.dataset.kgdel);return}
+  if((b=t.closest("[data-kgfav]"))){var kg=G[b.dataset.kgfav];if(kg){var on=!kg.fav;kgAll().forEach(function(x){if(x.art===kg.art&&x.fav&&x.id!==b.dataset.kgfav)delete G[x.id].fav});if(on)kg.fav=true;else delete kg.fav;save();render();toast(on?kg.name+" ist der Favorit":"Kein Favorit mehr")}return}
   if((b=t.closest("[data-vadd]"))){vtrForm(null,b.dataset.vadd?{kat:b.dataset.vadd}:null);return}
   if(t.closest("[data-verb]")){verbForm();return}
   if((b=t.closest("[data-sheet]"))){openSheet(b.dataset.sheet);return}
@@ -1513,7 +1598,7 @@ function taskForm(id,preset){var t=id?Object.assign({},T[id]):Object.assign({tit
   setTimeout(function(){$("#k-title").focus()},30)}
 
 /* ---------- Bereiche ---------- */
-var FNAME={now:"Jetzt dran",moebel:"Möbel für die neue Wohnung",verkauf:"Verkaufen und weggeben",zeit:"Zeitplan",mood:"Moodboard",geld:"Geld",vertraege:"Verträge",pflanzen:"Pflanzen",notizen:"Notizen",utensilien:"Utensilien"};
+var FNAME={now:"Jetzt dran",moebel:"Möbel für die neue Wohnung",verkauf:"Verkaufen und weggeben",zeit:"Zeitplan",mood:"Moodboard",geld:"Geld",vertraege:"Verträge",pflanzen:"Pflanzen",notizen:"Notizen",utensilien:"Utensilien",geraete:"Küchengeräte"};
 function frameMenu(c){var hid=Object.keys(FNAME).filter(function(k){return st.frames[k]&&st.frames[k].hidden});
   $("#modal").innerHTML='<div class="bg"><form id="frf" autocomplete="off"><h2>bereich</h2><label>Name für einen neuen Bereich<input id="fr-name" value="Neuer Bereich"></label>'+
   (hid.length?'<p class="note2">Ausgeblendete Bereiche wieder zeigen:</p><div class="foot" style="justify-content:flex-start">'+hid.map(function(k){return '<button type="button" class="btn ghost" data-fshow="'+k+'">'+esc(FNAME[k])+'</button>'}).join("")+'</div>':'')+
@@ -1675,7 +1760,7 @@ document.addEventListener("change",function(e){var t=e.target,a,r=R[sheetId];if(
 
 /* ---------- Daten: Umzugsdatum, Decke, Sicherung, Papierkorb ---------- */
 function download(name,text,type){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
-function dataMaps(){var m={rooms:R,items:I,tasks:T,events:E,contracts:C,utensils:U};if(typeof K!=="undefined")m.costs=K;if(typeof A!=="undefined")m.ausgleich=A;return m}
+function dataMaps(){var m={rooms:R,items:I,tasks:T,events:E,contracts:C,utensils:U};if(typeof K!=="undefined")m.costs=K;if(typeof A!=="undefined")m.ausgleich=A;if(typeof G!=="undefined")m.geraete=G;return m}
 function datenForm(){var tr=Object.keys(TRASH).map(function(k){return Object.assign({k:k},TRASH[k])}).sort(function(a,b){return String(b.d.deleted||"").localeCompare(String(a.d.deleted||""))});
   $("#modal").innerHTML='<div class="bg"><form id="dtf" autocomplete="off"><h2>daten</h2>'+
   '<div class="row"><label>Umzugsdatum<input type="date" id="d-move" value="'+esc(MOVE)+'"></label><label>Deckenhöhe cm<input id="d-ceil" inputmode="numeric" value="'+esc(CEIL)+'"></label></div>'+
@@ -1694,7 +1779,7 @@ function doExport(){var d={version:3,exported:new Date().toISOString(),meta:SETT
   Object.keys(TRASH).forEach(function(k){var t=TRASH[k];(d[t.c]=d[t.c]||{})[t.id]=t.d});
   download("umzug-"+isoD(new Date())+".json",JSON.stringify(d),"application/json");toast("Sicherung wird heruntergeladen")}
 function doImport(file){if(!STORE){toast("Import geht nur mit Datenbank.");return}var rd=new FileReader();rd.onload=function(){var d;try{d=JSON.parse(rd.result)}catch(e){toast("Die Datei ist kein gültiger Export.");return}
-  var jobs=[];["rooms","items","tasks","events","contracts","utensils","costs","ausgleich","ideas"].forEach(function(c){Object.keys((d&&d[c])||{}).forEach(function(id){jobs.push([c,id,d[c][id]])})});
+  var jobs=[];["rooms","items","tasks","events","contracts","utensils","geraete","costs","ausgleich","ideas"].forEach(function(c){Object.keys((d&&d[c])||{}).forEach(function(id){jobs.push([c,id,d[c][id]])})});
   Object.keys((d&&d.board)||{}).forEach(function(id){jobs.push(["board",id,d.board[id]])});
   if(d&&d.meta)jobs.push(["meta","settings",d.meta]);if(d&&d.plan)jobs.push(["meta","plan",d.plan]);if(d&&d.layout)jobs.push(["meta","board",d.layout]);
   if(!jobs.length){toast("In der Datei stehen keine Umzugsdaten.");return}
@@ -1731,9 +1816,9 @@ function openFull(id){if(id==="plan"){closeFull();fit(planBox(),12);return}fullI
 function closeFull(){fullId=null;$("#full").classList.remove("open")}
 function drawFull(){if(!fullId)return;var id=fullId,b=$("#full-b"),y=b.scrollTop,h;
   if(id==="now")h=nowHTML();else if(id==="moebel")h=moebelHTML();else if(id==="pflanzen")h=pflanzenHTML();else if(id==="verkauf")h=verkaufHTML();else if(id==="zeit")h=zeitListHTML();
-  else if(id==="geld")h=typeof geldHTML==="function"?geldHTML():"";else if(id==="vertraege")h=vertraegeHTML();else if(id==="utensilien")h=utensilienHTML();else h=frameElsHTML(id);
+  else if(id==="geld")h=typeof geldHTML==="function"?geldHTML():"";else if(id==="vertraege")h=vertraegeHTML();else if(id==="utensilien")h=utensilienHTML();else if(id==="geraete")h=geraeteHTML();else h=frameElsHTML(id);
   $("#full-h").textContent=ftitle(id);b.innerHTML=h;b.scrollTop=y}
-function areasMenu(){var ids=["now","zeit","moebel","pflanzen","verkauf","utensilien","vertraege","geld","notizen","mood"].filter(function(k){return st.frames[k]&&!st.frames[k].hidden}).concat(Object.keys(st.frames.user||{}));
+function areasMenu(){var ids=["now","zeit","moebel","pflanzen","verkauf","utensilien","geraete","vertraege","geld","notizen","mood"].filter(function(k){return st.frames[k]&&!st.frames[k].hidden}).concat(Object.keys(st.frames.user||{}));
   $("#modal").innerHTML='<div class="bg"><form><h2>bereiche</h2><div class="foot" style="justify-content:flex-start"><button type="button" class="btn ghost" data-fullopen="plan">Grundriss</button>'+ids.map(function(k){return '<button type="button" class="btn ghost" data-fullopen="'+k+'">'+esc(ftitle(k))+'</button>'}).join("")+'</div><div class="foot"><button type="button" class="btn ghost" data-mx>Schließen</button></div></form></div>'}
 function frameElsHTML(id){var f=st.frames[id]||st.frames.user[id];if(!f)return "";
   var L=st.els.filter(function(e){return e.x>f.x-30&&e.x<f.x+f.w&&e.y>f.y-30&&e.y<f.y+f.h}).sort(function(a,b){return (a.y-b.y)||(a.x-b.x)});
@@ -1805,7 +1890,7 @@ if(window.Kueche)Kueche.init({ceil:function(){return CEIL},R:function(){return R
   savePlan:function(){if(STORE)STORE.put("meta","plan",P);render()},setItem:function(id,o){var war=I[id]&&itemOk(I[id]);I[id]=o;var k=Object.assign({},o);delete k.x;delete k.y;delete k.rot;st.itemData[id]=k;save();
     if(!war&&itemArt(o)&&itemOk(o)&&itemBetrag(o))askPaid((o.name||"Das Gerät")+" ist "+String(o.status||"").toLowerCase()+".",o,"items",itemArt(o),function(){save();render()})},
   delItem:function(id){delete I[id];st.itemData[id]=null;delete st.itemPos[id];save()},fetchProduct:fetchProduct,esc:esc,toast:toast,IST:IST,DECL:DECL,render:function(){render()},modal:function(){return $("#modal")}});
-var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();last.plan=JSON.stringify(P);last.settings=JSON.stringify(SETT);migrateIdeas();migrateLabels();
+var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();last.plan=JSON.stringify(P);last.settings=JSON.stringify(SETT);migrateIdeas();migrateLabels();seedGeraete();
 if(sv){V=sv;applyView()}else fit(planBox(),40);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitFrames);
 };
