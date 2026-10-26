@@ -224,7 +224,7 @@ table.vst a.ext{margin-left:5px;font-weight:500}
 .urow .q{font:400 11px var(--mono);color:var(--ink2);white-space:nowrap}
 .ucat .vadd{margin-top:6px;padding:4px}
 /* Küchengeräte: Kandidaten je Gerät, Favorit oben */
-.kgcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;align-items:start}
+.kgcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr));gap:18px;align-items:start}
 .kgcol h5{display:flex;justify-content:space-between;gap:8px;margin:0;font:600 17px var(--sans);text-transform:lowercase;letter-spacing:-.01em}
 .kgcol h5 span{font:400 11px var(--mono);color:var(--ink2)}
 .kgreq{margin:2px 0 10px;font:400 11px/1.4 var(--mono);color:var(--ink2)}
@@ -1057,7 +1057,9 @@ function uForm(id,preset){var u=id?Object.assign({},U[id]):Object.assign({kat:""
 /* ---------- Küchengeräte: Kandidaten je Gerät (Collection geraete), Favorit ★ oben, ausgeschlossene unten ---------- */
 var KGART=[["kochfeld","Kochfeld","Induktion, 60 cm. Über der Schublade 65 mm frei, nicht über Spül- oder Waschmaschine (Bosch-Montageanleitung)."],
   ["gs","Spülmaschine","Vollintegriert. In METOD passen nur XXL-Geräte (Nische 86,5–92,5 cm) mit varioScharnier (draussendrinnen)."],
-  ["waschm","Waschmaschine","Unter der Arbeitsplatte neben der Spüle: höchstens 88 cm hoch, 60 cm breit (IKEA METOD: Korpus 80 + Füße 8)."]];
+  ["waschm","Waschmaschine","Unter der Arbeitsplatte neben der Spüle: höchstens 88 cm hoch, 60 cm breit (IKEA METOD: Korpus 80 + Füße 8)."],
+  ["ofen","Backofen","60 × 60 cm, Nische 56 × 59 × 55 cm: passt in den METOD-Backofenschrank (Coolblue). Ober-/Unterhitze, Heißluft, mindestens 250 °C. Noten: Warentest 2/2026, 11 Öfen mit Pyrolyse."],
+  ["ofenmw","Backofen mit Mikrowelle","Wie Backofen, ohne Drehteller, damit Backblech und Universalpfanne passen. Warentest testet diese Geräte nicht, frei zugängliche unabhängige Noten gibt es keine."]];
 function kgAll(){return Object.keys(G).map(function(k){return Object.assign({id:k},G[k])})}
 function kgEur(n){return n==null||n===""||isNaN(+n)?"":(+n).toLocaleString("de-DE",{minimumFractionDigits:+n%1?2:0,maximumFractionDigits:2})+" €"}
 function kgCard(g){var tag={empfehlung:"empfehlung",spar:"sparvariante"}[g.tag];
@@ -1101,7 +1103,9 @@ function kgDel(id){var g=G[id];if(!g)return;var od=Object.assign({},g,{deleted:n
 /* Kandidaten aus der Recherche einmal in die Datenbank (quellen/kueche/geraete.js) */
 function seedGeraete(){if(typeof KG_SEED==="undefined")return;
   if(SETT.kgSeed&&!SETT.kgBild){Object.keys(G).forEach(function(id){if(!G[id].bild&&KG_SEED[id]&&KG_SEED[id].bild)G[id].bild=KG_SEED[id].bild});SETT.kgBild=1;save();render()}
-  if(SETT.kgSeed)return;SETT.kgBild=1;Object.keys(KG_SEED).forEach(function(id){if(!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(KG_SEED[id]))});SETT.kgSeed=1;save();render()}
+  if(SETT.kgSeed>=2)return;var neu=!SETT.kgSeed;SETT.kgBild=1;
+  /* Stufe 2 (26.10.2026): nur die Backöfen nachtragen, gelöschte Kandidaten der ersten Recherche bleiben weg */
+  Object.keys(KG_SEED).forEach(function(id){var a=KG_SEED[id].art;if((neu||a==="ofen"||a==="ofenmw")&&!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(KG_SEED[id]))});SETT.kgSeed=2;save();render()}
 function nowHTML(){var L=zAll().filter(function(x){return x.k==="e"&&!x.done||x.k==="t"&&!x.o.done}).slice(0,6),d=days(MOVE);
   var li=function(x){var o=x.o;if(x.k==="e")return '<li data-ev="'+o.id+'" style="cursor:pointer"><span style="color:var(--blau)">'+fmtD(o.date)+(o.time?' '+esc(o.time):'')+'</span><b style="color:var(--blau)">Termin:</b> '+esc(o.title)+(o.ort?' <small style="color:var(--ink2)">· '+esc(o.ort)+'</small>':'')+'</li>';
     return '<li class="nt'+(x.late?' late':'')+'"><button class="tbox" data-tdone="'+o.id+'" title="Erledigt" aria-label="'+esc(o.title)+' erledigt"></button><span>'+(x.a!==x.b?fmtD(x.a)+'–':'')+fmtD(o.due)+'</span><b data-task="'+o.id+'" style="font-weight:400;cursor:pointer">'+esc(o.title)+'</b>'+(zSubN(o)?' <small style="color:var(--ink2)">'+zSubN(o)+'</small>':'')+(o.wer?' <small style="color:var(--ink2)">· '+esc(o.wer)+'</small>':'')+'</li>'};
@@ -1251,7 +1255,7 @@ function render(){MOVE=(SETT&&SETT.moveDate)||"2026-12-15";CEIL=+(SETT&&SETT.cei
   if(!F.geld.hidden){if(!F.geld.pp){F.geld.pp=1;F.geld.h=Math.max(F.geld.h||0,620);save()}s+=frameDiv("geld","Geld","pro Person, Ausgleich zwischen euch",F.geld,geldHTML(),balText(bilanz()))}
   var vk=vtrKats();if(!F.vertraege.hidden)s+=frameDiv("vertraege","Verträge","vergleichen und abschließen",F.vertraege,vertraegeHTML(),vk.filter(function(k){return k.ok}).length+" / "+vk.length+" abgeschlossen");
   if(F.utensilien&&!F.utensilien.hidden){var ul=uAll();s+=frameDiv("utensilien","Utensilien","was wir haben und was noch fehlt",F.utensilien,utensilienHTML(),ul.filter(function(u){return uSt(u)==="brauchen"}).length+" fehlen")}
-  if(F.geraete&&!F.geraete.hidden){var kgf=kgAll().filter(function(g){return g.fav&&!g.aus}).length;s+=frameDiv("geraete","Küchengeräte","Kochfeld, Spülmaschine, Waschmaschine · Tests und Preise vom 23.10.2026",F.geraete,geraeteHTML(),kgf+" / 3 gewählt")}
+  if(F.geraete&&!F.geraete.hidden){var kgf={};kgAll().forEach(function(g){if(g.fav&&!g.aus)kgf[g.art==="ofenmw"?"ofen":g.art]=1});s+=frameDiv("geraete","Küchengeräte","Kochfeld, Spülmaschine, Waschmaschine, Backofen · Tests und Preise vom 23. und 26.10.2026",F.geraete,geraeteHTML(),Object.keys(kgf).length+" / 4 gewählt")}
   Object.keys(F.user||{}).forEach(function(id){var f=F.user[id];s+=frameDiv(id,f.title||"Rahmen","",f,"")});
   st.els.forEach(function(e){s+=elHTML(e)});
   world.innerHTML=s;if(selFurn){var fn=world.querySelector('[data-furn="'+selFurn+'"]');if(fn)fn.classList.add("fsel");else{selFurn=null;tbReset()}}applyView();fitFrames();fitNotes()}
