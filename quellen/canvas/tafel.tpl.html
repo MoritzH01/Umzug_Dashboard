@@ -1056,11 +1056,11 @@ function uForm(id,preset){var u=id?Object.assign({},U[id]):Object.assign({kat:""
     save();$("#modal").innerHTML="";render();toast("Gespeichert")});
   setTimeout(function(){$("#u-name").focus()},30)}
 /* ---------- Küchengeräte: Kandidaten je Gerät (Collection geraete), Favorit ★ oben, ausgeschlossene unten ---------- */
-var KGART=[["kochfeld","Kochfeld","Induktion, 60 cm. Über der Schublade 65 mm frei, nicht über Spül- oder Waschmaschine (Bosch-Montageanleitung)."],
-  ["gs","Spülmaschine","Vollintegriert. In METOD passen nur XXL-Geräte (Nische 86,5–92,5 cm) mit varioScharnier (draussendrinnen)."],
-  ["waschm","Waschmaschine","Unter der Arbeitsplatte neben der Spüle: höchstens 88 cm hoch, 60 cm breit (IKEA METOD: Korpus 80 + Füße 8)."],
-  ["ofen","Backofen","60 × 60 cm, Nische 56 × 59 × 55 cm: passt in den METOD-Backofenschrank (Coolblue). Ober-/Unterhitze, Heißluft, mindestens 250 °C. Noten: Warentest 2/2026, 11 Öfen mit Pyrolyse."],
-  ["ofenmw","Backofen mit Mikrowelle","Wie Backofen, ohne Drehteller, damit Backblech und Universalpfanne passen. Warentest testet diese Geräte nicht, frei zugängliche unabhängige Noten gibt es keine."]];
+var KGART=[["kochfeld","Kochfeld","Induktion, 60 cm oder 30 cm (Domino, 2 Zonen). Über der Schublade 65 mm frei, nicht über Spül- oder Waschmaschine (Bosch-Montageanleitung)."],
+  ["gs","Spülmaschine","Vollintegriert, 60 oder 45 cm breit. Fremdgeräte nur als XXL (Nische 86,5–92,5 cm) mit varioScharnier (draussendrinnen); IKEA-Geräte sind für METOD gebaut, IKEA hat Fronten 45 × 80. Warentest 4/2026: alle 45er nur befriedigend bis ausreichend, 60 cm ist effizienter."],
+  ["waschm","Waschmaschine","Unter der Arbeitsplatte neben der Spüle: höchstens 88 cm hoch, höchstens 60 cm breit (IKEA METOD: Korpus 80 + Füße 8). Schmale Geräte (45 cm tief) passen auch, Warentest hat keine getestet; Toplader gehen unter der Platte nicht."],
+  ["ofen","Backofen","60 × 60 cm (Nische 56 × 59 × 55 cm) oder kompakt 60 × 45 cm (Nische 56 × 45,5 × 55 cm) im METOD-Hochschrank (Coolblue); für 45 cm gibt es keine IKEA-Front, man braucht eine 40er Front mit Blende (Foren). Ober-/Unterhitze, Heißluft, mindestens 250 °C. Kompaktöfen nehmen dieselben Bleche (Bosch HEZ631070, Constructa CZ11CB10E0 laut Datenblatt). Noten: Warentest 2/2026."],
+  ["ofenmw","Backofen mit Mikrowelle","Wie Backofen (60 oder 45 cm hoch), ohne Drehteller, damit Backblech und Universalpfanne passen. Warentest testet diese Geräte nicht, frei zugängliche unabhängige Noten gibt es keine."]];
 function kgAll(){return Object.keys(G).map(function(k){return Object.assign({id:k},G[k])})}
 function kgEur(n){return n==null||n===""||isNaN(+n)?"":(+n).toLocaleString("de-DE",{minimumFractionDigits:+n%1?2:0,maximumFractionDigits:2})+" €"}
 function kgCard(g){var tag={empfehlung:"empfehlung",spar:"sparvariante"}[g.tag];
@@ -1104,12 +1104,14 @@ function kgDel(id){var g=G[id];if(!g)return;var od=Object.assign({},g,{deleted:n
 /* Kandidaten aus der Recherche einmal in die Datenbank (quellen/kueche/geraete.js) */
 function seedGeraete(){if(typeof KG_SEED==="undefined")return;
   if(SETT.kgSeed&&!SETT.kgBild){Object.keys(G).forEach(function(id){if(!G[id].bild&&KG_SEED[id]&&KG_SEED[id].bild)G[id].bild=KG_SEED[id].bild});SETT.kgBild=1;save();render()}
-  if(SETT.kgSeed>=3)return;var neu=!SETT.kgSeed,s2=SETT.kgSeed<2,N3={"kg-hanse7nf":1,"kg-ebem797":1};SETT.kgBild=1;
+  if(SETT.kgSeed>=4)return;var neu=!SETT.kgSeed,s2=SETT.kgSeed<2,s3=SETT.kgSeed<3,N3={"kg-hanse7nf":1,"kg-ebem797":1},N4=KG_NEU4,T=new Date().toISOString();SETT.kgBild=1;
   /* Stufe 2 (26.10.2026): nur die Backöfen nachtragen, gelöschte Kandidaten der ersten Recherche bleiben weg.
-     Stufe 3 (26.10.2026): günstigere Öfen mit Mikrowelle; die übrigen rücken einen Rang nach, alle Spalten nebeneinander */
-  if(!neu&&!s2)Object.keys(G).forEach(function(id){var k=KG_SEED[id];if(k&&k.art==="ofenmw"&&!N3[id]&&+G[id].rang===k.rang-1)G[id].rang=k.rang});
-  Object.keys(KG_SEED).forEach(function(id){var a=KG_SEED[id].art;if((neu||s2&&(a==="ofen"||a==="ofenmw")||N3[id])&&!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(KG_SEED[id]))});
-  var f=st.frames.geraete;if(f&&f.w<2040)f.w=2040;SETT.kgSeed=3;save();render()}
+     Stufe 3 (26.10.2026): günstigere Öfen mit Mikrowelle; die übrigen rücken einen Rang nach, alle Spalten nebeneinander.
+     Stufe 4 (26.10.2026): kleinere Geräte (45 cm) und LAGAN; sehr teure Kandidaten ohne Vorteil in den Papierkorb, Favoriten bleiben */
+  if(!neu&&!s2&&s3)Object.keys(G).forEach(function(id){var k=KG_SEED[id];if(k&&k.art==="ofenmw"&&!N3[id]&&+G[id].rang===k.rang-1)G[id].rang=k.rang});
+  Object.keys(KG_SEED).forEach(function(id){var a=KG_SEED[id].art;if((neu||s2&&(a==="ofen"||a==="ofenmw")||s3&&N3[id]||N4[id])&&!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(KG_SEED[id]))});
+  if(!neu)KG_TEUER4.forEach(function(id){var g=G[id];if(g&&!g.fav){TRASH["geraete:"+id]={c:"geraete",id:id,d:Object.assign({},g,{deleted:T})};delete G[id]}});
+  var f=st.frames.geraete;if(f&&f.w<2040)f.w=2040;SETT.kgSeed=4;save();render()}
 function nowHTML(){var L=zAll().filter(function(x){return x.k==="e"&&!x.done||x.k==="t"&&!x.o.done}).slice(0,6),d=days(MOVE);
   var li=function(x){var o=x.o;if(x.k==="e")return '<li data-ev="'+o.id+'" style="cursor:pointer"><span style="color:var(--blau)">'+fmtD(o.date)+(o.time?' '+esc(o.time):'')+'</span><b style="color:var(--blau)">Termin:</b> '+esc(o.title)+(o.ort?' <small style="color:var(--ink2)">· '+esc(o.ort)+'</small>':'')+'</li>';
     return '<li class="nt'+(x.late?' late':'')+'"><button class="tbox" data-tdone="'+o.id+'" title="Erledigt" aria-label="'+esc(o.title)+' erledigt"></button><span>'+(x.a!==x.b?fmtD(x.a)+'–':'')+fmtD(o.due)+'</span><b data-task="'+o.id+'" style="font-weight:400;cursor:pointer">'+esc(o.title)+'</b>'+(zSubN(o)?' <small style="color:var(--ink2)">'+zSubN(o)+'</small>':'')+(o.wer?' <small style="color:var(--ink2)">· '+esc(o.wer)+'</small>':'')+'</li>'};
