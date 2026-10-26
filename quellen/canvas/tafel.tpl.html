@@ -224,7 +224,8 @@ table.vst a.ext{margin-left:5px;font-weight:500}
 .urow .q{font:400 11px var(--mono);color:var(--ink2);white-space:nowrap}
 .ucat .vadd{margin-top:6px;padding:4px}
 /* Küchengeräte: Kandidaten je Gerät, Favorit oben */
-.kgcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr));gap:18px;align-items:start}
+.kgcols{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:18px;align-items:start}
+#full-b .kgcols{grid-auto-flow:row;grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr))}
 .kgcol h5{display:flex;justify-content:space-between;gap:8px;margin:0;font:600 17px var(--sans);text-transform:lowercase;letter-spacing:-.01em}
 .kgcol h5 span{font:400 11px var(--mono);color:var(--ink2)}
 .kgreq{margin:2px 0 10px;font:400 11px/1.4 var(--mono);color:var(--ink2)}
@@ -574,7 +575,7 @@ var st=null;try{st=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
 if(STORE){var pr={};try{pr=JSON.parse(localStorage.getItem("umzug-tafel-prefs")||"{}")}catch(e){}var df=defaults();st={v:1,view:pr.view||null,color:pr.color||"gelb",input:pr.input||"touchpad",check:pr.check!==false,itemPos:{},itemData:{},els:(SEED.board||[]).slice(),frames:Object.assign(df.frames,SEED.layout||{})};st.frames.user=st.frames.user||{}}
 if(!st||st.v!==1)st=defaults();st.skin="zeichentisch";st.tasks=st.tasks||null;st.itemData=st.itemData||{};st.input=st.input||"touchpad";
 function defaults(){return {v:1,skin:"zeichentisch",view:null,color:"gelb",itemPos:{},
-  frames:{plan:{x:-70,y:-90},utensilien:{x:2020,y:640,w:1100,h:640},geraete:{x:3220,y:-90,w:1320,h:900},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:620,pp:1},vertraege:{x:2020,y:-90,w:1100,h:620},pflanzen:{x:-70,y:1010,w:1400,h:420},notizen:{x:960,y:-580,w:1500,h:440,cols:["Eingang","Fragen an Vermieter","Ideen","Infos"]},user:{}},
+  frames:{plan:{x:-70,y:-90},utensilien:{x:2020,y:640,w:1100,h:640},geraete:{x:3220,y:-90,w:2040,h:900},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:620,pp:1},vertraege:{x:2020,y:-90,w:1100,h:620},pflanzen:{x:-70,y:1010,w:1400,h:420},notizen:{x:960,y:-580,w:1500,h:440,cols:["Eingang","Fragen an Vermieter","Ideen","Infos"]},user:{}},
   els:[
     {id:"n1",type:"note",x:1110,y:-20,color:"gelb",text:"Küche: Edelstahl-Arbeitsplatte + offene Regale aus Eiche?"},
     {id:"n2",type:"note",x:1330,y:10,color:"rosa",text:"Pendelleuchte am Kabel über den Esstisch"},
@@ -1103,9 +1104,12 @@ function kgDel(id){var g=G[id];if(!g)return;var od=Object.assign({},g,{deleted:n
 /* Kandidaten aus der Recherche einmal in die Datenbank (quellen/kueche/geraete.js) */
 function seedGeraete(){if(typeof KG_SEED==="undefined")return;
   if(SETT.kgSeed&&!SETT.kgBild){Object.keys(G).forEach(function(id){if(!G[id].bild&&KG_SEED[id]&&KG_SEED[id].bild)G[id].bild=KG_SEED[id].bild});SETT.kgBild=1;save();render()}
-  if(SETT.kgSeed>=2)return;var neu=!SETT.kgSeed;SETT.kgBild=1;
-  /* Stufe 2 (26.10.2026): nur die Backöfen nachtragen, gelöschte Kandidaten der ersten Recherche bleiben weg */
-  Object.keys(KG_SEED).forEach(function(id){var a=KG_SEED[id].art;if((neu||a==="ofen"||a==="ofenmw")&&!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(KG_SEED[id]))});SETT.kgSeed=2;save();render()}
+  if(SETT.kgSeed>=3)return;var neu=!SETT.kgSeed,s2=SETT.kgSeed<2,N3={"kg-hanse7nf":1,"kg-ebem797":1};SETT.kgBild=1;
+  /* Stufe 2 (26.10.2026): nur die Backöfen nachtragen, gelöschte Kandidaten der ersten Recherche bleiben weg.
+     Stufe 3 (26.10.2026): günstigere Öfen mit Mikrowelle; die übrigen rücken einen Rang nach, alle Spalten nebeneinander */
+  if(!neu&&!s2)Object.keys(G).forEach(function(id){var k=KG_SEED[id];if(k&&k.art==="ofenmw"&&!N3[id]&&+G[id].rang===k.rang-1)G[id].rang=k.rang});
+  Object.keys(KG_SEED).forEach(function(id){var a=KG_SEED[id].art;if((neu||s2&&(a==="ofen"||a==="ofenmw")||N3[id])&&!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(KG_SEED[id]))});
+  var f=st.frames.geraete;if(f&&f.w<2040)f.w=2040;SETT.kgSeed=3;save();render()}
 function nowHTML(){var L=zAll().filter(function(x){return x.k==="e"&&!x.done||x.k==="t"&&!x.o.done}).slice(0,6),d=days(MOVE);
   var li=function(x){var o=x.o;if(x.k==="e")return '<li data-ev="'+o.id+'" style="cursor:pointer"><span style="color:var(--blau)">'+fmtD(o.date)+(o.time?' '+esc(o.time):'')+'</span><b style="color:var(--blau)">Termin:</b> '+esc(o.title)+(o.ort?' <small style="color:var(--ink2)">· '+esc(o.ort)+'</small>':'')+'</li>';
     return '<li class="nt'+(x.late?' late':'')+'"><button class="tbox" data-tdone="'+o.id+'" title="Erledigt" aria-label="'+esc(o.title)+' erledigt"></button><span>'+(x.a!==x.b?fmtD(x.a)+'–':'')+fmtD(o.due)+'</span><b data-task="'+o.id+'" style="font-weight:400;cursor:pointer">'+esc(o.title)+'</b>'+(zSubN(o)?' <small style="color:var(--ink2)">'+zSubN(o)+'</small>':'')+(o.wer?' <small style="color:var(--ink2)">· '+esc(o.wer)+'</small>':'')+'</li>'};
