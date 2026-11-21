@@ -86,6 +86,7 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Wichtige Zeilen: Black-Friday-Preis mit Händler und Datum, Test, Besteckschublade, automatische Türöffnung, Höhe, Länge von Zulauf, Ablauf und Netzkabel, was umklappbar ist, Lieferung. Unbekanntes bleibt „unbekannt“.
 - Die Recherche vom 21.11.2026 steht in `quellen/kueche/blackweek.js` und wird einmal geschrieben (`meta/settings.bwSeed`); dazu die Aufgabe „Ausmessen, wie lang die Schläuche und das Kabel der Spülmaschine sein müssen“.
 - Waschmaschine (21.11.2026): zweite Spalte „Waschmaschine“ (`art: "bwwm"`). Kriterien: höchstens 88 cm hoch (unter die Küchenarbeitsplatte), extra Kurzprogramm, Dampffunktion, Lieferung bis zum Aufstellort. Ob sie wiegt, steht nur in der Tabelle und ist kein Ausschluss. Dazu ähnliche Geräte mit Warentest-Ergebnis. Nachgetragen über `meta/settings.bwSeed = 2`; der Bereich ist dafür 2840 breit, damit neun Karten nebeneinander passen.
+- Waschmaschinen, zweite Runde (21.11.2026): Haier und Midea fliegen auf Wunsch raus (in den Papierkorb), AEG und Samsung bleiben. Neu dazu: Beko B5WFT78410W, LG F4WX7092W, LG F4WR5035, Bosch WGB246071. Nachgetragen über `meta/settings.bwSeed = 3`.
 
 ## Möbel, Utensilien, Verkauf
 

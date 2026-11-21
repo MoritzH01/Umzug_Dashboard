@@ -1158,13 +1158,16 @@ function bwEdit(td){if(td.isContentEditable)return;var q=td.dataset.bwc.split(":
   td.onblur=function(){td.contentEditable="false";td.onblur=td.onkeydown=null;var nv=td.textContent.trim(),g2=G[q[0]];
     if(g2&&g2.tab&&g2.tab[+q[1]]&&nv!==old.trim()){g2.tab[+q[1]][+q[2]]=nv;save()}render()}}
 /* Recherche vom 21.11.2026 einmal in die Datenbank (quellen/kueche/blackweek.js), dazu die Erinnerung an die Schlauchlängen.
-   Stufe 2: Waschmaschinen kommen nach, der Bereich wird für neun Karten nebeneinander verbreitert */
-function seedBW(){if(!st.frames.blackweek)st.frames.blackweek=defaults().frames.blackweek;if(typeof BW_SEED==="undefined"||SETT.bwSeed>=2)return;var neu=!SETT.bwSeed;
-  Object.keys(BW_SEED).forEach(function(id){if((neu||BW_SEED[id].art==="bwwm")&&!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(BW_SEED[id]))});
+   Stufe 2: Waschmaschinen kommen nach, der Bereich wird für neun Karten nebeneinander verbreitert.
+   Stufe 3: Haier und Midea auf Wunsch in den Papierkorb, Beko, LG und Bosch dazu, Ränge der übrigen neu (nur, wenn nicht von Hand geändert) */
+function seedBW(){if(!st.frames.blackweek)st.frames.blackweek=defaults().frames.blackweek;if(typeof BW_SEED==="undefined"||SETT.bwSeed>=3)return;var s=SETT.bwSeed||0,neu=!s,jetzt=new Date().toISOString();
+  Object.keys(BW_SEED).forEach(function(id){if((neu||s<2&&BW_SEED[id].art==="bwwm"||BW_NEU3[id])&&!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(BW_SEED[id]))});
+  if(s===2){BW_WEG3.forEach(function(id){var g=G[id];if(g){TRASH["geraete:"+id]={c:"geraete",id:id,d:Object.assign({},g,{deleted:jetzt})};delete G[id]}});
+    Object.keys(BW_RANG3).forEach(function(id){var g=G[id];if(g&&+g.rang===BW_RANG3[id][0])g.rang=BW_RANG3[id][1]});if(G["bw-wm-ww8et"]&&!G["bw-wm-ww8et"].tag)G["bw-wm-ww8et"].tag="spar"}
   var f=st.frames.blackweek;if(f.w<2840)f.w=2840;
   if(neu&&!T["t-bw-schlauch"])T["t-bw-schlauch"]={title:"Ausmessen, wie lang die Schläuche und das Kabel der Spülmaschine sein müssen",bereich:"neu",raum:"",done:false,due:"2026-11-27",
     notiz:"Vom Platz der Spülmaschine bis zum Eckventil (Zulauf), zum Siphon (Ablauf) und zur Steckdose messen. Ab Werk: Bosch und Siemens Zulauf 165 cm, Ablauf 190 cm, Kabel 175 cm; Bauknecht Zulauf 155 cm, Ablauf 150 cm; AEG Kabel 160 cm. Bis Black Friday (27.11.) entscheiden."};
-  SETT.bwSeed=2;save();render()}
+  SETT.bwSeed=3;save();render()}
 function nowHTML(){var L=zAll().filter(function(x){return x.k==="e"&&!x.done||x.k==="t"&&!x.o.done}).slice(0,6),d=days(MOVE);
   var li=function(x){var o=x.o;if(x.k==="e")return '<li data-ev="'+o.id+'" style="cursor:pointer"><span style="color:var(--blau)">'+fmtD(o.date)+(o.time?' '+esc(o.time):'')+'</span><b style="color:var(--blau)">Termin:</b> '+esc(o.title)+(o.ort?' <small style="color:var(--ink2)">· '+esc(o.ort)+'</small>':'')+'</li>';
     return '<li class="nt'+(x.late?' late':'')+'"><button class="tbox" data-tdone="'+o.id+'" title="Erledigt" aria-label="'+esc(o.title)+' erledigt"></button><span>'+(x.a!==x.b?fmtD(x.a)+'–':'')+fmtD(o.due)+'</span><b data-task="'+o.id+'" style="font-weight:400;cursor:pointer">'+esc(o.title)+'</b>'+(zSubN(o)?' <small style="color:var(--ink2)">'+zSubN(o)+'</small>':'')+(o.wer?' <small style="color:var(--ink2)">· '+esc(o.wer)+'</small>':'')+'</li>'};
