@@ -5,7 +5,7 @@ s=open('canvas/tafel.tpl.html',encoding='utf8').read()
 title=re.search(r'<title>.*?</title>',s).group(0);s=s.replace(title,'')
 s=s.replace('/*DATA*/','window.TAFEL_DEFER=true;window.SEED={};')
 # Küchenplaner (quellen/kueche) vor das Canvas-Skript
-kp=''.join(open('kueche/'+f,encoding='utf8').read() for f in ('kern.js','geraete.js','planer.js'))
+kp=''.join(open('kueche/'+f,encoding='utf8').read() for f in ('kern.js','geraete.js','blackweek.js','planer.js'))
 i=re.search(r'<script>\s*window\.TAFEL_DEFER',s).start()
 s=s[:i]+'<style>\n'+open('kueche/planer.css',encoding='utf8').read()+'</style>\n<script>\n'+kp+'</script>\n'+s[i:]
 boot=r'''

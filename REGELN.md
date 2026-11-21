@@ -78,6 +78,14 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Kleinere Geräte (26.10.2026): Die Suchkriterien lassen auch kleinere Einbaugeräte zu. Kochfeld auch 30 cm (Domino); Spülmaschine auch 45 cm breit (IKEA-Geräte und IKEA-Fronten 45 × 80; Warentest 4/2026: alle 45er nur befriedigend bis ausreichend); Waschmaschine auch schmal (45 cm tief), keine Toplader; Backofen und Backofen mit Mikrowelle auch kompakt 60 × 45 cm, wenn sie Ober-/Unterhitze, Heißluft und mindestens 250 °C haben und dieselben Bleche nehmen (laut Zubehörnummer im Datenblatt). Für 45 cm hohe Geräte hat IKEA keine Front, man braucht eine 40er Front mit Blende. Sehr teure Kandidaten (mehr als das 1,5-Fache der Empfehlung der Spalte, Note nicht besser) fliegen raus, Favoriten nie. Nachgetragen über `meta/settings.kgSeed = 4`; Gelöschtes landet im Papierkorb.
 - ★ markiert einen Favoriten je Gerät, er steht oben. Ausgeschlossene stehen gestrichen unten mit Grund. × und „Löschen“ legen die Karte in den Papierkorb unter „daten“. Mit + und „+ kochfeld“ usw. legt man eigene Kandidaten an, ein Klick auf den Namen öffnet das Formular.
 
+## Black Week (21.11.2026)
+
+- Eigener Bereich „Black Week“ auf dem Canvas für Geräte, die gerade Rabatt haben. Begonnen mit der Spülmaschine; weitere Geräte bekommen eine eigene Spalte (`art` beginnt mit `bw`, z. B. `bwgs`).
+- Kriterien Spülmaschine: unterbaufähig mit eigener, schöner Tür, höchstens 88 cm hoch, Besteckschublade statt Besteckkorb, Tür öffnet am Programmende automatisch, Lieferung bis zum Aufstellort.
+- Kandidaten liegen wie die Küchengeräte in der Collection `geraete`, zusätzlich mit `tab` = Tabelle `[[Merkmal, Wert]]`. Jede Zelle ist auf der Karte direkt bearbeitbar (anklicken, Enter speichert, Esc verwirft), Zeilen lassen sich anlegen und löschen. Werte mit „ja“, „nein“ oder „unbekannt“ am Anfang werden markiert.
+- Wichtige Zeilen: Black-Friday-Preis mit Händler und Datum, Test, Besteckschublade, automatische Türöffnung, Höhe, Länge von Zulauf, Ablauf und Netzkabel, was umklappbar ist, Lieferung. Unbekanntes bleibt „unbekannt“.
+- Die Recherche vom 21.11.2026 steht in `quellen/kueche/blackweek.js` und wird einmal geschrieben (`meta/settings.bwSeed`); dazu die Aufgabe „Ausmessen, wie lang die Schläuche und das Kabel der Spülmaschine sein müssen“.
+
 ## Möbel, Utensilien, Verkauf
 
 - Möbel-Wichtigkeit (`items.prio`): 1 essenziell, 2 später, 3 Spinnerei. `items.raum` ist der Raum für noch nicht platzierte Möbel. Pflanzen sind `items` mit `typ: "pflanze"`, `round: true`.

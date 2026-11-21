@@ -265,6 +265,21 @@ table.vst a.ext{margin-left:5px;font-weight:500}
 .kgaus h6{margin:0 0 4px;font:500 11px var(--mono);color:var(--ink2);text-transform:lowercase}
 .kgaus .kgc{background:none;border-style:dashed;padding:7px 10px;margin-bottom:6px}
 .kgaus .uname{color:var(--ink2);text-decoration:line-through}
+/* Black Week: Karten nebeneinander, je eine bearbeitbare Tabelle */
+.bwcols{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(290px,1fr);gap:14px;align-items:start}
+#full-b .bwcols{grid-auto-flow:row;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}
+.bwc .kgm,.bwc .kgpt,.bwc .kgz,.bwc .kgl{margin-left:0}
+.bwt{width:100%;border-collapse:collapse;margin:8px 0 2px;font:400 11.5px/1.35 var(--sans)}
+.bwt td{border-top:1px solid var(--line);padding:3px 4px;vertical-align:top;overflow-wrap:anywhere;cursor:text}
+.bwt td.k{width:34%;font:500 10.5px/1.4 var(--mono);color:var(--ink2)}
+.bwt td.v.ja:before{content:"✓ ";color:#2e8b57;font-weight:700}.bwt td.v.nein{color:var(--neu)}.bwt td.v.nein:before{content:"✗ ";font-weight:700}
+.bwt td.v.unbekannt{color:var(--ink2)}.bwt td.v.unbekannt:before{content:"? ";font-weight:700}
+.bwt td[contenteditable="true"]{outline:1px solid var(--blau);background:#fff;user-select:text;-webkit-user-select:text}
+.bwt td:empty:after{content:"…";color:var(--line)}
+.bwt td.rx{width:14px;padding:2px 0;cursor:default}.bwt td.rx .kb{border:0;background:none;padding:0;color:var(--ink2);cursor:pointer;opacity:0}
+.bwt tr:hover td.rx .kb,.bwt td.rx .kb:focus{opacity:1}
+.bwadd{border:0;background:none;padding:2px 0;font:500 11px var(--mono);color:var(--blau);cursor:pointer}
+.kgaus .bwc .bwt{opacity:.7}
 .uleg{display:inline-flex;align-items:center;gap:5px;font:500 11px var(--mono);color:var(--ink2);margin-right:8px}
 .uleg .ubox{width:12px;height:12px;font-size:9px;cursor:default}
 .tlh{font:12px var(--sans);color:var(--ink2);margin:8px 0 0}
@@ -932,6 +947,109 @@ var o={};L.forEach(function(x){o["kg-"+x[1]]={art:x[0],rang:x[2],name:x[3],note:
 /* Stufe 4 (26.10.2026): neu nachzutragen bzw. als sehr teuer in den Papierkorb (Preis mehr als das 1,5-Fache der Empfehlung, Note nicht besser) */
 var KG_NEU4={"kg-vaelbildad":1,"kg-lagan60":1,"kg-froeslunda":1,"kg-lagan45":1,"kg-finputsad":1,"kg-bk6ib10":1,"kg-cc4m":1,"kg-cbg7341":1,"kg-cmg7761":1},
   KG_TEUER4=["kg-ti64","kg-km7361","kg-miele","kg-b54cr"];
+/* Black Week: Geräte mit Rabatt, Recherche vom 21.11.2026 (Bereich „Black Week“ im Canvas).
+   Wird einmal in die Collection `geraete` geschrieben (meta/settings.bwSeed), danach gilt nur noch die Datenbank.
+   g = {art:"bwgs", rang, name, note, tag, preis, preisTxt, tab:[[Merkmal, Wert]], fazit, aus, links:[{t,u}]}
+   tab ist die bearbeitbare Tabelle auf der Karte. Werte, die mit „ja“ oder „nein“ beginnen, werden markiert.
+   Quellen: Herstellerdatenblätter (Bosch/Siemens media3.bsh-group.com, aeg.de), Coolblue-Datenblätter (Bauknecht),
+   Preise: testbericht.de (21.11.2026, 16:32 Uhr), saturn.de, aeg.de, coolblue.de. Noten: Stiftung Warentest über testberichte.de. */
+var BW_SEED=(function(){
+var SA="https://www.saturn.de/de/product/_",CB="https://www.coolblue.de/produkt/",TB="https://www.testbericht.de/produkte/",
+  BO="https://www.bosch-home.com/de/produktliste/",SI="https://www.siemens-home.bsh-group.com/de/produktliste/",
+  h=function(u){return {t:"hersteller",u:u}},v=function(s){return {t:"preisvergleich",u:TB+s}},
+  SAT="Saturn: bis zum Aufstellort (Lieferbedingungen: Großgeräte bis 115 kg bis zum Erfüllungsort, sonst 39,90 €; heute versandkostenfrei). Vor dem Bestellen im Warenkorb prüfen.",
+  CBL="Coolblue: bis hinter die Wohnungstür (bis 4. Stock ohne Aufzug), nicht bis zum Aufstellort. Einbau dazu 129 €, Altgerät gratis.",
+  BSH=["Zulaufschlauch","165 cm (Datenblatt)"],BSHa=["Ablaufschlauch","190 cm (Datenblatt)"],BSHk=["Netzkabel","175 cm (Datenblatt)"],
+  L=[
+["aeg",3,"AEG GU8200B2SCM Serie 8000","kein unabhängiger Test","",669.99,"669,99 € bei Saturn, versandkostenfrei · AEG-Shop: 699 € „Black Deal“ statt 879 € (testbericht.de, aeg.de, 21.11.2026)",
+ [["Black-Friday-Preis","669,99 € Saturn · 699 € AEG-Shop (statt 879 €, niedrigster Preis der letzten 30 Tage dort: 730 €)"],
+  ["Test","Kein Test bei Warentest oder testberichte.de"],
+  ["Besteckschublade","ja"],["Tür öffnet automatisch","ja, AirDry"],
+  ["Höhe","Gerät 81,5 cm, Einbauhöhe 82 cm; höchste Nischenhöhe nicht angegeben (unbekannt)"],
+  ["Zulaufschlauch","unbekannt"],["Ablaufschlauch","unbekannt"],["Netzkabel","160 cm (aeg.de)"],
+  ["Umklappbar","Unterkorb 6 klappbare Zinkenreihen; Oberkorb 2 klappbare und 2 umklappbare Tassenablagen, 2 umklappbare Tellerhalter"],
+  ["Weitere Funktionen","Oberkorb im beladenen Zustand verstellbar (QuickLift), SoftGrips für Weingläser, ZoneClean, WLAN"],
+  ["Energie","B · 64 kWh/100 Zyklen · 8,4 l"],["Lautstärke","42 dB (ExtraSilent bis 2 dB leiser)"],["Eco-Programm","3:30 h"],
+  ["Wasserschutz","Aqua Control, Schwimmerschalter"],["Tür/Front","Edelstahl, Bedienung mit Slider; iF Design Award 2026"],
+  ["Maßgedecke","14"],["Lieferung",SAT+" AEG-Shop: Spedition zum Wunschort ab 49 €, Einbau gratis, Altgerät gratis."]],
+ "Kaufen wegen der Körbe (meiste Klappteile, Weinglas-Halter) und des geringsten Wassers. Schlauchlängen vorher beim AEG-Kundendienst erfragen.","",
+ [h("https://www.aeg.de/kitchen/dishwashing/dishwashers/built-in-dishwasher/gu8200b2scm/"),{t:"saturn",u:SA+"aeg-gu8200b2scm-serie-8000-geschirrspuler-unterbaufahig-596-mm-breit-42-db-a-b-3016169.html"},v("aeg-gu8200b2scm")]],
+["smu4ecs32e",1,"Bosch SMU4ECS32E Serie 4","kein Warentest","empfehlung",588,"588,00 € bei Saturn, versandkostenfrei, „Black Friday Deal“ statt UVP 1.459 € (saturn.de, 21.11.2026)",
+ [["Black-Friday-Preis","588 € Saturn (Durchschnitt der letzten 30 Tage laut testbericht.de: 623 €)"],
+  ["Test","Kein Warentest. Fast gleich wie der Bosch SMU6ECS12E, dessen Schwestermodell gut (2,2) bekam (eigene Ableitung aus beiden Datenblättern)"],
+  ["Besteckschublade","ja, VarioSchublade"],["Tür öffnet automatisch","ja, EfficientDry mit Wärmetauscher"],
+  ["Höhe","ja, Nische 81,5–87,5 cm"],BSH,BSHa,BSHk,
+  ["Umklappbar","Oberkorb 2 Stachelreihen, Unterkorb 6; Tassenablagen oben und unten (je 2-teilig); Oberkorb 3-stufig"],
+  ["Weitere Funktionen","Extra Clean Zone im Oberkorb, Home Connect"],
+  ["Energie","A · 54 kWh/100 Zyklen · 9,0 l"],["Lautstärke","42 dB (Silence 41 dB)"],["Eco-Programm","4:30 h"],
+  ["Wasserschutz","AquaStop (Garantie ein Geräteleben lang)"],["Tür/Front","Gebürsteter Stahl. Eine Kundenbewertung bei Coolblue: Front sitzt 7–8 mm hinter der Bedienblende"],
+  ["Maßgedecke","14"],["Lieferung",SAT]],
+ "Kaufen wegen Klasse A zum niedrigsten Preis der A-Geräte. Erfüllt alle Kriterien.","",
+ [h(BO+"SMU4ECS32E"),{t:"saturn",u:SA+"bosch-smu4ecs32e-serie-4-geschirrspuler-unterbaufahig-598-mm-breit-42-db-a-a-2960355.html"},v("bosch-smu4ecs32e")]],
+["smu6ecs12e",2,"Bosch SMU6ECS12E Serie 6 (ähnlich, mit Test)","gut (2,2), Schwestermodell, Warentest 4/2026","",649.99,"649,99 € bei Saturn, versandkostenfrei, statt UVP 1.769 € (saturn.de, 21.11.2026)",
+ [["Black-Friday-Preis","649,99 € Saturn"],
+  ["Test","Das teilintegrierte Schwestermodell SMI6ECS12E: gut (2,2), Warentest 4/2026. Gleiche Technik, andere Tür (eigene Ableitung)"],
+  ["Besteckschublade","ja, VarioSchublade"],["Tür öffnet automatisch","ja, EfficientDry mit Wärmetauscher"],
+  ["Höhe","ja, Nische 81,5–87,5 cm"],BSH,BSHa,BSHk,
+  ["Umklappbar","Oberkorb 2 Stachelreihen, Unterkorb 6; Tassenablagen"],
+  ["Weitere Funktionen","Display mit Programmablauf, Programme Glas 40 °C und Express 45 °C, IntensivZone, Home Connect"],
+  ["Energie","A · 54 kWh/100 Zyklen · 9,0 l"],["Lautstärke","42 dB"],["Eco-Programm","4:30 h"],
+  ["Wasserschutz","AquaStop"],["Tür/Front","Gebürsteter Stahl"],["Maßgedecke","14"],["Lieferung",SAT]],
+ "Wie der SMU4ECS32E, dazu ein Testergebnis über das Schwestermodell und ein Display. Rund 62 € teurer.","",
+ [h(BO+"SMU6ECS12E"),{t:"saturn",u:SA+"bosch-smu6ecs12e-serie-6-geschirrspuler-unterbaufahig-598-mm-breit-42-db-a-a-2955316.html"},v("bosch-smu6ecs12e"),{t:"test",u:"https://www.testberichte.de/p/bosch-tests/serie-6-smi6ecs12e-testbericht.html"}]],
+["sn45zs07ce",4,"Siemens SN45ZS07CE iQ500","Testsieger gut (2,2), Schwestermodell, Warentest 8/2024","",699,"699,00 € bei Saturn, versandkostenfrei (testbericht.de, 21.11.2026)",
+ [["Black-Friday-Preis","699 € Saturn (günstigster Händler: 670,85 € + 59,99 € Versand, meinkuechenstudio)"],
+  ["Test","Das teilintegrierte Schwestermodell SN55ZS07CE: Testsieger, gut (2,2), Warentest 8/2024. Gleiche Technik, andere Tür (eigene Ableitung)"],
+  ["Besteckschublade","ja, varioSchublade"],["Tür öffnet automatisch","nein. Trocknet stattdessen mit Zeolith, laut Siemens doppelt so gut, auch Kunststoff"],
+  ["Höhe","ja, Nische 81,5–87,5 cm"],BSH,BSHa,BSHk,
+  ["Umklappbar","Oberkorb 2 Stachelreihen, Unterkorb 8; Tassenablagen oben und unten; Gläserbügel"],
+  ["Weitere Funktionen","glassZone, varioSpeed Plus, Shine & Dry, Home Connect"],
+  ["Energie","B · 65 kWh/100 Zyklen · 9 l"],["Lautstärke","40 dB (Silence 39 dB), leisestes Gerät der Liste"],["Eco-Programm","3:35 h"],
+  ["Wasserschutz","aquaStop"],["Tür/Front","Gebürsteter Stahl"],["Maßgedecke","14"],["Lieferung",SAT]],
+ "Kaufen, wenn leise und sehr trocken (auch Plastik) wichtiger sind als die automatische Tür. Teuerstes Gerät der Liste.","",
+ [h(SI+"SN45ZS07CE"),{t:"saturn",u:SA+"siemens-sn45zs07ce-iq500-geschirrspuler-unterbaufahig-598-mm-breit-40-db-a-b-2889046.html"},v("siemens-sn45zs07ce"),{t:"test",u:"https://www.testberichte.de/p/siemens-tests/iq500-sn55zs07ce-testbericht.html"}]],
+["smu4evs08e",5,"Bosch SMU4EVS08E Serie 4","kein Warentest","spar",459,"459,00 € bei Saturn, versandkostenfrei (testbericht.de, 21.11.2026)",
+ [["Black-Friday-Preis","459 € Saturn · 454 € + 35 € Lieferung Coolblue"],
+  ["Test","Kein Warentest"],
+  ["Besteckschublade","ja, VarioSchublade"],["Tür öffnet automatisch","ja, EfficientDry mit Wärmetauscher"],
+  ["Höhe","ja, Nische 81,5–87,5 cm"],BSH,BSHa,BSHk,
+  ["Umklappbar","Oberkorb 1 Stachelreihe, Unterkorb 4; Tassenablage oben (2-teilig)"],
+  ["Weitere Funktionen","Programm 1 h 65 °C, Home Connect"],
+  ["Energie","B · 65 kWh/100 Zyklen · 9,0 l"],["Lautstärke","44 dB (Silence 43 dB), lautestes Gerät der Liste"],["Eco-Programm","3:55 h"],
+  ["Wasserschutz","AquaStop"],["Tür/Front","Gebürsteter Stahl; Boden innen Kunststoff (Polinox)"],["Maßgedecke","14"],["Lieferung",SAT]],
+ "Günstigste Bosch, die alle Kriterien erfüllt. Dafür lauter, Klasse B und weniger Klappteile.","",
+ [h(BO+"SMU4EVS08E"),{t:"saturn",u:SA+"bosch-smu4evs08e-serie-4-geschirrspuler-unterbaufahig-598-mm-breit-44-db-a-b-2954752.html"},v("bosch-smu4evs08e")]],
+["bk4ub14",6,"Bauknecht BK4UB14BN7A0X","kein Test","",429,"429,00 € bei Coolblue + 35 € Lieferung, statt UVP 1.139 € (coolblue.de, 21.11.2026)",
+ [["Black-Friday-Preis","429 € + 35 € Lieferung Coolblue · 429 € + 14,90 € Amazon"],
+  ["Test","Kein Test"],
+  ["Besteckschublade","ja, höhenverstellbar"],["Tür öffnet automatisch","ja, ActiveDry"],
+  ["Höhe","ja, Gerät 82 cm, Nische 82–90 cm"],["Zulaufschlauch","155 cm (Coolblue)"],["Ablaufschlauch","150 cm (Coolblue)"],["Netzkabel","unbekannt"],
+  ["Umklappbar","Stützen im Ober- und Unterkorb (Coolblue)"],
+  ["Weitere Funktionen","MultiZone (nur Ober- oder Unterkorb spülen), Rapid 50 °C, Startzeitvorwahl, App"],
+  ["Energie","B · 64 kWh/100 Zyklen · 9,5 l"],["Lautstärke","41 dB"],["Eco-Programm","3:20 h"],
+  ["Wasserschutz","Sicherheitszulaufschlauch, Überlaufschutz"],["Tür/Front","Edelstahl"],
+  ["Tiefe","59 cm, tiefer als die Bosch-Geräte (57,3 cm)"],["Maßgedecke","14"],["Lieferung",CBL]],
+ "Günstigstes Gerät mit allen Kriterien. Ablaufschlauch 40 cm kürzer als bei Bosch, Kabellänge unbekannt.","",
+ [h("https://www.bauknecht.de/"),{t:"coolblue",u:CB+"956053/bauknecht-bk4ub14bn7a0x.html"},v("bauknecht-bk4ub14bn7a0x")]],
+["buo3o41",7,"Bauknecht BUO 3O41 PLT X","kein Test","",379,"379,00 € bei Coolblue zzgl. Lieferung, statt UVP 949 € (coolblue.de, 21.11.2026)",
+ [["Black-Friday-Preis","379 € Coolblue zzgl. Lieferung"],
+  ["Test","Kein Test"],
+  ["Besteckschublade","ja, ProComfort-Schublade, verstellbar"],["Tür öffnet automatisch","ja, ActiveDry (laut Kundenbewertungen öffnet die Tür selbst)"],
+  ["Höhe","ja, Gerät 82 cm, Nische 82–90 cm"],["Zulaufschlauch","155 cm (Coolblue)"],["Ablaufschlauch","150 cm (Coolblue)"],["Netzkabel","unbekannt"],
+  ["Umklappbar","Stützen im Ober- und Unterkorb (Coolblue)"],
+  ["Weitere Funktionen","Sensor+, PowerClean (Düsen für Töpfe), Weinglashalter"],
+  ["Energie","C · 75 kWh/100 Zyklen · 9,5 l, schlechteste Klasse der Liste"],["Lautstärke","41 dB"],["Eco-Programm","3:10 h"],
+  ["Wasserschutz","Vollwasserschutz"],["Tür/Front","Edelstahl; Verarbeitung laut Coolblue Mittelklasse"],
+  ["Tiefe","59 cm"],["Maßgedecke","14"],["Lieferung",CBL]],
+ "Billigstes Gerät. Klasse C kostet im Jahr rund 20 € mehr Strom als Klasse A (eigene Rechnung: 0,746 statt 0,54 kWh × 280 Zyklen × 0,35 €).","",
+ [h("https://www.bauknecht.de/"),{t:"coolblue",u:CB+"916096/bauknecht-buo-3o41-plt-x-einbau-unterbau-nischenhoehe-82-90-cm.html"}]],
+["smu4eas28e",8,"Bosch SMU4EAS28E Serie 4","kein Warentest","",589.99,"589,99 € bei Saturn, versandkostenfrei (testbericht.de, 21.11.2026)",
+ [["Black-Friday-Preis","589,99 € Saturn"],["Besteckschublade","nein, Vario-Besteckkorb im Unterkorb (Datenblatt)"],["Tür öffnet automatisch","ja, EfficientDry"],
+  ["Höhe","ja, Nische 81,5–87,5 cm"],BSH,BSHa,BSHk,["Energie","A · 54 kWh/100 Zyklen · 9,0 l"],["Lautstärke","42 dB"],["Maßgedecke","13"]],
+ "","Besteckkorb statt Schublade, dazu nur 13 Maßgedecke. Teurer als der SMU4ECS32E, der eine Schublade hat.",
+ [h(BO+"SMU4EAS28E"),{t:"saturn",u:SA+"bosch-smu4eas28e-serie-4-geschirrspuler-unterbaufahig-598-mm-breit-42-db-a-a-2955321.html"}]]
+];
+var o={};L.forEach(function(x){o["bw-"+x[0]]={art:"bwgs",rang:x[1],name:x[2],note:x[3],tag:x[4],preis:x[5],preisTxt:x[6],tab:x[7],fazit:x[8],aus:x[9],links:x[10],stand:"2026-11-21"}});return o})();
 /* Küchenplaner-Overlay im Canvas (Variante 1). Braucht kern.js (KK). Der Canvas ruft Kueche.init(api) auf. */
 (function(){
 var A=null,S={wall:null,sel:null,view:"plan"},NS="http://www.w3.org/2000/svg",root=null;
@@ -1256,7 +1374,7 @@ var st=null;try{st=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
 if(STORE){var pr={};try{pr=JSON.parse(localStorage.getItem("umzug-tafel-prefs")||"{}")}catch(e){}var df=defaults();st={v:1,view:pr.view||null,color:pr.color||"gelb",input:pr.input||"touchpad",check:pr.check!==false,itemPos:{},itemData:{},els:(SEED.board||[]).slice(),frames:Object.assign(df.frames,SEED.layout||{})};st.frames.user=st.frames.user||{}}
 if(!st||st.v!==1)st=defaults();st.skin="zeichentisch";st.tasks=st.tasks||null;st.itemData=st.itemData||{};st.input=st.input||"touchpad";
 function defaults(){return {v:1,skin:"zeichentisch",view:null,color:"gelb",itemPos:{},
-  frames:{plan:{x:-70,y:-90},utensilien:{x:2020,y:640,w:1100,h:640},geraete:{x:3220,y:-90,w:2040,h:900},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:620,pp:1},vertraege:{x:2020,y:-90,w:1100,h:620},pflanzen:{x:-70,y:1010,w:1400,h:420},notizen:{x:960,y:-580,w:1500,h:440,cols:["Eingang","Fragen an Vermieter","Ideen","Infos"]},user:{}},
+  frames:{plan:{x:-70,y:-90},utensilien:{x:2020,y:640,w:1100,h:640},geraete:{x:3220,y:-90,w:2040,h:900},blackweek:{x:5360,y:-90,w:2560,h:900},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:620,pp:1},vertraege:{x:2020,y:-90,w:1100,h:620},pflanzen:{x:-70,y:1010,w:1400,h:420},notizen:{x:960,y:-580,w:1500,h:440,cols:["Eingang","Fragen an Vermieter","Ideen","Infos"]},user:{}},
   els:[
     {id:"n1",type:"note",x:1110,y:-20,color:"gelb",text:"Küche: Edelstahl-Arbeitsplatte + offene Regale aus Eiche?"},
     {id:"n2",type:"note",x:1330,y:10,color:"rosa",text:"Pendelleuchte am Kabel über den Esstisch"},
@@ -1754,7 +1872,7 @@ function kgCard(g){var tag={empfehlung:"empfehlung",spar:"sparvariante"}[g.tag];
     ((g.fakten||[]).length?'<ul class="kgf">'+g.fakten.map(function(f){return '<li>'+esc(f)+'</li>'}).join("")+'</ul>':'')+
     (g.fazit?'<p class="kgz">'+esc(g.fazit)+'</p>':'')+(g.notiz?'<p class="kgz no">'+esc(g.notiz)+'</p>':''))+
     ((g.links||[]).length?'<div class="kgl">'+g.links.filter(function(l){return l&&l.u}).map(function(l){return '<a href="'+esc(l.u)+'" target="_blank" rel="noopener">'+esc(l.t||"link")+' ↗</a>'}).join("")+'</div>':'')+'</div></div>'}
-function geraeteHTML(){var l=kgAll(),inF=l.filter(function(g){return !g.aus});
+function geraeteHTML(){var l=kgAll().filter(function(g){return !bwArt(g.art)}),inF=l.filter(function(g){return !g.aus});
   var s='<div class="mbar"><span class="uleg">★ favorit · „preisvergleich“ zeigt den heute günstigsten Shop · Noten: Stiftung Warentest</span><span class="sum">'+inF.length+' kommen in Frage</span><button class="plus" data-kgadd="" title="Gerät hinzufügen" aria-label="Gerät hinzufügen">+</button></div>';
   return s+'<div class="kgcols">'+KGART.map(function(a){var g=l.filter(function(x){return x.art===a[0]}),ok=g.filter(function(x){return !x.aus}).sort(function(x,y){return (y.fav?1:0)-(x.fav?1:0)||(+x.rang||99)-(+y.rang||99)}),no=g.filter(function(x){return x.aus}).sort(function(x,y){return (+x.rang||99)-(+y.rang||99)});
     return '<div class="kgcol"><h5>'+esc(a[1].toLowerCase())+'<span>'+ok.length+' in frage</span></h5><p class="kgreq">'+esc(a[2])+'</p>'+
@@ -1763,7 +1881,7 @@ function geraeteHTML(){var l=kgAll(),inF=l.filter(function(g){return !g.aus});
       '<button class="vadd" data-kgadd="'+a[0]+'">+ '+esc(a[1].toLowerCase())+'</button></div>'}).join("")+'</div>'}
 function kgForm(id,art){var g=id?Object.assign({},G[id]):{art:art||"kochfeld",links:[]},ln=function(i){var x=(g.links||[])[i]||{};return x};
   $("#modal").innerHTML='<div class="bg"><form id="kgf" autocomplete="off"><h2>'+(id?'gerät bearbeiten':'neues gerät')+'</h2>'+
-  '<div class="row"><label>Name<input id="kg-name" required value="'+esc(g.name||"")+'"></label><label>Gerät<select id="kg-art">'+KGART.map(function(a){return '<option value="'+a[0]+'"'+(g.art===a[0]?' selected':'')+'>'+a[1]+'</option>'}).join("")+'</select></label></div>'+
+  '<div class="row"><label>Name<input id="kg-name" required value="'+esc(g.name||"")+'"></label><label>Gerät<select id="kg-art">'+KGART.concat(BWART).map(function(a){return '<option value="'+a[0]+'"'+(g.art===a[0]?' selected':'')+'>'+a[1]+'</option>'}).join("")+'</select></label></div>'+
   '<div class="row"><label>Rang<input id="kg-rang" inputmode="numeric" value="'+esc(g.rang||"")+'"></label><label>Preis (€)<input id="kg-preis" inputmode="decimal" value="'+esc(g.preis==null?"":String(g.preis).replace(".",","))+'"></label></div>'+
   '<label>Testnote<input id="kg-note" value="'+esc(g.note||"")+'" placeholder="z. B. gut (2,0), Warentest 11/2025"></label>'+
   '<label>Preis, Quelle und Datum<input id="kg-ptxt" value="'+esc(g.preisTxt||"")+'"></label>'+
@@ -1793,6 +1911,41 @@ function seedGeraete(){if(typeof KG_SEED==="undefined")return;
   Object.keys(KG_SEED).forEach(function(id){var a=KG_SEED[id].art;if((neu||s2&&(a==="ofen"||a==="ofenmw")||s3&&N3[id]||N4[id])&&!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(KG_SEED[id]))});
   if(!neu)KG_TEUER4.forEach(function(id){var g=G[id];if(g&&!g.fav){TRASH["geraete:"+id]={c:"geraete",id:id,d:Object.assign({},g,{deleted:T})};delete G[id]}});
   var f=st.frames.geraete;if(f&&f.w<2040)f.w=2040;SETT.kgSeed=4;save();render()}
+/* ---------- Black Week: Geräte mit Rabatt (Collection geraete, art "bw…"), je Karte eine bearbeitbare Tabelle ---------- */
+var BWART=[["bwgs","Black Week: Spülmaschine","Unterbaufähig mit eigener Tür, höchstens 88 cm hoch. Besteckschublade statt Korb, Tür öffnet am Ende automatisch, Lieferung bis zum Aufstellort."]];
+function bwArt(a){return /^bw/.test(a||"")}
+function bwVal(v){var m=/^(ja|nein|unbekannt)\b/i.exec(v||"");return m?m[1].toLowerCase():""}
+function bwTab(g){var tab=g.tab||[];
+  return '<table class="bwt"><tbody>'+tab.map(function(r,i){var c=bwVal(r[1]);return '<tr><td class="k" data-bwc="'+g.id+':'+i+':0">'+esc(r[0]||"")+'</td><td class="v'+(c?' '+c:'')+'" data-bwc="'+g.id+':'+i+':1">'+esc(r[1]||"")+'</td><td class="rx"><button class="kb" data-bwrdel="'+g.id+':'+i+'" title="Zeile löschen" aria-label="Zeile löschen">×</button></td></tr>'}).join("")+
+  '</tbody></table><button class="bwadd" data-bwrow="'+g.id+'">+ zeile</button>'}
+function bwCard(g){var tag={empfehlung:"empfehlung",spar:"sparvariante"}[g.tag];
+  return '<div class="kgc bwc'+(g.fav?' fav':'')+'"><div class="kgt"><span class="kgr">'+(g.aus?'–':esc(g.rang||""))+'</span><button class="uname" data-kgitem="'+g.id+'">'+esc(g.name||"Ohne Namen")+'</button>'+
+    (g.aus?'':'<button class="kb'+(g.fav?' on':'')+'" data-kgfav="'+g.id+'" title="Favorit" aria-label="'+esc(g.name)+' als Favorit">'+(g.fav?'★':'☆')+'</button>')+
+    '<button class="kb" data-kgdel="'+g.id+'" title="Löschen (Papierkorb)" aria-label="'+esc(g.name)+' löschen">×</button></div>'+
+    (g.aus?'<p class="kgz no">'+esc(g.aus)+'</p>':'')+
+    '<div class="kgm">'+(g.note?'<span class="kgn">'+esc(g.note)+'</span>':'')+(tag?'<span class="kgtag '+g.tag+'">'+tag+'</span>':'')+'<b class="kgp">'+kgEur(g.preis)+'</b></div>'+
+    (g.preisTxt?'<div class="kgpt">'+esc(g.preisTxt)+'</div>':'')+bwTab(g)+
+    (g.fazit?'<p class="kgz">'+esc(g.fazit)+'</p>':'')+(g.notiz?'<p class="kgz no">'+esc(g.notiz)+'</p>':'')+
+    ((g.links||[]).length?'<div class="kgl">'+g.links.filter(function(l){return l&&l.u}).map(function(l){return '<a href="'+esc(l.u)+'" target="_blank" rel="noopener">'+esc(l.t||"link")+' ↗</a>'}).join("")+'</div>':'')+'</div>'}
+function bwHTML(){var l=kgAll().filter(function(g){return bwArt(g.art)}),srt=function(x,y){return (y.fav?1:0)-(x.fav?1:0)||(+x.rang||99)-(+y.rang||99)};
+  var s='<div class="mbar"><span class="uleg">★ favorit · Zelle anklicken zum Bearbeiten · ✓ ja · ✗ nein · ? unbekannt</span><span class="sum">'+l.filter(function(g){return !g.aus}).length+' kommen in Frage</span><button class="plus" data-kgadd="bwgs" title="Gerät hinzufügen" aria-label="Gerät hinzufügen">+</button></div>';
+  return s+BWART.map(function(a){var g=l.filter(function(x){return x.art===a[0]}),ok=g.filter(function(x){return !x.aus}).sort(srt),no=g.filter(function(x){return x.aus}).sort(srt),nm=a[1].replace(/^Black Week: /,"").toLowerCase();
+    return '<div class="kgcol"><h5>'+esc(nm)+'<span>'+ok.length+' in frage</span></h5><p class="kgreq">'+esc(a[2])+'</p>'+
+      '<div class="bwcols">'+(ok.length?ok.map(bwCard).join(""):'<p class="mleer">Keine Kandidaten. Mit + eines anlegen.</p>')+'</div>'+
+      (no.length?'<div class="kgaus"><h6>ausgeschlossen · '+no.length+'</h6><div class="bwcols">'+no.map(bwCard).join("")+'</div></div>':'')+
+      '<button class="vadd" data-kgadd="'+a[0]+'">+ '+esc(nm)+'</button></div>'}).join("")}
+/* Zelle direkt bearbeiten: Enter speichert, Esc verwirft */
+function bwEdit(td){if(td.isContentEditable)return;var q=td.dataset.bwc.split(":"),g=G[q[0]];if(!g||!g.tab||!g.tab[+q[1]])return;var old=td.textContent;
+  td.contentEditable="true";td.focus();var r=document.createRange();r.selectNodeContents(td);r.collapse(false);var sl=getSelection();sl.removeAllRanges();sl.addRange(r);
+  td.onkeydown=function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();td.blur()}else if(e.key==="Escape"){td.textContent=old;td.blur()}};
+  td.onblur=function(){td.contentEditable="false";td.onblur=td.onkeydown=null;var nv=td.textContent.trim(),g2=G[q[0]];
+    if(g2&&g2.tab&&g2.tab[+q[1]]&&nv!==old.trim()){g2.tab[+q[1]][+q[2]]=nv;save()}render()}}
+/* Recherche vom 21.11.2026 einmal in die Datenbank (quellen/kueche/blackweek.js), dazu die Erinnerung an die Schlauchlängen */
+function seedBW(){if(!st.frames.blackweek)st.frames.blackweek=defaults().frames.blackweek;if(typeof BW_SEED==="undefined"||SETT.bwSeed>=1)return;
+  Object.keys(BW_SEED).forEach(function(id){if(!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(BW_SEED[id]))});
+  if(!T["t-bw-schlauch"])T["t-bw-schlauch"]={title:"Ausmessen, wie lang die Schläuche und das Kabel der Spülmaschine sein müssen",bereich:"neu",raum:"",done:false,due:"2026-11-27",
+    notiz:"Vom Platz der Spülmaschine bis zum Eckventil (Zulauf), zum Siphon (Ablauf) und zur Steckdose messen. Ab Werk: Bosch und Siemens Zulauf 165 cm, Ablauf 190 cm, Kabel 175 cm; Bauknecht Zulauf 155 cm, Ablauf 150 cm; AEG Kabel 160 cm. Bis Black Friday (27.11.) entscheiden."};
+  SETT.bwSeed=1;save();render()}
 function nowHTML(){var L=zAll().filter(function(x){return x.k==="e"&&!x.done||x.k==="t"&&!x.o.done}).slice(0,6),d=days(MOVE);
   var li=function(x){var o=x.o;if(x.k==="e")return '<li data-ev="'+o.id+'" style="cursor:pointer"><span style="color:var(--blau)">'+fmtD(o.date)+(o.time?' '+esc(o.time):'')+'</span><b style="color:var(--blau)">Termin:</b> '+esc(o.title)+(o.ort?' <small style="color:var(--ink2)">· '+esc(o.ort)+'</small>':'')+'</li>';
     return '<li class="nt'+(x.late?' late':'')+'"><button class="tbox" data-tdone="'+o.id+'" title="Erledigt" aria-label="'+esc(o.title)+' erledigt"></button><span>'+(x.a!==x.b?fmtD(x.a)+'–':'')+fmtD(o.due)+'</span><b data-task="'+o.id+'" style="font-weight:400;cursor:pointer">'+esc(o.title)+'</b>'+(zSubN(o)?' <small style="color:var(--ink2)">'+zSubN(o)+'</small>':'')+(o.wer?' <small style="color:var(--ink2)">· '+esc(o.wer)+'</small>':'')+'</li>'};
@@ -1942,7 +2095,8 @@ function render(){MOVE=(SETT&&SETT.moveDate)||"2026-12-15";CEIL=+(SETT&&SETT.cei
   if(!F.geld.hidden){if(!F.geld.pp){F.geld.pp=1;F.geld.h=Math.max(F.geld.h||0,620);save()}s+=frameDiv("geld","Geld","pro Person, Ausgleich zwischen euch",F.geld,geldHTML(),balText(bilanz()))}
   var vk=vtrKats();if(!F.vertraege.hidden)s+=frameDiv("vertraege","Verträge","vergleichen und abschließen",F.vertraege,vertraegeHTML(),vk.filter(function(k){return k.ok}).length+" / "+vk.length+" abgeschlossen");
   if(F.utensilien&&!F.utensilien.hidden){var ul=uAll();s+=frameDiv("utensilien","Utensilien","was wir haben und was noch fehlt",F.utensilien,utensilienHTML(),ul.filter(function(u){return uSt(u)==="brauchen"}).length+" fehlen")}
-  if(F.geraete&&!F.geraete.hidden){var kgf={};kgAll().forEach(function(g){if(g.fav&&!g.aus)kgf[g.art==="ofenmw"?"ofen":g.art]=1});s+=frameDiv("geraete","Küchengeräte","Kochfeld, Spülmaschine, Waschmaschine, Backofen · Tests und Preise vom 23. und 26.10.2026",F.geraete,geraeteHTML(),Object.keys(kgf).length+" / 4 gewählt")}
+  if(F.geraete&&!F.geraete.hidden){var kgf={};kgAll().forEach(function(g){if(g.fav&&!g.aus&&!bwArt(g.art))kgf[g.art==="ofenmw"?"ofen":g.art]=1});s+=frameDiv("geraete","Küchengeräte","Kochfeld, Spülmaschine, Waschmaschine, Backofen · Tests und Preise vom 23. und 26.10.2026",F.geraete,geraeteHTML(),Object.keys(kgf).length+" / 4 gewählt")}
+  if(F.blackweek&&!F.blackweek.hidden)s+=frameDiv("blackweek","Black Week","Geräte mit Rabatt · Preise vom 21.11.2026",F.blackweek,bwHTML(),kgAll().filter(function(g){return bwArt(g.art)&&!g.aus}).length+" in frage")
   Object.keys(F.user||{}).forEach(function(id){var f=F.user[id];s+=frameDiv(id,f.title||"Rahmen","",f,"")});
   st.els.forEach(function(e){s+=elHTML(e)});
   world.innerHTML=s;if(selFurn){var fn=world.querySelector('[data-furn="'+selFurn+'"]');if(fn)fn.classList.add("fsel");else{selFurn=null;tbReset()}}applyView();fitFrames();fitNotes()}
@@ -1951,7 +2105,7 @@ function fitNote(n){var e=getEl(n.dataset.el);if(!e)return;var t=n.querySelector
   t.style.overflow="hidden";n.style.fontSize=f+"px";while(f>8&&t.scrollHeight>t.clientHeight+1){f--;n.style.fontSize=f+"px"}t.style.overflow=""}
 function fitNotes(){Array.prototype.forEach.call(world.querySelectorAll(".el.note"),fitNote)}
 /* Bereiche wachsen mit dem Inhalt: nichts wird abgeschnitten, kein Scrollen im Bereich. Was darunter liegt, rückt nach unten. */
-var GROW=["now","moebel","pflanzen","verkauf","zeit","utensilien","geraete","vertraege","geld"],GAP=100;
+var GROW=["now","moebel","pflanzen","verkauf","zeit","utensilien","geraete","blackweek","vertraege","geld"],GAP=100;
 function fitFrames(){var F=st.frames,ch=false;GROW.forEach(function(k){var f=F[k];if(!f||f.hidden)return;var n=world.querySelector('[data-frame="'+k+'"]>.fbody');if(!n)return;
     var need=Math.ceil(n.scrollHeight+n.parentNode.offsetHeight-n.clientHeight);if(need<=f.h)return;var old=f.y+f.h;f.h=need;ch=true;pushBelow(f,old,{})});
   if(ch){save();render()}}
@@ -1987,14 +2141,14 @@ function zoomAt(sx,sy,f){var k=Math.max(.08,Math.min(4,V.k*f));var wx=(sx-V.x)/V
 function fit(b,pad){var W=innerWidth,H=innerHeight,k=Math.min((W-pad*2)/b.w,(H-pad*2-60)/b.h,2.5);V.k=k;V.x=W/2-(b.x+b.w/2)*k;V.y=(H+40)/2-(b.y+b.h/2)*k;applyView()}
 function planBox(){var f=st.frames.plan;return {x:f.x,y:f.y,w:PB.w+2*PAD+70,h:PB.h+2*PAD+190}}
 function allBox(){var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9,add=function(x,y,w,h){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x+w);y1=Math.max(y1,y+h)};
-  var pb=planBox();add(pb.x,pb.y-40,pb.w,pb.h+40);["now","moebel","verkauf","zeit","mood","geld","vertraege","utensilien","geraete"].forEach(function(k){var f=st.frames[k];if(f&&!f.hidden)add(f.x,f.y-44,f.w,f.h+44)});
+  var pb=planBox();add(pb.x,pb.y-40,pb.w,pb.h+40);["now","moebel","verkauf","zeit","mood","geld","vertraege","utensilien","geraete","blackweek"].forEach(function(k){var f=st.frames[k];if(f&&!f.hidden)add(f.x,f.y-44,f.w,f.h+44)});
   Object.keys(st.frames.user).forEach(function(k){var f=st.frames.user[k];add(f.x,f.y,f.w,f.h)});st.els.forEach(function(e){add(e.x,e.y,e.w||190,e.h||170)});return {x:x0,y:y0,w:x1-x0,h:y1-y0}}
 function toWorld(sx,sy){return {x:(sx-V.x)/V.k,y:(sy-V.y)/V.k}}
 
 /* ---------- Übersichtskarte ---------- */
 function drawMini(){var c=$("#mini");if(!c||getComputedStyle(c).display==="none")return;var g=c.getContext("2d"),b=allBox(),W=c.width,H=c.height,k=Math.min(W/b.w,H/b.h)*.9,ox=(W-b.w*k)/2-b.x*k,oy=(H-b.h*k)/2-b.y*k;
   var cs=getComputedStyle(document.body);g.clearRect(0,0,W,H);g.fillStyle=cs.getPropertyValue("--ink2");g.globalAlpha=.25;
-  ["now","moebel","verkauf","zeit","mood","geld","vertraege","utensilien","geraete"].forEach(function(n){var f=st.frames[n];if(f)g.fillRect(ox+f.x*k,oy+f.y*k,f.w*k,f.h*k)});
+  ["now","moebel","verkauf","zeit","mood","geld","vertraege","utensilien","geraete","blackweek"].forEach(function(n){var f=st.frames[n];if(f)g.fillRect(ox+f.x*k,oy+f.y*k,f.w*k,f.h*k)});
   g.globalAlpha=.6;var pb=planBox();g.fillRect(ox+pb.x*k,oy+pb.y*k,pb.w*k,pb.h*k);
   g.globalAlpha=1;st.els.forEach(function(e){g.fillStyle=e.type==="note"?"#f2c94c":cs.getPropertyValue("--ink2");g.fillRect(ox+e.x*k,oy+e.y*k,(e.w||190)*k,(e.h||170)*k)});
   g.strokeStyle=cs.getPropertyValue("--neu");g.lineWidth=3;var tl=toWorld(0,0),br=toWorld(innerWidth,innerHeight);g.strokeRect(ox+tl.x*k,oy+tl.y*k,(br.x-tl.x)*k,(br.y-tl.y)*k);
@@ -2022,7 +2176,7 @@ board.addEventListener("pointerdown",function(e){if(e.target.closest('[contented
   var res=t.closest("[data-res]"),fres=t.closest("[data-fres]");
   if(res){var el=getEl(res.dataset.res);drag={kind:"res",el:el,sx:w.x,sy:w.y,w0:el.w||190,h0:el.h||170};}
   else if(fres){var fk=fres.dataset.fres,f=st.frames[fk]||st.frames.user[fk];drag={kind:"res",el:f,sx:w.x,sy:w.y,w0:f.w,h0:f.h,frame:fk}}
-  else if(t.closest(".x,button,a[href],img[data-lb],.due")){return}
+  else if(t.closest(".x,button,a[href],img[data-lb],.due,[data-bwc]")){return}
   else if(t.closest("[data-zend]")){drag={kind:"zend",id:t.closest("[data-zend]").dataset.zend,sx:e.clientX,sy:e.clientY}}
   else if(t.closest("[data-vtr]")){drag={kind:"vtr",id:t.closest("[data-vtr]").dataset.vtr}}
   else if(t.closest("[data-sell]")){drag={kind:"sell",id:t.closest("[data-sell]").dataset.sell}}
@@ -2131,6 +2285,9 @@ document.addEventListener("click",function(e){var t=e.target,b;if(t.closest("a[h
   if((b=t.closest("[data-kgadd]"))){kgForm(null,b.dataset.kgadd);return}
   if((b=t.closest("[data-kgitem]"))){kgForm(b.dataset.kgitem);return}
   if((b=t.closest("[data-kgdel]"))){kgDel(b.dataset.kgdel);return}
+  if((b=t.closest("[data-bwc]"))){bwEdit(b);return}
+  if((b=t.closest("[data-bwrow]"))){var bg=G[b.dataset.bwrow];if(bg){bg.tab=(bg.tab||[]).concat([["",""]]);save();render();var nc=world.querySelector('[data-bwc="'+b.dataset.bwrow+':'+(bg.tab.length-1)+':0"]');if(nc)bwEdit(nc)}return}
+  if((b=t.closest("[data-bwrdel]"))){var q=b.dataset.bwrdel.split(":"),rg=G[q[0]];if(rg&&rg.tab){var row=rg.tab[+q[1]];if(row&&(row[0]||row[1])&&!confirm("Zeile „"+(row[0]||row[1])+"“ löschen?"))return;rg.tab.splice(+q[1],1);save();render()}return}
   if((b=t.closest("[data-kgfav]"))){var kg=G[b.dataset.kgfav];if(kg){var on=!kg.fav;kgAll().forEach(function(x){if(x.art===kg.art&&x.fav&&x.id!==b.dataset.kgfav)delete G[x.id].fav});if(on)kg.fav=true;else delete kg.fav;save();render();toast(on?kg.name+" ist der Favorit":"Kein Favorit mehr")}return}
   if((b=t.closest("[data-vadd]"))){vtrForm(null,b.dataset.vadd?{kat:b.dataset.vadd}:null);return}
   if(t.closest("[data-verb]")){verbForm();return}
@@ -2289,7 +2446,7 @@ function taskForm(id,preset){var t=id?Object.assign({},T[id]):Object.assign({tit
   setTimeout(function(){$("#k-title").focus()},30)}
 
 /* ---------- Bereiche ---------- */
-var FNAME={now:"Jetzt dran",moebel:"Möbel für die neue Wohnung",verkauf:"Verkaufen und weggeben",zeit:"Zeitplan",mood:"Moodboard",geld:"Geld",vertraege:"Verträge",pflanzen:"Pflanzen",notizen:"Notizen",utensilien:"Utensilien",geraete:"Küchengeräte"};
+var FNAME={now:"Jetzt dran",moebel:"Möbel für die neue Wohnung",verkauf:"Verkaufen und weggeben",zeit:"Zeitplan",mood:"Moodboard",geld:"Geld",vertraege:"Verträge",pflanzen:"Pflanzen",notizen:"Notizen",utensilien:"Utensilien",geraete:"Küchengeräte",blackweek:"Black Week"};
 function frameMenu(c){var hid=Object.keys(FNAME).filter(function(k){return st.frames[k]&&st.frames[k].hidden});
   $("#modal").innerHTML='<div class="bg"><form id="frf" autocomplete="off"><h2>bereich</h2><label>Name für einen neuen Bereich<input id="fr-name" value="Neuer Bereich"></label>'+
   (hid.length?'<p class="note2">Ausgeblendete Bereiche wieder zeigen:</p><div class="foot" style="justify-content:flex-start">'+hid.map(function(k){return '<button type="button" class="btn ghost" data-fshow="'+k+'">'+esc(FNAME[k])+'</button>'}).join("")+'</div>':'')+
@@ -2507,9 +2664,9 @@ function openFull(id){if(id==="plan"){closeFull();fit(planBox(),12);return}fullI
 function closeFull(){fullId=null;$("#full").classList.remove("open")}
 function drawFull(){if(!fullId)return;var id=fullId,b=$("#full-b"),y=b.scrollTop,h;
   if(id==="now")h=nowHTML();else if(id==="moebel")h=moebelHTML();else if(id==="pflanzen")h=pflanzenHTML();else if(id==="verkauf")h=verkaufHTML();else if(id==="zeit")h=zeitListHTML();
-  else if(id==="geld")h=typeof geldHTML==="function"?geldHTML():"";else if(id==="vertraege")h=vertraegeHTML();else if(id==="utensilien")h=utensilienHTML();else if(id==="geraete")h=geraeteHTML();else h=frameElsHTML(id);
+  else if(id==="geld")h=typeof geldHTML==="function"?geldHTML():"";else if(id==="vertraege")h=vertraegeHTML();else if(id==="utensilien")h=utensilienHTML();else if(id==="geraete")h=geraeteHTML();else if(id==="blackweek")h=bwHTML();else h=frameElsHTML(id);
   $("#full-h").textContent=ftitle(id);b.innerHTML=h;b.scrollTop=y}
-function areasMenu(){var ids=["now","zeit","moebel","pflanzen","verkauf","utensilien","geraete","vertraege","geld","notizen","mood"].filter(function(k){return st.frames[k]&&!st.frames[k].hidden}).concat(Object.keys(st.frames.user||{}));
+function areasMenu(){var ids=["now","zeit","moebel","pflanzen","verkauf","utensilien","geraete","blackweek","vertraege","geld","notizen","mood"].filter(function(k){return st.frames[k]&&!st.frames[k].hidden}).concat(Object.keys(st.frames.user||{}));
   $("#modal").innerHTML='<div class="bg"><form><h2>bereiche</h2><div class="foot" style="justify-content:flex-start"><button type="button" class="btn ghost" data-fullopen="plan">Grundriss</button>'+ids.map(function(k){return '<button type="button" class="btn ghost" data-fullopen="'+k+'">'+esc(ftitle(k))+'</button>'}).join("")+'</div><div class="foot"><button type="button" class="btn ghost" data-mx>Schließen</button></div></form></div>'}
 function frameElsHTML(id){var f=st.frames[id]||st.frames.user[id];if(!f)return "";
   var L=st.els.filter(function(e){return e.x>f.x-30&&e.x<f.x+f.w&&e.y>f.y-30&&e.y<f.y+f.h}).sort(function(a,b){return (a.y-b.y)||(a.x-b.x)});
@@ -2581,7 +2738,7 @@ if(window.Kueche)Kueche.init({ceil:function(){return CEIL},R:function(){return R
   savePlan:function(){if(STORE)STORE.put("meta","plan",P);render()},setItem:function(id,o){var war=I[id]&&itemOk(I[id]);I[id]=o;var k=Object.assign({},o);delete k.x;delete k.y;delete k.rot;st.itemData[id]=k;save();
     if(!war&&itemArt(o)&&itemOk(o)&&itemBetrag(o))askPaid((o.name||"Das Gerät")+" ist "+String(o.status||"").toLowerCase()+".",o,"items",itemArt(o),function(){save();render()})},
   delItem:function(id){delete I[id];st.itemData[id]=null;delete st.itemPos[id];save()},fetchProduct:fetchProduct,esc:esc,toast:toast,IST:IST,DECL:DECL,render:function(){render()},modal:function(){return $("#modal")}});
-var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();last.plan=JSON.stringify(P);last.settings=JSON.stringify(SETT);migrateIdeas();migrateLabels();seedGeraete();
+var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();last.plan=JSON.stringify(P);last.settings=JSON.stringify(SETT);migrateIdeas();migrateLabels();seedGeraete();seedBW();
 if(sv){V=sv;applyView()}else fit(planBox(),40);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitFrames);
 };
