@@ -590,7 +590,7 @@ var st=null;try{st=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
 if(STORE){var pr={};try{pr=JSON.parse(localStorage.getItem("umzug-tafel-prefs")||"{}")}catch(e){}var df=defaults();st={v:1,view:pr.view||null,color:pr.color||"gelb",input:pr.input||"touchpad",check:pr.check!==false,itemPos:{},itemData:{},els:(SEED.board||[]).slice(),frames:Object.assign(df.frames,SEED.layout||{})};st.frames.user=st.frames.user||{}}
 if(!st||st.v!==1)st=defaults();st.skin="zeichentisch";st.tasks=st.tasks||null;st.itemData=st.itemData||{};st.input=st.input||"touchpad";
 function defaults(){return {v:1,skin:"zeichentisch",view:null,color:"gelb",itemPos:{},
-  frames:{plan:{x:-70,y:-90},utensilien:{x:2020,y:640,w:1100,h:640},geraete:{x:3220,y:-90,w:2040,h:900},blackweek:{x:5360,y:-90,w:2560,h:900},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:620,pp:1},vertraege:{x:2020,y:-90,w:1100,h:620},pflanzen:{x:-70,y:1010,w:1400,h:420},notizen:{x:960,y:-580,w:1500,h:440,cols:["Eingang","Fragen an Vermieter","Ideen","Infos"]},user:{}},
+  frames:{plan:{x:-70,y:-90},utensilien:{x:2020,y:640,w:1100,h:640},geraete:{x:3220,y:-90,w:2040,h:900},blackweek:{x:5360,y:-90,w:2840,h:900},now:{x:-70,y:-520,w:1000,h:330},moebel:{x:-1300,y:-90,w:1080,h:760},verkauf:{x:-1300,y:780,w:1080,h:520},zeit:{x:-1300,y:1420,w:3240,h:440},mood:{x:1060,y:-90,w:880,h:760},geld:{x:1060,y:780,w:880,h:620,pp:1},vertraege:{x:2020,y:-90,w:1100,h:620},pflanzen:{x:-70,y:1010,w:1400,h:420},notizen:{x:960,y:-580,w:1500,h:440,cols:["Eingang","Fragen an Vermieter","Ideen","Infos"]},user:{}},
   els:[
     {id:"n1",type:"note",x:1110,y:-20,color:"gelb",text:"Küche: Edelstahl-Arbeitsplatte + offene Regale aus Eiche?"},
     {id:"n2",type:"note",x:1330,y:10,color:"rosa",text:"Pendelleuchte am Kabel über den Esstisch"},
@@ -1128,7 +1128,8 @@ function seedGeraete(){if(typeof KG_SEED==="undefined")return;
   if(!neu)KG_TEUER4.forEach(function(id){var g=G[id];if(g&&!g.fav){TRASH["geraete:"+id]={c:"geraete",id:id,d:Object.assign({},g,{deleted:T})};delete G[id]}});
   var f=st.frames.geraete;if(f&&f.w<2040)f.w=2040;SETT.kgSeed=4;save();render()}
 /* ---------- Black Week: Geräte mit Rabatt (Collection geraete, art "bw…"), je Karte eine bearbeitbare Tabelle ---------- */
-var BWART=[["bwgs","Black Week: Spülmaschine","Unterbaufähig mit eigener Tür, höchstens 88 cm hoch. Besteckschublade statt Korb, Tür öffnet am Ende automatisch, Lieferung bis zum Aufstellort."]];
+var BWART=[["bwgs","Black Week: Spülmaschine","Unterbaufähig mit eigener Tür, höchstens 88 cm hoch. Besteckschublade statt Korb, Tür öffnet am Ende automatisch, Lieferung bis zum Aufstellort."],
+  ["bwwm","Black Week: Waschmaschine","Höchstens 88 cm hoch, damit sie unter die Küchenarbeitsplatte passt. Extra Kurzprogramm, Dampffunktion, Lieferung bis zum Aufstellort. Wiegefunktion nur vermerkt."]];
 function bwArt(a){return /^bw/.test(a||"")}
 function bwVal(v){var m=/^(ja|nein|unbekannt)\b/i.exec(v||"");return m?m[1].toLowerCase():""}
 function bwTab(g){var tab=g.tab||[];
@@ -1156,12 +1157,14 @@ function bwEdit(td){if(td.isContentEditable)return;var q=td.dataset.bwc.split(":
   td.onkeydown=function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();td.blur()}else if(e.key==="Escape"){td.textContent=old;td.blur()}};
   td.onblur=function(){td.contentEditable="false";td.onblur=td.onkeydown=null;var nv=td.textContent.trim(),g2=G[q[0]];
     if(g2&&g2.tab&&g2.tab[+q[1]]&&nv!==old.trim()){g2.tab[+q[1]][+q[2]]=nv;save()}render()}}
-/* Recherche vom 21.11.2026 einmal in die Datenbank (quellen/kueche/blackweek.js), dazu die Erinnerung an die Schlauchlängen */
-function seedBW(){if(!st.frames.blackweek)st.frames.blackweek=defaults().frames.blackweek;if(typeof BW_SEED==="undefined"||SETT.bwSeed>=1)return;
-  Object.keys(BW_SEED).forEach(function(id){if(!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(BW_SEED[id]))});
-  if(!T["t-bw-schlauch"])T["t-bw-schlauch"]={title:"Ausmessen, wie lang die Schläuche und das Kabel der Spülmaschine sein müssen",bereich:"neu",raum:"",done:false,due:"2026-11-27",
+/* Recherche vom 21.11.2026 einmal in die Datenbank (quellen/kueche/blackweek.js), dazu die Erinnerung an die Schlauchlängen.
+   Stufe 2: Waschmaschinen kommen nach, der Bereich wird für neun Karten nebeneinander verbreitert */
+function seedBW(){if(!st.frames.blackweek)st.frames.blackweek=defaults().frames.blackweek;if(typeof BW_SEED==="undefined"||SETT.bwSeed>=2)return;var neu=!SETT.bwSeed;
+  Object.keys(BW_SEED).forEach(function(id){if((neu||BW_SEED[id].art==="bwwm")&&!G[id]&&!TRASH["geraete:"+id])G[id]=JSON.parse(JSON.stringify(BW_SEED[id]))});
+  var f=st.frames.blackweek;if(f.w<2840)f.w=2840;
+  if(neu&&!T["t-bw-schlauch"])T["t-bw-schlauch"]={title:"Ausmessen, wie lang die Schläuche und das Kabel der Spülmaschine sein müssen",bereich:"neu",raum:"",done:false,due:"2026-11-27",
     notiz:"Vom Platz der Spülmaschine bis zum Eckventil (Zulauf), zum Siphon (Ablauf) und zur Steckdose messen. Ab Werk: Bosch und Siemens Zulauf 165 cm, Ablauf 190 cm, Kabel 175 cm; Bauknecht Zulauf 155 cm, Ablauf 150 cm; AEG Kabel 160 cm. Bis Black Friday (27.11.) entscheiden."};
-  SETT.bwSeed=1;save();render()}
+  SETT.bwSeed=2;save();render()}
 function nowHTML(){var L=zAll().filter(function(x){return x.k==="e"&&!x.done||x.k==="t"&&!x.o.done}).slice(0,6),d=days(MOVE);
   var li=function(x){var o=x.o;if(x.k==="e")return '<li data-ev="'+o.id+'" style="cursor:pointer"><span style="color:var(--blau)">'+fmtD(o.date)+(o.time?' '+esc(o.time):'')+'</span><b style="color:var(--blau)">Termin:</b> '+esc(o.title)+(o.ort?' <small style="color:var(--ink2)">· '+esc(o.ort)+'</small>':'')+'</li>';
     return '<li class="nt'+(x.late?' late':'')+'"><button class="tbox" data-tdone="'+o.id+'" title="Erledigt" aria-label="'+esc(o.title)+' erledigt"></button><span>'+(x.a!==x.b?fmtD(x.a)+'–':'')+fmtD(o.due)+'</span><b data-task="'+o.id+'" style="font-weight:400;cursor:pointer">'+esc(o.title)+'</b>'+(zSubN(o)?' <small style="color:var(--ink2)">'+zSubN(o)+'</small>':'')+(o.wer?' <small style="color:var(--ink2)">· '+esc(o.wer)+'</small>':'')+'</li>'};
