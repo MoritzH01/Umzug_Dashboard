@@ -23,7 +23,7 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Bereiche schneiden nichts ab und scrollen nicht in sich (17.10.2026): Bereiche mit Inhalt (Jetzt dran, Möbel, Pflanzen, Verkaufen, Utensilien, Verträge, Geld) wachsen nach dem Zeichnen auf die Höhe ihres Inhalts; was darunter liegt (Bereiche, Grundriss, Post-its darin), rückt nach unten. Sie wachsen nur, schrumpfen nicht von selbst; von Hand kleiner ziehen geht nur bis zur Inhaltshöhe. Verträge brechen in Zeilen um statt seitlich zu scrollen.
 - Bereiche verschieben (22.10.2026): Alles, was auf einem Bereich liegt (Post-its, Texte, Bilder, deren linke obere Ecke im Bereich sitzt), ist dort verankert und wandert mit, wenn man den Bereich an der Überschrift zieht.
 - Post-its (22.10.2026): Größe am Griff unten rechts änderbar (`w`, `h` im Element, Standard 190 × 170). Die Schrift wächst mit dem Zettel und wird kleiner, bis der Text ganz hineinpasst; nichts steht über den Rand.
-- Handy: Knopf „bereiche“ und Antippen einer Bereichsüberschrift öffnen den Bereich als Vollbild; der Zeitplan erscheint dort als Liste.
+- Handy: Knopf „bereiche“ und Antippen einer Bereichsüberschrift öffnen den Bereich als Vollbild; die Aufgaben öffnen das Aufgabenfenster als Liste.
 
 ## Gestaltung
 
@@ -127,22 +127,22 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Felder: Grundpreis in €/Monat brutto (`grundpreis`; eine Jahresangabe rechnet das Formular um), Arbeitspreis in ct/kWh brutto (`arbeitspreis`), Boni als eine positive Summe in € (`boni`, die Arten stehen in der Notiz), Preisgarantie in Monaten (`garantie`), Kündigungsfrist als Zahl mit Einheit (`kfrist`, `kfristE` = Wochen oder Monate). `laufzeit` heißt bei Strom „Mindestlaufzeit“. `einmal` bleibt für echte Einmalkosten; ein alter negativer Wert zählt beim Anzeigen als Bonus.
 - Verbrauch: Standard 2500 kWh im Jahr, änderbar oben in der Strom-Spalte. Gespeichert wird `meta/settings.verbrauchStrom` nur, wenn er vom Standard abweicht.
 - Rechnung, nie gespeichert: Monatspreis ab Jahr 2 = Grundpreis + Verbrauch × Arbeitspreis, ohne Boni. Das ist der Hauptwert und entscheidet „günstigstes“. Ø 1. Jahr = Monatspreis ab Jahr 2 + (Einmalkosten − Boni) / 12; ist dort ein anderes Angebot günstiger, bekommt es die Zusatzmarke „günstigstes 1. Jahr“. Dazu jeweils der effektive Preis in ct/kWh. Alte Angebote nur mit `preis` rechnen damit weiter; sind Grund- und Arbeitspreis da, wird `preis` geleert.
-- Ansicht: am Laptop eine Vergleichstabelle in der Strom-Spalte, auf dem Handy immer Karten. Nicht im Bereich Geld, keine Erinnerung an die Kündigungsfrist im Zeitplan.
+- Ansicht: am Laptop eine Vergleichstabelle in der Strom-Spalte, auf dem Handy immer Karten. Nicht im Bereich Geld, keine Erinnerung an die Kündigungsfrist in den Aufgaben.
 - „Preise holen“ im Formular ruft die Edge Function `produkt` mit `art: "tarif"` auf. Sie gibt nur Seitentext, Anbieter und Tarifname zurück; ausgewertet wird im Canvas, allgemein und ohne Code für einzelne Anbieter. PLZ und Verbrauch kommen aus dem Link. Gefüllt werden nur leere Felder, geprüft wird vor dem Speichern, kein automatischer Neuabruf.
 - „Seitentext einfügen“ (17.10.2026): Die meisten Anbieter zeigen Preise erst nach Eingabe der PLZ, die Function sieht sie dann nicht. Deshalb kann man den Text der Tarifseite im Browser kopieren (Strg+A, Strg+C) und ins Formular einfügen; er wird im Browser ausgewertet und nicht gespeichert. Stehen mehrere Tarife darin, wählt man einen aus; ein anderer Tarif ersetzt die Werte, die von dort kamen. Findet „Preise holen“ keine Preise, sagt es das und öffnet das Textfeld.
 
-## Zeitplan (22.10.2026)
+## Aufgaben (22.11.2026)
 
-- Der Bereich „Zeitplan“ zeigt alle Aufgaben, Termine, Vertragsdaten und Post-its mit Datum. Abgeleitete Einträge nur, wenn sie ein echtes Datum haben; nichts davon wird zusätzlich gespeichert.
-- Form: Kalender, in dem man den Tag sofort erkennt, durchgehend über den ganzen Zeitraum. Zeitraum: 1 Woche vor heute bis 4 Wochen nach dem Umzug, erweitert bis zum frühesten bzw. spätesten Eintrag.
-- Pro Tag höchstens 3 Chips, sonst „+N weitere“ (öffnet die Liste des Tages). Links die Spalte „ohne datum“; Ziehen auf einen Tag plant, Zurückziehen entfernt das Datum. Chips ziehen verschiebt, Ende eines Zeitraum-Balkens ziehen ändert das Ende, Doppelklick auf einen Tag legt Termin oder Aufgabe an.
-- Unterschieden wird nach Art: Termine gefüllt Kobalt, Aufgaben weiß mit Kästchen zum Abhaken, Verträge mit §, Post-its in ihrer Farbe, Überfälliges rot. Heute umrandet, Umzugstag tomatenrot, Wochenende leicht getönt.
-- Filter Wer (Moritz, Person 2, alle) und Art; die Auswahl merkt sich nur der Browser. Erledigtes und Vergangenes ausgeblendet, Umschalter „erledigte zeigen“; Überfälliges immer sichtbar.
-- Aufgaben: optional `von` (Anfang), `due` bleibt Fälligkeit bzw. Ende. Unteraufgaben als `sub: [{t, done}]` in der Aufgabe, bearbeitet im Formular, am Chip „2/5“. Sind alle abgehakt, fragt die App, ob die Aufgabe auch erledigt ist. Termine bekommen optional `wer`; leer heißt beide.
-- Kalenderdatei enthält auch Aufgaben mit Datum (ganztägig, „☐“ vor dem Titel, Zeitraum mehrtägig).
-- Handy: Agenda nach Tagen mit Monatsstreifen zum Springen; Unteraufgaben aufklappbar. „Jetzt dran“ bleibt ein kurzer Auszug mit derselben Sortierung.
-- Bereich wächst nach der Regel „Bereiche wachsen mit dem Inhalt“, Tagesspalten teilen sich die Breite (mindestens etwa 90 px).
-- Umsetzung (22.10.2026): Variante A, durchgehender Wochenkalender (eine Zeile pro Woche, Mo bis So, Kalenderwoche links). Aufgaben mit Zeitraum laufen als Balken über die Tage. Die Filterauswahl liegt im Browser unter `zeitFilter`. Wer ist freier Text; der Filter erkennt die Namen aus `meta/settings.namen`, leer oder „beide“ zählt für beide.
+- Der Bereich „Aufgaben“ ersetzt den Kalender „Zeitplan“ (Bereich `zeit` bleibt intern). Liste und Zeitleiste sind eine Ansicht: links die Liste, rechts in derselben Zeile der Balken. Dazu ein Fenster („aufgaben“ in der Leiste, „im fenster öffnen“ am Bereich, Klick auf eine Aufgabe) mit Detailspalte rechts, in der alles direkt bearbeitet wird.
+- Gezeigt werden Aufgaben, Termine, Vertragsdaten und Post-its mit Datum, gruppiert nach überfällig, heute, diese Woche, bis zum Umzug (mit Tagen bis zum Umzug), nach dem Umzug, vorbei (nur mit „erledigte zeigen“) und ohne Datum. Laufende Aufgaben stehen unter „heute“. Nichts davon wird zusätzlich gespeichert.
+- Status je Aufgabe: offen, in arbeit, erledigt. Gespeichert als `done` (erledigt) und `status: "arbeit"`; `done` bleibt, damit „Jetzt dran“ und die Kalenderdatei weiter stimmen. Der Kreis vor der Aufgabe schaltet weiter (offen → in arbeit → erledigt).
+- Zuständig: Moritz, Person 2 oder beide (`wer` = Name, leer = beide). Farbe von Kreis und Balken: Moritz Kobalt, Person 2 Orange, beide grau. Überfällig rot, offen blasser, erledigt grün.
+- Datum: `due` = fällig bzw. bis, `von` = Anfang eines Zeitraums. In der Zeitleiste Balken ziehen verschiebt, Anfang oder Ende ziehen ändert die Dauer, auf der leeren Zeile einer Aufgabe ohne Datum klicken oder ziehen legt Datum oder Zeitraum fest. Termine und Post-its lassen sich verschieben, Verträge nicht. Im Fenster steht dazu, wie viele Tage vor oder nach dem Umzug das ist.
+- „wartet auf“ (Vorschlag 3): `nach: [id, …]` anderer Aufgaben. Solange eine davon offen ist, steht „⧗ …“ an der Zeile und der Balken ist schraffiert; beginnt die Aufgabe vor dem Ende der anderen, steht ein Hinweis im Fenster. Nur Hinweis, nie blockierend. Wird die andere erledigt, meldet die App, was jetzt losgehen kann.
+- Filter wie bisher: Wer (alle, Moritz, Person 2; „Moritz“ zeigt auch Aufgaben für beide), Art, „erledigte zeigen“. Die Auswahl merkt sich nur der Browser (`zeitFilter`).
+- Kalenderdatei, „+ aufgabe“ und „+ termin“ bleiben. Unterpunkte (`sub`) im Fenster abhaken, anlegen, löschen; sind alle abgehakt, fragt die App, ob die Aufgabe erledigt ist.
+- Handy: das Fenster als Liste ohne Zeitleiste, Antippen öffnet die Aufgabe als Vollbild.
+- Der Bereich auf dem Canvas ist mindestens so breit, dass jeder Tag 12 px hat; im Fenster scrollt die Zeitleiste seitlich (mindestens 22 px je Tag), die Liste bleibt stehen.
 
 ## Anmeldung und Zugang
 
