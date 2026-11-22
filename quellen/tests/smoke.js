@@ -3,7 +3,7 @@
 // Prüft: Seiten starten ohne JS-Fehler, Notiz auf dem Canvas wird gespeichert, Knopf „feedback“ ist überall da,
 // Konfliktprüfung, Ideen ins Moodboard, Menü „daten“, Raumblatt entsperren, Handy-Vollbild, liste.html leitet weiter,
 // Strom-Vergleich (Tabelle, Verbrauch, Preise holen, Seitentext einfügen, Karten auf dem Handy),
-// Zeitplan als Kalender (Filter, Ziehen auf einen Tag, Ende ziehen, Doppelklick, Kalenderdatei, Agenda auf dem Handy).
+// IKEA-Küche (Seed, 3D-Küchenansicht, Griffe), Zeitplan als Kalender (Filter, Ziehen auf einen Tag, Ende ziehen, Doppelklick, Kalenderdatei, Agenda auf dem Handy).
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
 const R=path.join(__dirname,'..','..'),fake=fs.readFileSync(path.join(__dirname,'fake-sb.js'),'utf8');
 const rows=[
@@ -29,7 +29,7 @@ const types={html:'text/html',js:'application/javascript'};
 (async()=>{const b=await chromium.launch({executablePath:fs.existsSync('/opt/pw-browsers/chromium')?'/opt/pw-browsers/chromium':undefined});
  let fail=0;const ok=(c,t)=>{console.log((c?'ok   ':'FEHLER ')+t);if(!c)fail++};
  const errs=[];
- async function page(vp){const p=await b.newPage({viewport:vp});p.on('pageerror',e=>errs.push(e.message));p.on('dialog',d=>d.accept());
+ async function page(vp,rs){const p=await b.newPage({viewport:vp});p.on('pageerror',e=>errs.push(e.message));p.on('dialog',d=>d.accept());
   /* feste Uhrzeit vor den erfundenen Terminen, sonst gelten sie irgendwann als vergangen und der Zeitplan blendet sie aus */
   await p.clock.setFixedTime(new Date('2026-10-28T10:00:00'));
   await p.route('**/*',r=>{const u=new URL(r.request().url());
@@ -39,7 +39,7 @@ const types={html:'text/html',js:'application/javascript'};
     const fp=path.join(R,f);if(fs.existsSync(fp))return r.fulfill({body:fs.readFileSync(fp,'utf8'),contentType:types[f.split('.').pop()]||'text/plain'})}
    if(u.host==='cdn.jsdelivr.net'&&u.pathname.includes('three'))return r.continue();
    return r.abort()});
-  await p.addInitScript(r=>{localStorage.setItem('fake-session','1');if(!localStorage.getItem('fake-rows'))localStorage.setItem('fake-rows',r)},JSON.stringify(rows));return p}
+  await p.addInitScript(r=>{localStorage.setItem('fake-session','1');if(!localStorage.getItem('fake-rows'))localStorage.setItem('fake-rows',r)},JSON.stringify(rs||rows));return p}
  const dbOf=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('fake-rows')));
  const p=await page({width:1440,height:900});
  await p.goto('http://app.test/');await p.waitForTimeout(1200);
@@ -149,7 +149,14 @@ const types={html:'text/html',js:'application/javascript'};
  ok(db.some(r=>r.coll==='meta'&&r.id==='plan'&&r.data.doors.length===1&&r.data.doors[0].room==='kueche'),'raumblatt: tür angelegt und plan gespeichert');
  for(const [u,name] of [['http://app.test/','canvas'],['http://app.test/3d.html','3d']]){
   await p.goto(u);await p.waitForTimeout(name==='3d'?2500:1200);
-  ok(!!(await p.evaluate(()=>[...document.querySelectorAll('button,a')].some(e=>/feedback/i.test(e.textContent)))),name+': knopf feedback da')}
+  ok(!!(await p.evaluate(()=>[...document.querySelectorAll('button,a')].some(e=>/feedback/i.test(e.textContent)))),name+': knopf feedback da')
+  if(name==='3d'){await p.click('[data-view="kueche"]');await p.click('[data-griff="messing"]');await p.waitForTimeout(600);db=await dbOf(p);
+   ok(await p.isVisible('#griffe')&&db.some(r=>r.coll==='meta'&&r.id==='kueche'&&r.data.griff==='messing'),'3d: küchenansicht, griff gewählt und gespeichert')}}
+ const q=await page({width:1440,height:900},rows.filter(r=>!(r.coll==='meta'&&r.id==='kueche')));
+ await q.goto('http://app.test/');await q.waitForTimeout(1500);db=await dbOf(q);
+ const kq=db.find(r=>r.coll==='meta'&&r.id==='kueche'),sq=db.find(r=>r.coll==='meta'&&r.id==='settings');
+ ok(kq&&kq.data.laeufe.length===2&&kq.data.room==='kueche'&&db.some(r=>r.coll==='items'&&r.id==='ku-g-kf'&&r.data.art==='kochfeld')&&sq&&sq.data.kuSeed===1,'ikea-küche: einmal in meta/kueche, geräte als möbel');
+ await q.close();
  await p.goto('http://app.test/liste.html');await p.waitForTimeout(800);
  ok(new URL(p.url()).pathname==='/','liste.html leitet auf den canvas');
  const z=await page({width:1440,height:900});

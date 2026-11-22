@@ -47,9 +47,19 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 
 - Geometrie strikt nur aus dem Grundriss des Canvas (`rooms`, `meta/plan`). Nichts erfinden.
 - Oberflächen nur nach den Raumfotos (Tabelle `LOOK` je Raum in `quellen/3d/wohnung3d.tpl.html`); Räume ohne Foto bleiben neutral.
-- Hohe Wände fest, kein Umschalter. Vorerst keine Möbel. Ausnahme: die Küchenläufe aus dem Küchenplaner als schlichte Körper (Korpus, Platte, Hängeschrank); Fliesenspiegel und Schieferfeld folgen dem Lauf mit Kochfeld. (17.10.2026)
+- Hohe Wände fest, kein Umschalter. Vorerst keine Möbel. Ausnahme: die Küchenläufe aus dem Küchenplaner (seit 22.11.2026 naturgetreu, siehe „Küche in 3D“) (Korpus, Platte, Hängeschrank); Fliesenspiegel und Schieferfeld folgen dem Lauf mit Kochfeld. (17.10.2026)
 - Kaminvorsprünge (`meta/plan.fixed` mit „Kamin“ im Namen) gehen bis zur Decke. (17.10.2026)
 - Ansichten Puppenhaus, Draufsicht und Rundgang bleiben.
+
+## Küche in 3D (22.11.2026)
+
+- Die Küche nach dem IKEA-Plan vom 22.11.2026 (Planungs-ID C48C84A3) steht naturgetreu in der 3D-Ansicht, Ansicht „Küche“ (direkt: `3d.html#kueche`, im Raumblatt der Küche „küche in 3d ↗“). Die schlichten Körper gelten nur noch für Elemente ohne Angaben.
+- Daten: einmal aus `quellen/kueche/ikea.js` nach `meta/kueche` (`meta/settings.kuSeed`), nur wenn dort noch keine Läufe stehen; danach gilt die Datenbank und bearbeitet wird im Küchenplaner. Spülenzeile an der Flurwand ab 122,8 cm von der Südecke bis zum Kaminvorsprung, Kochfeldzeile an der Kaminwand ab dem Vorsprung. Spül- und Waschmaschine sind gegenüber dem IKEA-Plan getauscht: Waschmaschine neben der Spüle (Lücke 60,5), Spülmaschine an der Kaminwand mit Passleiste 5,8 am Vorsprung. Neue Felder: `fronten` (Fronthöhen von oben, `{h, t:"ofen"|"offen"}`), `gh` (Gerätehöhe für 3D), `geraet2`/`art2` (Backofen unter dem Kochfeld), `boden` (Deckseite bis zum Boden), `raster.platteTiefe`.
+- Geräte sind `items` (`ku-g-…`): AEG TO64IC0FIT, AEG TS6PB51ZAB, AEG LR6F5E485 (85 × 60 × 58, Datenblatt), Bosch SMU4ECS32E (82 × 60 × 57, Datenblatt), grauer Liebherr (Modell offen, 60 breit, 186 hoch nach dem Platz im IKEA-Plan). Spüle: Primagran Sydney 780.60 Ergo Multilevel, Schwarz metallic, Abtropffläche links (78 × 50, Becken 54 × 40 × 20, Zeichnung von primagran.de), mit Schneidebrett Eiche. Die Armatur ist nicht dabei und bleibt ein Chrom-Platzhalter.
+- Arbeitsplatte: Eiche geölt 240 × 63,5 × 2,7 (179 €), zwei Stück, auch über der Waschmaschine. Fronten VALLSTENA weiß, Sockel FÖRBÄTTRA Hochglanz weiß, Deckseiten FÖRBÄTTRA weiß.
+- Küchenwände weiß. Die alten weißen Wandfliesen bleiben wie auf den Fotos, Lage ungefähr (`LOOK.kueche.fliesen`); kein Schieferfeld im Boden.
+- Licht wie eine Kamera (Tone-Mapping, Umgebungslicht, Relief auf Fliesen, Parkett und Platte). Knopf „foto“ in der Küchenansicht rechnet ein Standbild per Pathtracing (three-gpu-pathtracer, eigene three.js-Version, erst beim Klick geladen), bis 400 Durchgänge; „speichern“ lädt es als PNG.
+- Griffe wählbar: Holz lang, Edelstahl-Stange, schwarze Stange, Messing-Knopf. Die Wahl steht in `meta/kueche.griff` (Standard Holz).
 
 ## Küchenplaner (17.10.2026)
 

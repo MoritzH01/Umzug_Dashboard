@@ -747,6 +747,8 @@ KK.sum=function(a){return (a||[]).reduce(function(s,e){return s+(num(e.b)||0)},0
 KK.find=function(M,id){for(var i=0;i<M.runs.length;i++){var l=M.runs[i];for(var lv of ["unten","oben"]){var j=l[lv].findIndex(function(e){return e.id===id});if(j>=0)return {run:l,lv:lv,e:l[lv][j],i:j}}}return null};
 KK.run=function(M,id){return M.runs.filter(function(l){return l.id===id})[0]||null};
 KK.dev=function(M,e){var it=e&&e.geraet&&M.I[e.geraet];return it&&!it.deleted?it:null};
+/* zweites Gerät im selben Schrank (Backofen unter dem Kochfeld), nur Kopie e.art2 für die 3D-Ansicht */
+KK.art2=function(M,e){var d=e&&e.geraet2&&M.I[e.geraet2];return d&&!d.deleted?(d.art||"sonst"):e&&e.geraet2&&e.art2||null};
 KK.art=function(M,e){var d=KK.dev(M,e);return d?(d.art||"sonst"):e&&e.geraet&&e.art||null};  /* e.art: Kopie für die 3D-Ansicht, die keine Möbel lädt */
 KK.label=function(M,e){var d=KK.dev(M,e);return e.name||(d&&d.name)||KK.ELT[e.typ]||e.typ};
 KK.depth=function(l,e,lv){var r=KK.ras(l);if(lv==="oben")return e.typ==="regal"?25:+r.hsTiefe;return +r.tiefe};
@@ -861,7 +863,7 @@ KK.bom=function(M){var rows=[];
   M.runs.forEach(function(l){var nm=l.name||"Lauf";
     l.unten.concat(l.oben).forEach(function(e){if(e.typ==="luecke")return;
       rows.push({kind:"el",id:e.id,run:nm,name:e.name||KK.ELT[e.typ],b:num(e.b),dec:e.dec==="bestand"?"bestand":"neu",status:e.status||"brauchen",preis:num(e.preis),link:e.link||""});
-      var d=KK.dev(M,e);if(d)rows.push({kind:"dev",id:e.geraet,el:e.id,run:nm,name:d.name||KK.ART[d.art||"sonst"],b:num(d.w),dec:KK.DECNEU[d.dec]?"neu":"bestand",status:d.status||"",preis:num(d.preis),link:d.link||""})});
+      [e.geraet,e.geraet2].forEach(function(gid){var d=gid&&M.I[gid];if(d&&!d.deleted)rows.push({kind:"dev",id:gid,el:e.id,run:nm,name:d.name||KK.ART[d.art||"sonst"],b:num(d.w),dec:KK.DECNEU[d.dec]?"neu":"bestand",status:d.status||"",preis:num(d.preis),link:d.link||""})})});
     var segs=KK.platte(l),p=l.platte||{};
     if(segs.length)rows.push({kind:"platte",id:l.id,run:nm,name:(p.name||"Arbeitsplatte")+" "+segs.map(function(q){return q[1]-q[0]}).join(" + ")+" × "+KK.ras(l).tiefe,b:segs.reduce(function(a,q){return a+q[1]-q[0]},0),dec:p.dec==="bestand"?"bestand":"neu",status:p.status||"brauchen",preis:num(p.preis),link:p.link||""})});
   var neu=rows.filter(function(x){return x.dec==="neu"});
@@ -1151,6 +1153,55 @@ var o={};L.forEach(function(x){o["bw-"+x[0]]={art:"bwgs",rang:x[1],name:x[2],not
 W.forEach(function(x){o["bw-"+x[0]]={art:"bwwm",rang:x[1],name:x[2],note:x[3],tag:x[4],preis:x[5],preisTxt:x[6],tab:x[7],fazit:x[8],aus:x[9],links:x[10],stand:"2026-11-21"}});return o})();
 var BW_NEU3={"bw-wm-beko":1,"bw-wm-lg7092":1,"bw-wm-lg5035":1,"bw-wm-wgb246":1},BW_WEG3=["bw-wm-hw80g3","bw-wm-hw80i5","bw-wm-midea","bw-wm-hw100g3"],
   BW_RANG3={"bw-wm-ww9e":[3,4],"bw-wm-aeg":[6,5],"bw-wm-ww8et":[7,6],"bw-wm-ww11d":[9,8]};
+/* IKEA-Küchenplan vom 22.11.2026 (Planungs-ID C48C84A3), eingepasst ins Aufmaß der Küche.
+   Wird einmal nach meta/kueche geschrieben (meta/settings.kuSeed), nur wenn dort noch keine Läufe stehen.
+   Danach gilt nur die Datenbank; bearbeitet wird im Küchenplaner des Canvas.
+   Läufe:
+   - „spüle“ an der Flurwand (w): ab 122,8 cm von der Südecke bis zum Kaminvorsprung. Deckseite frei stehend,
+     Waschmaschine 60,5 (Lücke 0,7 cm breiter als im IKEA-Plan, Gerät 60 breit), Deckseite, Spülenschrank 80 (Fronten 20/20/40), Deckseite.
+   - „kochfeld“ an der Kaminwand (n): ab dem Kaminvorsprung (121 cm). Passleiste 5,8 am Vorsprung, Spülmaschine 59,8 unter der Platte, Deckseite,
+     Schubladen 60 (40/40), Kochfeld und Backofen 60, Schubladen 40 (40/40), Deckseite, Kühlschrank 65.
+   Spül- und Waschmaschine sind gegenüber dem IKEA-Plan getauscht (Wunsch vom 22.11.2026).
+   fronten: von oben nach unten, Zahl = Front dieser Höhe; {h, t:"ofen"|"offen"} für Backofen bzw. offenen Korpus.
+   gh: Gerätehöhe als Kopie für die 3D-Ansicht. geraet2/art2: zweites Gerät im selben Schrank (Backofen unter dem Kochfeld).
+   boden: Deckseite reicht bis zum Boden. */
+var KU_SEED={
+  room:"kueche",griff:"holz",
+  laeufe:[
+    {id:"ku-spuele",name:"spüle",wand:"w",start:122.8,len:144.2,
+     raster:{sockel:8,korpus:80,platte:2.7,tiefe:60,platteTiefe:63.5},
+     platte:{name:"Arbeitsplatte Eiche geölt 240 × 63,5 × 2,7",preis:179},
+     unten:[
+       {id:"ku-d1",typ:"blende",b:1.2,dec:"neu",name:"FÖRBÄTTRA Deckseite (frei stehend)",boden:true},
+       {id:"ku-wm",typ:"us",b:60.5,dec:"neu",name:"Waschmaschine",geraet:"ku-g-wm",art:"waschm",gh:85},
+       {id:"ku-d2",typ:"blende",b:1.2,dec:"neu",name:"FÖRBÄTTRA Deckseite"},
+       {id:"ku-sp",typ:"us",b:80,dec:"neu",name:"METOD Spülenschrank 80 · VALLSTENA",geraet:"ku-g-sp",art:"spuele",fronten:[20,20,40]},
+       {id:"ku-d3",typ:"blende",b:1.2,dec:"neu",name:"FÖRBÄTTRA Deckseite"}],
+     oben:[]},
+    {id:"ku-koch",name:"kochfeld",wand:"n",start:121,
+     raster:{sockel:8,korpus:80,platte:2.7,tiefe:60,platteTiefe:63.5},
+     platte:{name:"Arbeitsplatte Eiche geölt 240 × 63,5 × 2,7",preis:179},
+     unten:[
+       {id:"ku-pl",typ:"passleiste",b:5.8,dec:"neu",name:"Passleiste am Kaminvorsprung"},
+       {id:"ku-gs",typ:"us",b:59.8,dec:"neu",name:"Spülmaschine",geraet:"ku-g-gs",art:"gs",gh:87.5},
+       {id:"ku-d4",typ:"blende",b:1.2,dec:"neu",name:"FÖRBÄTTRA Deckseite"},
+       {id:"ku-s60",typ:"us",b:60,dec:"neu",name:"METOD 60 mit MAXIMERA · VALLSTENA",fronten:[40,40]},
+       {id:"ku-ofen",typ:"us",b:60,dec:"neu",name:"METOD 60 für Kochfeld und Backofen",geraet:"ku-g-kf",art:"kochfeld",geraet2:"ku-g-of",art2:"ofen",fronten:[{h:10,t:"offen"},{h:60,t:"ofen"},10]},
+       {id:"ku-s40",typ:"us",b:40,dec:"neu",name:"METOD 40 mit MAXIMERA · VALLSTENA",fronten:[40,40]},
+       {id:"ku-d5",typ:"blende",b:1.2,dec:"neu",name:"FÖRBÄTTRA Deckseite"},
+       {id:"ku-kue",typ:"hoch",b:65,dec:"neu",name:"Kühlschrank",geraet:"ku-g-kue",art:"kuehl",gh:186}],
+     oben:[]}
+  ]};
+/* Geräte als Möbel (items, typ geraet). Maße aus den Produktdatenblättern, wo vorhanden. */
+var KU_ITEMS={
+  "ku-g-kf":{name:"AEG TO64IC0FIT Induktionskochfeld",typ:"geraet",art:"kochfeld",w:58,d:52,h:"",link:"https://www.mediamarkt.de/de/product/_aeg-to64ic0fit-induktionskochfeld-580-mm-breit-4-kochzonen-2997527.html"},
+  "ku-g-of":{name:"AEG TS6PB51ZAB Einbaubackofen",typ:"geraet",art:"ofen",w:59.5,d:"",h:"",link:"https://www.mediamarkt.de/de/product/_aeg-ts-6-pb-51-zab-einbauherdbackofen-einbaugerat-71-l-595-mm-breit-6000-2960634.html"},
+  "ku-g-wm":{name:"AEG LR6F5E485 Waschmaschine",typ:"geraet",art:"waschm",w:60,d:58,h:85,link:"https://www.mediamarkt.de/de/product/_aeg-lr6f5e485-6000-waschmaschine-80-kg-1351-umin-a-ja-3039494.html"},
+  "ku-g-gs":{name:"Bosch SMU4ECS32E Spülmaschine",typ:"geraet",art:"gs",w:60,d:57,h:82,link:"https://www.mediamarkt.de/de/product/_bosch-smu4ecs32e-serie-4-geschirrspuler-unterbaufahig-598-mm-breit-42-db-a-a-2960355.html",notiz:"Höhe 82 cm laut Datenblatt, mit den Füßen bis unter die Platte (88 cm) anpassen."},
+  "ku-g-sp":{name:"Primagran Sydney 780.60 Ergo Multilevel, Schwarz metallic",typ:"geraet",art:"spuele",w:78,d:50,h:20,preis:249.99,link:"https://primagran.de/kuechenspuele/kchensple-aus-granit-mit-abtropfflche-und-breitem-becken-sydney-780-60-ergo-multilevel-gratisgeschenk.html#/schneidebrett-schneidbrett-aus-eiche/abtropfschale-abtropfschale-workstation-stahl/aufrollbare-abtropfflache-aufrollbare-abtropfflache-stahl/wahlen-sie-die-ausrichtung-der-abtropfflache-abtropfflache-auf-der-linken-seite/wahlen-sie-eine-farbe-schwarz-metallic",
+    notiz:"Granit, 78 × 50 cm, Abtropffläche links (21 cm), Becken 54 × 40 × 20 cm, Armatur mittig hinter dem Becken, für Unterschrank ab 60 cm (primagran.de, 22.11.2026). Preis 249,99 € mit Buchenbrett; Schneidebrett Eiche 24,99 € und Abtropfschale Workstation Stahl 14,99 € extra, aufrollbare Abtropffläche Stahl gratis. Armatur nicht dabei."},
+  "ku-g-kue":{name:"Liebherr Kühl-Gefrier-Kombination grau",typ:"geraet",art:"kuehl",w:60,d:"",h:186,notiz:"Modell noch offen. Höhe 186 cm aus dem Platz im IKEA-Plan (65 cm breit)."}
+};
 /* Küchenplaner-Overlay im Canvas (Variante 1). Braucht kern.js (KK). Der Canvas ruft Kueche.init(api) auf. */
 (function(){
 var A=null,S={wall:null,sel:null,view:"plan"},NS="http://www.w3.org/2000/svg",root=null;
@@ -2053,6 +2104,11 @@ function seedBW(){if(!st.frames.blackweek)st.frames.blackweek=defaults().frames.
   if(neu&&!T["t-bw-schlauch"])T["t-bw-schlauch"]={title:"Ausmessen, wie lang die Schläuche und das Kabel der Spülmaschine sein müssen",bereich:"neu",raum:"",done:false,due:"2026-11-27",
     notiz:"Vom Platz der Spülmaschine bis zum Eckventil (Zulauf), zum Siphon (Ablauf) und zur Steckdose messen. Ab Werk: Bosch und Siemens Zulauf 165 cm, Ablauf 190 cm, Kabel 175 cm; Bauknecht Zulauf 155 cm, Ablauf 150 cm; AEG Kabel 160 cm. Bis Black Friday (27.11.) entscheiden."};
   SETT.bwSeed=3;save();render()}
+/* IKEA-Küchenplan vom 22.11.2026 einmal in meta/kueche (quellen/kueche/ikea.js), Geräte als Möbel. Nur, wenn dort noch keine Läufe stehen. */
+function seedKueche(){if(typeof KU_SEED==="undefined"||SETT.kuSeed||!window.KK)return;var rid=KK.roomId(R,KD);if(!rid)return;
+  if(!(KD&&(KD.laeufe||[]).length)){Object.keys(KU_ITEMS).forEach(function(id){if(!I[id])I[id]=Object.assign({dec:"kaufen",prio:1,raum:rid,preis:""},JSON.parse(JSON.stringify(KU_ITEMS[id])))});
+    KD=JSON.parse(JSON.stringify(KU_SEED));KD.room=rid;saveKD();if(window.Kueche)Kueche.refresh()}
+  SETT.kuSeed=1;save();render()}
 function nowHTML(){var L=zAll().filter(function(x){return x.k==="e"&&!x.done||x.k==="t"&&!x.o.done}).slice(0,6),d=days(MOVE);
   var li=function(x){var o=x.o;if(x.k==="e")return '<li data-ev="'+o.id+'" style="cursor:pointer"><span style="color:var(--blau)">'+fmtD(o.date)+(o.time?' '+esc(o.time):'')+'</span><b style="color:var(--blau)">Termin:</b> '+esc(o.title)+(o.ort?' <small style="color:var(--ink2)">· '+esc(o.ort)+'</small>':'')+'</li>';
     return '<li class="nt'+(x.late?' late':'')+'"><button class="tbox" data-tdone="'+o.id+'" title="Erledigt" aria-label="'+esc(o.title)+' erledigt"></button><span>'+(x.a!==x.b?fmtD(x.a)+'–':'')+fmtD(o.due)+'</span><b data-task="'+o.id+'" style="font-weight:400;cursor:pointer">'+esc(o.title)+'</b>'+(zSubN(o)?' <small style="color:var(--ink2)">'+zSubN(o)+'</small>':'')+(o.wer?' <small style="color:var(--ink2)">· '+esc(o.wer)+'</small>':'')+'</li>'};
@@ -2640,7 +2696,7 @@ function openSheet(rid){if(!R[rid])return;if(sheetId!==rid)sheetEdit=false;sheet
 function drawSheet(){var rid=sheetId,r0=R[rid];if(!rid)return;if(!r0){$("#rb").classList.remove("open");sheetId=null;return}
   var r=Object.assign({id:rid},r0),its=itemsIn(rid),ts=tasksFor(rid),ds=(P.doors||[]).filter(function(d){return d.room===rid}).length,ws=(P.windows||[]).filter(function(d){return d.room===rid}).length,ph=r.photos||[],ln=splitLines(r.links);
   $("#rb").innerHTML='<button class="close" data-close>Schließen</button><small style="font:500 10px var(--mono);letter-spacing:.1em;text-transform:lowercase;color:var(--ink2)">Raumblatt</small><h2>'+esc(r.name)+'</h2><div class="meta">'+(r.w/100).toFixed(2).replace(".",",")+' × '+(r.h/100).toFixed(2).replace(".",",")+' m · '+(r.w*r.h/1e4).toFixed(1).replace(".",",")+' m² · '+ds+' Tür'+(ds===1?'':'en')+' · '+ws+' Fenster</div>'+
-  (window.Kueche&&KK.roomId(R,KD)===rid?'<div class="rbrow"><button class="rbtn" data-kplan>Küche planen</button><span class="hint2">Schränke, Geräte, Maße</span></div>':'')+'<h3>fotos</h3>'+(ph.length?'<div class="phs">'+ph.map(function(p,i){return '<div class="pw"><img src="'+p+'" data-lb="'+rid+':'+i+'" alt="Foto '+esc(r.name)+'"><button class="phx" data-phdel="'+i+'" aria-label="Foto entfernen" title="Foto entfernen">×</button></div>'}).join("")+'</div>':'<p class="hint2">Noch keine Fotos.</p>')+
+  (window.Kueche&&KK.roomId(R,KD)===rid?'<div class="rbrow"><button class="rbtn" data-kplan>Küche planen</button><a class="rbtn" href="3d.html#kueche" target="_blank" rel="noopener">küche in 3d ↗</a><span class="hint2">Schränke, Geräte, Maße</span></div>':'')+'<h3>fotos</h3>'+(ph.length?'<div class="phs">'+ph.map(function(p,i){return '<div class="pw"><img src="'+p+'" data-lb="'+rid+':'+i+'" alt="Foto '+esc(r.name)+'"><button class="phx" data-phdel="'+i+'" aria-label="Foto entfernen" title="Foto entfernen">×</button></div>'}).join("")+'</div>':'<p class="hint2">Noch keine Fotos.</p>')+
   '<div class="rbrow"><label class="rbtn">Fotos hinzufügen<input type="file" id="rb-file" accept="image/*" multiple hidden></label><span class="hint2">oder mit Strg+V einfügen</span></div>'+
   '<h3>notizen</h3><textarea id="rb-notiz" placeholder="Maße, Ideen, Mängel, was noch fehlt …">'+esc(r.notiz||"")+'</textarea>'+
   '<h3>links und sonstiges</h3>'+(ln.length?ln.map(function(l,i){var o=parseLink(l);return '<div class="lnk">'+(o.u?'<a href="'+esc(o.u)+'" target="_blank" rel="noopener">'+esc(o.t)+'</a>':'<span>'+esc(o.t)+'</span>')+'<button data-lndel="'+i+'" aria-label="Eintrag entfernen" title="Entfernen">×</button></div>'}).join(""):'<p class="hint2">Shop-Links, Pinterest, Angebote oder kurze Stichpunkte.</p>')+
@@ -2845,7 +2901,7 @@ if(window.Kueche)Kueche.init({ceil:function(){return CEIL},R:function(){return R
   savePlan:function(){if(STORE)STORE.put("meta","plan",P);render()},setItem:function(id,o){var war=I[id]&&itemOk(I[id]);I[id]=o;var k=Object.assign({},o);delete k.x;delete k.y;delete k.rot;st.itemData[id]=k;save();
     if(!war&&itemArt(o)&&itemOk(o)&&itemBetrag(o))askPaid((o.name||"Das Gerät")+" ist "+String(o.status||"").toLowerCase()+".",o,"items",itemArt(o),function(){save();render()})},
   delItem:function(id){delete I[id];st.itemData[id]=null;delete st.itemPos[id];save()},fetchProduct:fetchProduct,esc:esc,toast:toast,IST:IST,DECL:DECL,render:function(){render()},modal:function(){return $("#modal")}});
-var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();last.plan=JSON.stringify(P);last.settings=JSON.stringify(SETT);migrateIdeas();migrateLabels();seedGeraete();seedBW();
+var sv=st.view;document.body.dataset.skin=st.skin;syncTop();render();snap();last.plan=JSON.stringify(P);last.settings=JSON.stringify(SETT);migrateIdeas();migrateLabels();seedGeraete();seedBW();seedKueche();
 if(sv){V=sv;applyView()}else fit(planBox(),40);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitFrames);
 };

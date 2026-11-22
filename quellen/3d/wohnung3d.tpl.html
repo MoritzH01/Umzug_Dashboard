@@ -43,6 +43,13 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--blau);outline-offse
 #msg>div{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px 22px;max-width:360px;box-shadow:0 12px 32px -14px rgba(28,42,75,.28)}
 #msg h2{font-size:17px;margin:0 0 6px}#msg p{font-size:13.5px;line-height:1.45;margin:0 0 12px;color:var(--ink2)}
 #msg a{color:var(--ink);font-weight:600}
+#griffe{left:50%;transform:translateX(-50%);bottom:calc(66px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:2px;padding:5px 6px 5px 12px;width:max-content;max-width:calc(100% - 24px);flex-wrap:wrap}
+#griffe span{font:500 12px var(--mono);color:var(--ink2);margin-right:6px}
+#griffe[hidden],#bar [hidden]{display:none}
+#griffe .fb{margin-left:8px;border:1px solid var(--ink)}
+#foto{position:fixed;inset:0;z-index:30;background:#16171a}#foto[hidden]{display:none}#foto canvas{width:100%;height:100%;display:block}
+#foto .fbar{left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:4px;padding:6px 6px 6px 14px;width:max-content;max-width:calc(100% - 24px)}
+#fstat{font:500 12px var(--mono);color:var(--ink2);margin-right:6px}
 @media (max-width:640px){button{padding:8px 10px;font-size:12.5px}#hint{display:none}}
 </style>
 
@@ -58,12 +65,18 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--blau);outline-offse
   <button type="button" data-view="haus" aria-pressed="true">Puppenhaus</button>
   <button type="button" data-view="oben" aria-pressed="false">Draufsicht</button>
   <button type="button" data-view="gehen" aria-pressed="false">Rundgang</button>
+  <button type="button" data-view="kueche" aria-pressed="false" hidden>Küche</button>
 </div>
+<div id="griffe" class="ui" role="group" aria-label="Griffe" hidden><span>griffe</span></div>
+<div id="foto" hidden><canvas></canvas><div class="fbar ui"><span id="fstat">lädt …</span><button type="button" data-f="save">speichern</button><button type="button" data-f="close">schließen</button></div></div>
 <div id="lb"><img alt=""></div>
 <div id="msg"><div></div></div>
 
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js","three/":"https://cdn.jsdelivr.net/npm/three@0.163.0/","three-mesh-bvh":"https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.7.6/build/index.module.js","three-gpu-pathtracer":"https://cdn.jsdelivr.net/npm/three-gpu-pathtracer@0.0.23/build/index.module.js"}}</script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/environments/RoomEnvironment.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/geometries/RoundedBoxGeometry.js"></script>
 <script>
 /* 3D-Modell der neuen Wohnung. Geometrie nur aus dem Grundriss der Tafel (rooms, meta/plan),
    Oberflächen nur aus den Raumfotos. Keine Möbel. Aufruf: window.W3D(seed) → {update(seed)} */
@@ -77,7 +90,9 @@ var LOOK={
   flur:    {wall:0xf2f0ea,floor:"parkett",note:"Aus dem Foto: Wände weiß, Fischgrät-Parkett, Einbauschrank mit Holztüren neben der Eingangstür."},
   klo:     {wall:0xf2f0ea,lower:{c:0x9aa29a,h:150},floor:"parkett",klo:true,note:"Aus dem Foto: unten graugrün, oben weiß, Fischgrät bis vor das WC, dort helle Bodenfliesen und weiße Wandfliesen."},
   bad:     {wall:0xf4f4f2,tiles:{h:205},floor:"beige",note:"Aus dem Foto: Wände weiß gefliest, Boden helle beige Fliesen."},
-  kueche:  {wall:0x9ba293,band:262,floor:"parkett",kitchen:true,note:"Aus den Fotos: Wände salbeigrau mit weißem Streifen unter der Decke, Fischgrät, Schieferfeld vor dem Herd, weiße Fliesen hinter der Küchenzeile."},
+  /* fliesen: Wandstücke [x0,y0,x1,y1] im Raum, fliesenH hoch; schiefer: [x,y,w,h] Bodenfelder. Nur ungefähr nach den Fotos */
+  kueche:  {wall:0xf2f0ea,floor:"parkett",fliesen:[[0,31,0,178],[121,0,355,0],[0,31,121,31],[121,0,121,31]],fliesenH:155,
+            note:"Wände weiß (neu gestrichen, Wunsch vom 22.11.2026; auf den Fotos noch salbeigrau). Aus den Fotos: Fischgrät, weiße 10er-Fliesen dort, wo die alte Küche stand (Lage ungefähr). Neue Küche nach dem IKEA-Plan vom 22.11.2026, Spül- und Waschmaschine getauscht, Spüle Primagran Sydney 780 schwarz; Kühlschrank Platzhalter."},
   schlafen:{wall:0x6f8492,floor:"parkett",note:"Aus dem Foto: Wände blaugrau, Fischgrät-Parkett."},
   zimmer1: {wall:0xc9d1d0,floor:"parkett",note:"Aus dem Foto: Wände hell graublau, Parkett."},
   balkon:  {floor:"deck",note:"Aus dem Foto: Holzdielen, Metallgeländer, Glasdach."}
@@ -88,15 +103,15 @@ var stage=document.getElementById("stage");
 var renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
 renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
 stage.appendChild(renderer.domElement);
 var scene=new THREE.Scene();scene.background=new THREE.Color(0xf5f2ec);
 var camera=new THREE.PerspectiveCamera(40,1,5,20000);
 var controls=new THREE.OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;controls.dampingFactor=.08;controls.screenSpacePanning=true;
 var root=new THREE.Group();scene.add(root);
-scene.add(new THREE.HemisphereLight(0xfffaf0,0xb9b2a3,.8));
-var sun=new THREE.DirectionalLight(0xfff1dc,.75);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.bias=-.0005;scene.add(sun);scene.add(sun.target);
+var hemi=new THREE.HemisphereLight(0xfffaf0,0xb9b2a3,.45);scene.add(hemi);
+var sun=new THREE.DirectionalLight(0xfff1dc,.75);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.bias=-.0005;sun.shadow.normalBias=.6;sun.shadow.radius=3;scene.add(sun);scene.add(sun.target);
 var bb,CX=0,CZ=0,SPAN=800;
 
 /* ---------- Materialien ---------- */
@@ -120,21 +135,22 @@ var TX={
   slate:tex(256,256,function(g,w){g.fillStyle="#4b4d4f";g.fillRect(0,0,w,w);for(var i=0;i<30;i++){g.strokeStyle="rgba(20,20,20,.35)";g.lineWidth=1.5;g.beginPath();var x=Math.random()*w,y=Math.random()*w;g.moveTo(x,y);g.lineTo(x+Math.random()*90-45,y+Math.random()*90-45);g.stroke()}}),
   veneer:tex(64,256,function(g,w,h){g.fillStyle="#a85a32";g.fillRect(0,0,w,h);for(var i=0;i<60;i++){g.fillStyle="rgba(70,25,10,"+Math.random()*.12+")";g.fillRect(Math.random()*w,0,1+Math.random()*2,h)}})
 };
-function M(c,o){return new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.9,metalness:0},o||{}))}
-function texMat(t,rx,ry,o){var m=M(0xffffff,Object.assign({map:t.clone()},o||{}));m.map.repeat.set(rx,ry);m.map.needsUpdate=true;return m}
+function M(c,o){return new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.9,metalness:0,envMapIntensity:.25},o||{}))}
+function texMat(t,rx,ry,o){var m=M(0xffffff,Object.assign({map:t.clone()},o||{}));m.map.repeat.set(rx,ry);m.map.needsUpdate=true;
+  if(t===TX.wallTile||t===TX.badTile||t===parkett){m.bumpMap=m.map;m.bumpScale=t===parkett?.06:.35}return m}
 var MAT={glass:new THREE.MeshStandardMaterial({color:0xcfe3ef,transparent:true,opacity:.25,roughness:.1}),frame:M(0xffffff,{roughness:.5}),
   ceil:M(0xfbfaf6,{side:THREE.BackSide}),slab:M(0x1c2a4b),white:M(0xf3f2ee,{roughness:.35}),steel:M(0xc9cdcd,{roughness:.3,metalness:.7}),
   skirt:M(0xd8b27f,{roughness:.6}),wood:M(0xc48f55,{roughness:.6}),neutral:M(0xdcd6ca,{roughness:1}),wallBase:M(0xf4f2ee,{roughness:.95}),reveal:M(0xe8e4db),band:M(0xf4f2ee,{roughness:.95})};
 var wallMats={};
 function wallMat(rid){var L=LOOK[rid]||{};var c=L.wall!=null?L.wall:0xf4f2ee;return wallMats[c]||(wallMats[c]=M(c,{roughness:.95}))}
 function floorMat(rid,w,h){var L=LOOK[rid]||{};
-  if(L.floor==="parkett")return texMat(parkett,w/PK_W,h/PK_H,{roughness:.55});
+  if(L.floor==="parkett")return texMat(parkett,w/PK_W,h/PK_H,{roughness:.42});
   if(L.floor==="beige")return texMat(TX.beige,w/30,h/30,{roughness:.4});
   if(L.floor==="deck")return texMat(TX.deck,w/80,h/100,{roughness:.8});
   return MAT.neutral.clone()}
 
 /* ---------- Helfer ---------- */
-var built={};["walls","floors","ceil","labels","fixed","deco"].forEach(function(k){built[k]=new THREE.Group();root.add(built[k])});
+var built={};["walls","floors","ceil","labels","fixed","deco","kitchen"].forEach(function(k){built[k]=new THREE.Group();root.add(built[k])});
 var colliders=[],OPEN=[];
 function box(w,h,d,mat,x,y,z,parent,shadow){var m=new THREE.Mesh(new THREE.BoxGeometry(Math.max(w,.1),Math.max(h,.1),Math.max(d,.1)),mat);m.position.set(x,y,z);if(shadow!==false){m.castShadow=true;m.receiveShadow=true}(parent||root).add(m);return m}
 function plane(w,h,mat,parent){var m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);m.receiveShadow=true;(parent||root).add(m);return m}
@@ -225,7 +241,7 @@ function buildFixed(){
       [-1,1].forEach(function(sx){box(dw,hh*.6,1.5,vv,sx*along/4,6+hh*.3,deep/2+.8,gg);box(dw,hh*.3,1.5,vv,sx*along/4,hh*.6+14+hh*.15,deep/2+.8,gg)});
       /* Türen zeigen in den Raum */
       if(w<d)gg.rotation.y=(+f.dx<r.w/2?1:-1)*Math.PI/2;else gg.rotation.y=(+f.dy<r.h/2?0:Math.PI)}
-    else if(/kamin|vorsprung/.test(n))b(w,H,d,MAT.white,0,H/2,0);/* Kamin- und andere Vorsprünge: gemauert bis zur Decke */
+    else if(/kamin|vorsprung/.test(n))b(w,H,d,LOOK[f.room]&&LOOK[f.room].wall!=null?wallMat(f.room):MAT.white,0,H/2,0);/* Kamin- und andere Vorsprünge: gemauert bis zur Decke */
     else if(/heiz/.test(n))b(w,60,d,MAT.white,0,45,0);/* Heizkörper: Lage ungefähr, Höhe angenommen */
     else b(w,100,d,MAT.white,0,50,0);
     g.position.set(r.x+(+f.dx)+w/2,0,r.y+(+f.dy)+d/2);g.userData.room=f.room;built.fixed.add(g)});
@@ -236,26 +252,172 @@ function buildFixed(){
       [r.y+.8,r.y+r.h-.8].forEach(function(z){box(60,125,1,texMat(TX.wallTile,60/80,125/80,{roughness:.3}),ex-30,62.5,z,built.deco,false)});
       var bt=plane(80,r.h,texMat(TX.beige,80/30,r.h/30,{roughness:.4}),built.deco);bt.rotation.x=-Math.PI/2;bt.position.set(ex-40,.4,r.y+r.h/2);
       box(52,30,36,MAT.white,ex-27,40,r.y+r.h/2,built.deco);box(52,4,38,MAT.white,ex-27,57,r.y+r.h/2,built.deco)}
+    (L.fliesen||[]).forEach(function(t){var x0=Math.min(t[0],r.w),y0=Math.min(t[1],r.h),x1=Math.min(t[2],r.w),y1=Math.min(t[3],r.h),th=L.fliesenH||150,len=Math.max(x1-x0,y1-y0);if(len<1)return;
+      var m=texMat(TX.wallTile,len/80,th/80,{roughness:.25});if(x0===x1)box(.8,th,len,m,r.x+x0+.7,th/2,r.y+y0+len/2,built.deco,false);else box(len,th,.8,m,r.x+x0+len/2,th/2,r.y+y0+.7,built.deco,false)});
+    (L.schiefer||[]).forEach(function(q){var w=Math.min(q[2],r.w-q[0]),h=Math.min(q[3],r.h-q[1]);if(w<1||h<1)return;var sl=plane(w,h,texMat(TX.slate,w/100,h/100,{roughness:.7}),built.deco);sl.rotation.x=-Math.PI/2;sl.position.set(r.x+q[0]+w/2,.3,r.y+q[1]+h/2)});
   });
 }
 
-/* Küchenläufe aus dem Küchenplaner als schlichte Körper. Fliesenspiegel und Schieferfeld folgen dem Lauf mit Kochfeld. */
-function buildKitchen(){if(!window.KK||!KD)return;var M0=KK.model(R,P,KD,{});if(!M0||!M0.runs.length)return;var r=M0.room,front=M(0xf3f2ee,{roughness:.45}),old=M(0xdcdcd6,{roughness:.6}),plinth=M(0x3a4157,{roughness:.8});
-  M0.runs.forEach(function(l){var ra=KK.ras(l),top=+ra.sockel+(+ra.korpus);
-    KK.boxes(M0,l).forEach(function(x){var q=x.r,cx=r.x+q[0]+q[2]/2,cz=r.y+q[1]+q[3]/2,e=x.e,mat=e.dec==="bestand"?old:front,a=KK.art(M0,e);
-      if(e.typ==="regal"){[0,38,76].forEach(function(dz){box(q[2],3,q[3],MAT.wood,cx,x.z0+dz,cz,built.fixed)});return}
-      if(e.typ==="abzug"){box(q[2]-2,6,q[3],MAT.steel,cx,x.z0+3,cz,built.fixed);return}
-      var h=x.z1-x.z0;if(x.lv==="unten"){box(q[2]-1,+ra.sockel,q[3]-6,plinth,cx,+ra.sockel/2,cz,built.fixed)}
-      box(q[2]-1,h,q[3],mat,cx,x.z0+h/2,cz,built.fixed);
-      if(x.lv==="unten"&&a==="kochfeld")box(Math.min(q[2],58)-4,1,Math.min(q[3],52)-4,MAT.slab,cx,top+(+ra.platte)+.5,cz,built.fixed,false)});
-    KK.platte(l).forEach(function(seg){var q=KK.rect(M0,l,seg[0],seg[1]-seg[0],+ra.tiefe);box(q[2],+ra.platte,q[3]+(l.wand?0:0),MAT.steel,r.x+q[0]+q[2]/2,top+(+ra.platte)/2,r.y+q[1]+q[3]/2,built.fixed)});
-    var L=KK.layout(M0,l),kf=L.unten.filter(function(it){return KK.art(M0,it.e)==="kochfeld"})[0];if(!kf||!l.wand)return;
-    /* Fliesen hinter der Arbeitsplatte, so lang wie der Lauf, bis zu den Hängeschränken */
-    var len=Math.max(L.end,1),q=KK.rect(M0,l,0,len,1),th=+ra.abstand,y0=top+(+ra.platte),tile=texMat(TX.wallTile,len/80,th/80,{roughness:.3}),b=box(l.wand==="n"||l.wand==="s"?len:1,th,l.wand==="n"||l.wand==="s"?1:len,tile,r.x+q[0]+q[2]/2,y0+th/2,r.y+q[1]+q[3]/2,built.deco,false);
-    /* Schieferfeld vor dem Kochfeld */
-    var d=+ra.tiefe,k=KK.rect(M0,l,kf.off,kf.b,d),sl=plane(l.wand==="n"||l.wand==="s"?110:70,l.wand==="n"||l.wand==="s"?70:110,texMat(TX.slate,1,.7,{roughness:.7}),built.deco);sl.rotation.x=-Math.PI/2;
-    var mx=r.x+k[0]+k[2]/2,mz=r.y+k[1]+k[3]/2;if(l.wand==="n")mz=r.y+d+35;if(l.wand==="s")mz=r.y+r.h-d-35;if(l.wand==="w")mx=r.x+d+35;if(l.wand==="e")mx=r.x+r.w-d-35;sl.position.set(mx,.3,mz)});
-}
+/* ---------- Küche aus dem Küchenplaner, naturgetreu nach Produkten und Maßen ----------
+   Fronten VALLSTENA weiß, Sockel FÖRBÄTTRA Hochglanz, Deckseiten weiß, Arbeitsplatte Eiche geölt mit Keilzinken (Foto).
+   Geräte nach Datenblatt bzw. Produktfoto; was nicht belegt ist (Lage der Kochzonen, Bedienfelder), ist ungefähr. */
+var GRIFFE=[["holz","holz lang"],["edelstahl","edelstahl"],["schwarz","schwarz"],["messing","messing-knopf"]];
+var KM=null,kpts=null,klight=null;
+function kmats(){if(KM)return KM;var env=null;
+  try{if(THREE.RoomEnvironment){var pm=new THREE.PMREMGenerator(renderer);env=pm.fromScene(new THREE.RoomEnvironment(),.04).texture;pm.dispose()}}catch(e){env=null}
+  function S(o){return new THREE.MeshStandardMaterial(Object.assign({envMap:env,envMapIntensity:.3,roughness:.5,metalness:0},o))}
+  function Ph(o){return new THREE.MeshPhysicalMaterial(Object.assign({envMap:env,envMapIntensity:1,roughness:.2,metalness:0},o))}
+  /* Eiche, Keilzinken-Lamellen ca. 4,3 cm; Textur 240 × 60 cm, damit keine Naht auf der Platte liegt */
+  var oak=tex(2048,512,function(g,w,h){var n=14,sw=h/n,cm=w/240;
+    for(var i=0;i<n;i++){var y0=i*sw,x=-Math.random()*60*cm;
+      while(x<w){var L=(28+Math.random()*55)*cm,hue=31+Math.random()*7,li=55+Math.random()*14,sa=34+Math.random()*14;
+        g.fillStyle="hsl("+hue+","+sa+"%,"+li+"%)";g.fillRect(x,y0,L,sw);
+        var gr=g.createLinearGradient(0,y0,0,y0+sw);gr.addColorStop(0,"rgba(255,230,190,"+(Math.random()*.08)+")");gr.addColorStop(1,"rgba(80,40,10,"+(Math.random()*.1)+")");g.fillStyle=gr;g.fillRect(x,y0,L,sw);
+        for(var k=0;k<26;k++){var yy=y0+Math.random()*sw,amp=Math.random()*2.2,ph=Math.random()*6,fr=.003+Math.random()*.008;
+          g.strokeStyle="rgba("+(60+Math.random()*40|0)+","+(32+Math.random()*16|0)+",12,"+(.05+Math.random()*.16)+")";g.lineWidth=.5+Math.random()*1.4;g.beginPath();g.moveTo(x,yy);
+          for(var xx=0;xx<=L;xx+=12)g.lineTo(x+xx,Math.max(y0,Math.min(y0+sw,yy+Math.sin(ph+xx*fr)*amp)));g.stroke()}
+        for(k=0;k<30;k++){g.fillStyle="rgba(255,236,205,"+(Math.random()*.16)+")";g.fillRect(x+Math.random()*L,y0+Math.random()*sw,3+Math.random()*9,.8+Math.random()*1.2)}
+        if(Math.random()<.22){var kx=x+Math.random()*L,ky=y0+sw*(.3+Math.random()*.4);g.fillStyle="rgba(40,20,6,.9)";g.beginPath();g.ellipse(kx,ky,3+Math.random()*5,1.6+Math.random()*1.6,0,0,7);g.fill();
+          g.strokeStyle="rgba(95,52,20,.3)";g.lineWidth=2.5;g.beginPath();g.ellipse(kx,ky,13,5,0,0,7);g.stroke()}
+        g.strokeStyle="rgba(70,40,15,.5)";g.lineWidth=1;g.beginPath();g.moveTo(x+L,y0);for(var z=1;z<=8;z++)g.lineTo(x+L+(z%2?5:-5),y0+z*sw/8);g.stroke();
+        x+=L}
+      g.fillStyle="rgba(70,40,15,.28)";g.fillRect(0,y0,w,1)}});
+  oak.repeat.set(1/240,1/60);var oakH=oak.clone();oakH.needsUpdate=true;oakH.repeat.set(.14,.08);
+  var brushed=tex(256,256,function(g,w){g.fillStyle="#bdbdbd";g.fillRect(0,0,w,w);for(var i=0;i<900;i++){var v=150+Math.random()*90|0;g.fillStyle="rgba("+v+","+v+","+v+",.35)";g.fillRect(Math.random()*w-60,Math.random()*w,40+Math.random()*160,1)}});
+  KM={env:env,
+    front:S({color:0xf3f2ee,roughness:.38}),korpus:S({color:0xe9e7e1,roughness:.7}),side:S({color:0xf1f0ec,roughness:.4}),
+    plinth:Ph({color:0xf4f4f2,roughness:.06,clearcoat:1,clearcoatRoughness:.04}),dark:S({color:0x1b1a18,roughness:1,envMapIntensity:0}),
+    top:S({color:0xffffff,map:oak,bumpMap:oak,bumpScale:.04,roughness:.42,envMapIntensity:.45}),
+    steel:S({color:0xd9dcde,map:brushed,metalness:.85,roughness:.34,envMapIntensity:1}),
+    steelPlain:S({color:0xd4d7d9,metalness:.9,roughness:.3,envMapIntensity:1}),
+    chrome:S({color:0xf4f6f8,metalness:1,roughness:.07,envMapIntensity:1.2}),
+    glass:Ph({color:0x0b0c0e,roughness:.08,clearcoat:1,clearcoatRoughness:.04,envMapIntensity:.5}),
+    glassIn:Ph({color:0x22262b,roughness:.1,clearcoat:1,clearcoatRoughness:.02,envMapIntensity:1.1}),
+    black:S({color:0x161718,roughness:.55}),
+    white:S({color:0xf6f7f7,roughness:.28,envMapIntensity:.8}),grey:S({color:0x9ea1a4,roughness:.5}),
+    fridge:S({color:0x8b8f93,map:brushed,metalness:.6,roughness:.4,envMapIntensity:1}),
+    alu:S({color:0xc1c4c7,metalness:.9,roughness:.28,envMapIntensity:1}),
+    brass:S({color:0xc9a050,metalness:1,roughness:.26,envMapIntensity:1.2}),
+    blackMetal:S({color:0x1c1c1e,metalness:.4,roughness:.45,envMapIntensity:.8}),
+    handleWood:S({color:0xe8ddd0,map:oakH,roughness:.55}),
+    led:new THREE.MeshBasicMaterial({color:0xffffff})};
+  /* Kochfeld: schwarze Glaskeramik, vier Zonen (Lage ungefähr), Touch-Leiste vorne */
+  var ht=tex(580,520,function(g,w,h){g.fillStyle="#0d0e10";g.fillRect(0,0,w,h);g.strokeStyle="rgba(190,196,204,.55)";g.lineWidth=2;
+    [[150,140,72],[150,330,104],[430,140,104],[430,330,90]].forEach(function(c){g.beginPath();g.arc(c[0],c[1],c[2],0,7);g.stroke();
+      [[-1,0],[1,0],[0,-1],[0,1]].forEach(function(d){g.beginPath();g.moveTo(c[0]+d[0]*(c[2]+4),c[1]+d[1]*(c[2]+4));g.lineTo(c[0]+d[0]*(c[2]+14),c[1]+d[1]*(c[2]+14));g.stroke()})});
+    g.fillStyle="rgba(200,205,212,.65)";g.font="16px sans-serif";g.textAlign="center";for(var i=0;i<10;i++)g.fillText(String(i),182+i*24,488);
+    g.fillRect(170,496,240,1.5);[110,470].forEach(function(x){g.beginPath();g.arc(x,484,9,0,7);g.stroke()})});
+  ht.wrapS=ht.wrapT=THREE.ClampToEdgeWrapping;
+  KM.hob=Ph({map:ht,roughness:.12,clearcoat:1,clearcoatRoughness:.05,envMapIntensity:.35});
+  KM.ovenPanel=Ph({map:tex(512,80,function(g,w,h){g.fillStyle="#0c0d0f";g.fillRect(0,0,w,h);g.fillStyle="#f5f1e8";g.font="600 26px 'IBM Plex Mono',monospace";g.textAlign="center";g.fillText("12:00",w/2,46);
+    g.fillStyle="rgba(220,220,220,.5)";g.font="13px sans-serif";g.fillText("AEG",w/2,70)}),roughness:.08,clearcoat:1,envMapIntensity:1.2});
+  KM.gsPanel=S({map:tex(512,64,function(g,w,h){g.fillStyle="#111214";g.fillRect(0,0,w,h);g.fillStyle="#e9eef5";g.font="500 20px sans-serif";g.textAlign="center";g.fillText("2:55",w/2,40);
+    g.fillStyle="rgba(230,235,240,.7)";for(var i=0;i<6;i++){g.beginPath();g.arc(70+i*30,32,5,0,7);g.fill()}for(i=0;i<4;i++){g.beginPath();g.arc(340+i*34,32,5,0,7);g.fill()}}),roughness:.3,envMapIntensity:.9});
+  KM.wmPanel=S({map:tex(512,96,function(g,w,h){g.fillStyle="#f6f7f7";g.fillRect(0,0,w,h);g.fillStyle="#1d1e20";g.fillRect(300,22,150,44);g.fillStyle="#f2f2f2";g.font="600 22px 'IBM Plex Mono',monospace";g.textAlign="center";g.fillText("1:29",375,52);
+    g.fillStyle="#9aa0a6";g.font="12px sans-serif";g.fillText("AEG",70,86)}),roughness:.3,envMapIntensity:.8});
+  return KM}
+function rbox(w,h,d,m,x,y,z,p,r){w=Math.max(w,.1);h=Math.max(h,.1);d=Math.max(d,.1);
+  var geo=THREE.RoundedBoxGeometry&&r?new THREE.RoundedBoxGeometry(w,h,d,3,Math.min(r,w/2-.01,h/2-.01,d/2-.01)):new THREE.BoxGeometry(w,h,d);
+  /* abgerundete Box als freie Geometrie speichern, sonst baut der Fotomodus sie als 1 × 1 × 1-Box nach */
+  if(geo.type!=="BoxGeometry"||r&&THREE.RoundedBoxGeometry){geo.type="BufferGeometry";delete geo.parameters}
+  var o=new THREE.Mesh(geo,m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;p.add(o);return o}
+function cyl(r0,r1,h,m,x,y,z,p,rx,rz,seg){var o=new THREE.Mesh(new THREE.CylinderGeometry(r0,r1,h,seg||28),m);o.position.set(x,y,z);if(rx)o.rotation.x=rx;if(rz)o.rotation.z=rz;o.castShadow=true;o.receiveShadow=true;p.add(o);return o}
+/* Griff auf einer Front: Mitte cx, Höhe y, Frontfläche bei z, Frontbreite w */
+function griff(g,typ,cx,y,z,w){var K=kmats();
+  if(typ==="messing"){cyl(.6,.6,2.2,K.brass,cx,y,z+1.1,g,Math.PI/2);var k=new THREE.Mesh(new THREE.SphereGeometry(1.5,24,16),K.brass);k.scale.set(1,1,.72);k.position.set(cx,y,z+2.6);k.castShadow=true;g.add(k);return}
+  if(typ==="holz"){rbox(Math.max(16,Math.min(w-14,w*.62)),2.4,2.2,K.handleWood,cx,y,z+1.1,g,.5);return}
+  var L=Math.max(12,Math.min(w-14,w*.42)),m=typ==="schwarz"?K.blackMetal:K.steelPlain;
+  cyl(.6,.6,L,m,cx,y,z+3,g,0,Math.PI/2,18);[-1,1].forEach(function(s){cyl(.45,.45,3,m,cx+s*(L/2-1.5),y,z+1.5,g,Math.PI/2,0,14)})}
+/* Arbeitsplatte mit Ausschnitten, in Laufkoordinaten: x längs, Tiefe von der Wand (-D/2) nach vorn */
+function platte(len,D,t,holes){var s=new THREE.Shape();s.moveTo(-len/2,-D/2);s.lineTo(len/2,-D/2);s.lineTo(len/2,D/2);s.lineTo(-len/2,D/2);s.lineTo(-len/2,-D/2);
+  (holes||[]).forEach(function(h){var p=new THREE.Path(),r=3,x0=h[0]-h[2]/2,x1=h[0]+h[2]/2,y0=h[1]-h[3]/2,y1=h[1]+h[3]/2;
+    p.moveTo(x0+r,y0);p.lineTo(x1-r,y0);p.quadraticCurveTo(x1,y0,x1,y0+r);p.lineTo(x1,y1-r);p.quadraticCurveTo(x1,y1,x1-r,y1);p.lineTo(x0+r,y1);p.quadraticCurveTo(x0,y1,x0,y1-r);p.lineTo(x0,y0+r);p.quadraticCurveTo(x0,y0,x0+r,y0);s.holes.push(p)});
+  var m=new THREE.Mesh(new THREE.ExtrudeGeometry(s,{depth:t-.3,bevelEnabled:true,bevelThickness:.15,bevelSize:.15,bevelSegments:2,curveSegments:8}),kmats().top);
+  m.rotation.x=Math.PI/2;m.castShadow=true;m.receiveShadow=true;return m}
+/* Geräte: Ursprung Mitte unten, Wand bei -d/2, vorne = +z; zf = Frontfläche der Schränke */
+function dev_gs(g,h,zf){var K=kmats(),w=59.6;/* Bosch SMU4ECS32E: 60 × 82 × 57 (Datenblatt), Füße bis unter die Platte */
+  rbox(w,h-1,55,K.steel,0,h/2,zf-28.5,g,.2);rbox(w,8.5,.8,K.gsPanel,0,h-5.2,zf+.4,g,.1);rbox(w-6,1.2,1.4,K.dark,0,h-10.5,zf+.2,g);
+  rbox(w,h-21.5,2,K.steel,0,10+(h-21.5)/2,zf,g,.3);rbox(w-1,9,.5,K.grey,0,4.5,zf-2,g)}
+function dev_wm(g,zf){var K=kmats(),w=59.7,h=85,d=58;/* AEG LR6F5E485: 60 × 85 × 58 (Datenblatt), weiß, schwarze Tür */
+  rbox(w,h,d,K.white,0,h/2,zf-d/2,g,1.4);rbox(w-1,12,.6,K.wmPanel,0,h-7.5,zf+.1,g,.2);rbox(17,6,.8,K.white,-18.5,h-6.5,zf+.5,g,.4);
+  cyl(3,3,1.6,K.chrome,1.5,h-7.5,zf+.8,g,Math.PI/2);cyl(2.4,2.4,2.2,K.white,1.5,h-7.5,zf+1,g,Math.PI/2);
+  var ring=new THREE.Mesh(new THREE.TorusGeometry(19.5,3.2,20,64),K.black);ring.position.set(0,45,zf+1.6);ring.castShadow=true;g.add(ring);
+  cyl(17.5,17.5,1,K.black,0,45,zf+1.4,g,Math.PI/2,0,64);cyl(15,13,1.2,K.glassIn,0,45,zf+2.1,g,Math.PI/2,0,64);
+  cyl(.8,.8,3,K.chrome,16,45,zf+3.5,g,Math.PI/2);rbox(w-2,6,1,K.grey,0,3,zf-1,g)}
+function dev_ofen(g,zf,y){var K=kmats(),w=59.5,h=59.4;/* AEG TS6PB51ZAB: 59,5 breit (Titel), Glasfront schwarz, Bedienleiste oben */
+  rbox(w-1,h-1,52,K.black,0,y+h/2,zf-27,g);rbox(w,9.6,1.2,K.ovenPanel,0,y+h-4.8,zf+.6,g,.2);
+  [-1,1].forEach(function(s){cyl(1.9,1.9,1.8,K.steelPlain,s*20,y+h-4.8,zf+2,g,Math.PI/2);cyl(1.7,1.7,.3,K.chrome,s*20,y+h-4.8,zf+2.95,g,Math.PI/2)});
+  rbox(w,h-10,1.6,K.glass,0,y+(h-10)/2,zf+.8,g,.3);rbox(w-17,h-26,.3,K.glassIn,0,y+(h-10)/2-2,zf+1.75,g,.6);
+  cyl(1.1,1.1,47,K.steelPlain,0,y+h-14,zf+5.4,g,0,Math.PI/2,20);[-1,1].forEach(function(s){cyl(.8,.8,4,K.steelPlain,s*21,y+h-14,zf+3.4,g,Math.PI/2,0,14)})}
+function dev_kuehl(g,h,zw){var K=kmats(),w=59.7,d=66,zf=zw+1+d,hf=74;/* Liebherr grau, Modell offen: 60 breit, Höhe aus dem IKEA-Plan */
+  rbox(w,h-1,d-3,K.fridge,0,h/2,zw+1+(d-3)/2,g,1.2);
+  rbox(w,hf-1.5,3.2,K.fridge,0,1+hf/2,zf-1.6,g,1.2);rbox(w,h-hf-2,3.2,K.fridge,0,hf+1+(h-hf-2)/2,zf-1.6,g,1.2);
+  rbox(w-.4,.5,.3,K.dark,0,hf+.6,zf-1.4,g);
+  [[hf-30,hf-4],[hf+6,hf+64]].forEach(function(r){rbox(1.8,r[1]-r[0],2.6,K.alu,-w/2+3,(r[0]+r[1])/2,zf+1.3,g,.6)})}
+/* Primagran Sydney 780.60 Ergo Multilevel, Schwarz metallic (primagran.de, Zeichnung): 78 × 50, Abtropffläche links 21 mit Rillen,
+   Becken 54 × 40 × 20 mit Stufen (Multilevel) innen vorn und hinten, Armatur mittig hinter dem Becken, Ablauf Ø 9.
+   Lage: Ursprung = Mitte der Spüle auf der Platte. Die Armatur ist nicht im Set: hier eine schlichte Chrom-Armatur. */
+var granit=null;
+function granitMat(){if(granit)return granit;var t=tex(512,512,function(g,w){g.fillStyle="#1b1b1d";g.fillRect(0,0,w,w);
+    for(var i=0;i<9000;i++){var v=Math.random();g.fillStyle=v<.82?"rgba(60,60,64,.55)":v<.97?"rgba(120,120,126,.45)":"rgba(220,220,230,.8)";g.fillRect(Math.random()*w,Math.random()*w,1+Math.random()*1.4,1+Math.random()*1.4)}});
+  t.repeat.set(1/12,1/12);granit=new THREE.MeshStandardMaterial({color:0xffffff,map:t,roughness:.5,metalness:.15,envMap:kmats().env,envMapIntensity:.7});return granit}
+function sink(g,zc,top){var K=kmats(),G=granitMat(),W=78,D=50,bw=54,bd=40,dep=20,bx=W/2-3-bw/2,bz=0,th=1.2,y=top+th;
+  /* Rand: Platte mit Ausschnitt für das Becken, abgeschrägte dünne Kante */
+  var s=new THREE.Shape(),r=1.5;s.moveTo(-W/2+r,-D/2);s.lineTo(W/2-r,-D/2);s.quadraticCurveTo(W/2,-D/2,W/2,-D/2+r);s.lineTo(W/2,D/2-r);s.quadraticCurveTo(W/2,D/2,W/2-r,D/2);s.lineTo(-W/2+r,D/2);s.quadraticCurveTo(-W/2,D/2,-W/2,D/2-r);s.lineTo(-W/2,-D/2+r);s.quadraticCurveTo(-W/2,-D/2,-W/2+r,-D/2);
+  var hp=new THREE.Path(),x0=bx-bw/2,x1=bx+bw/2,z0=bz-bd/2,z1=bz+bd/2,q=2;hp.moveTo(x0+q,z0);hp.lineTo(x1-q,z0);hp.quadraticCurveTo(x1,z0,x1,z0+q);hp.lineTo(x1,z1-q);hp.quadraticCurveTo(x1,z1,x1-q,z1);hp.lineTo(x0+q,z1);hp.quadraticCurveTo(x0,z1,x0,z1-q);hp.lineTo(x0,z0+q);hp.quadraticCurveTo(x0,z0,x0+q,z0);s.holes.push(hp);
+  var rim=new THREE.Mesh(new THREE.ExtrudeGeometry(s,{depth:th-.3,bevelEnabled:true,bevelThickness:.3,bevelSize:.4,bevelSegments:3,curveSegments:6}),G);rim.rotation.x=Math.PI/2;rim.position.set(0,y,zc);rim.castShadow=rim.receiveShadow=true;g.add(rim);
+  /* Abtropffläche: leicht vertieft, fünf Rillen */
+  var dx=-W/2+3+10.5;rbox(19,.2,40,G,dx,y-.45,zc,g);for(var k=0;k<5;k++)rbox(15,.25,.5,K.dark,dx+1.5,y-.3,zc-14+k*7,g);
+  /* Becken mit Multilevel-Stufen */
+  var yc=y-dep/2;rbox(bw,.8,bd,G,bx,y-dep,zc+bz,g,.3);
+  [[bw,dep,.8,bx,-bd/2],[bw,dep,.8,bx,bd/2],[.8,dep,bd,x0,0],[.8,dep,bd,x1,0]].forEach(function(p){rbox(p[0],p[1],p[2],G,p[3],yc,zc+bz+p[4],g)});
+  [[-1,4],[1,4],[-1,10],[1,10]].forEach(function(t){rbox(bw-1,.8,1.4,G,bx,y-t[1],zc+bz+t[0]*(bd/2-1),g)});
+  cyl(4.5,4.5,.3,K.steelPlain,bx,y-dep+.5,zc+bz-2,g,0,0,40);cyl(3,3,.32,K.chrome,bx,y-dep+.55,zc+bz-2,g,0,0,32);
+  /* Schneidebrett Eiche auf der oberen Stufe, über der Abtropffläche */
+  rbox(30,2,bd-1,K.handleWood,x0+4,y-1.5,zc+bz,g,.4);
+  /* Armatur mittig hinter dem Becken (5 vorgefräste Löcher, Mitte) */
+  var tz=zc+bz-bd/2-3.6,tx=bx;cyl(2.6,2.8,6,K.chrome,tx,y+3,tz,g);cyl(1.4,1.4,20,K.chrome,tx,y+15,tz,g);
+  var curve=new THREE.CatmullRomCurve3([new THREE.Vector3(tx,y+24,tz),new THREE.Vector3(tx,y+31,tz+4),new THREE.Vector3(tx,y+29,tz+14),new THREE.Vector3(tx,y+20,tz+19)]);
+  var sp=new THREE.Mesh(new THREE.TubeGeometry(curve,32,1.1,14,false),K.chrome);sp.castShadow=true;g.add(sp);rbox(1.2,1.2,9,K.chrome,tx,y+11,tz+4.5,g,.5)}
+function buildKitchen(){var K0=built.kitchen;K0.traverse(function(o){if(o.geometry)o.geometry.dispose()});K0.clear();kpts=null;if(klight)klight.visible=false;
+  if(!window.KK||!KD)return;var M0=KK.model(R,P,KD,{});if(!M0||!M0.runs.length)return;var r=M0.room,K=kmats(),gt=KD.griff||"holz",TH={n:0,w:Math.PI/2,s:Math.PI,e:-Math.PI/2};
+  function place(o,q,l){o.position.set(r.x+q[0]+q[2]/2,0,r.y+q[1]+q[3]/2);o.rotation.y=l.wand?TH[l.wand]:(l.rot==90?-Math.PI/2:0);o.userData.room=M0.rid;K0.add(o);return o}
+  kpts=[];
+  M0.runs.forEach(function(l){var ra=KK.ras(l),so=+ra.sockel,ko=+ra.korpus,pt=+ra.platte||2.7,top=so+ko,PD=+(l.raster&&l.raster.platteTiefe)||(+ra.tiefe+3.5),holes=[];
+    KK.boxes(M0,l).forEach(function(x){var e=x.e,b=x.b,d=x.r[2]===b?x.r[3]:x.r[2],g=new THREE.Group(),zf=d/2,a=KK.art(M0,e),a2=KK.art2(M0,e),old=e.dec==="bestand";
+      kpts.push([r.x+x.r[0]+x.r[2]/2,r.y+x.r[1]+x.r[3]/2]);
+      if(x.lv==="oben"){var hh=x.z1-x.z0;
+        if(e.typ==="regal")[0,38,76].forEach(function(dz){rbox(b,3,d,K.top,0,x.z0+dz,0,g)});
+        else if(e.typ==="abzug")rbox(b-2,6,d,K.steelPlain,0,x.z0+3,0,g);
+        else{rbox(b-.2,hh,d-2,K.korpus,0,x.z0+hh/2,-1,g);rbox(b-.3,hh-.3,1.9,K.front,0,x.z0+hh/2,zf+1,g,.15);griff(g,gt,0,x.z0+4,zf+1.9,b)}
+        place(g,x.r,l);return}
+      if(e.typ==="blende"){var y0=e.boden?0:so;rbox(b,top-y0,62,K.side,0,y0+(top-y0)/2,-d/2+31,g,.1);place(g,x.r,l);return}
+      if(a==="gs"){dev_gs(g,Math.min(+e.gh||82,top-.5),zf+1.9);place(g,x.r,l);return}
+      if(a==="waschm"){dev_wm(g,zf+1.9);place(g,x.r,l);return}
+      if(a==="kuehl"){dev_kuehl(g,+e.gh||186,-d/2);place(g,x.r,l);return}
+      if(e.typ==="hoch"){var th=x.z1-x.z0;rbox(b-.2,th,d-2,K.korpus,0,x.z0+th/2,-1,g);rbox(b-.3,th-.3,1.9,K.front,0,x.z0+th/2,zf+1,g,.15);
+        rbox(b-.4,so-.5,1.6,K.plinth,0,(so-.5)/2,zf-4,g);griff(g,gt,0,x.z0+th*.55,zf+1.9,b);place(g,x.r,l);return}
+      if(e.typ!=="us"){rbox(b-.2,top-so,d,old?K.korpus:K.front,0,so+(top-so)/2,0,g);place(g,x.r,l);return}
+      /* Unterschrank: Korpus, Hochglanz-Sockel, Fronten von oben nach unten mit 3 mm Fuge */
+      rbox(b-.2,ko,d-2,K.korpus,0,so+ko/2,-1,g);rbox(b-.4,so-.5,1.6,K.plinth,0,(so-.5)/2,zf-4,g);
+      /* dunkle Fläche hinter den Fronten, damit die Fugen als Schatten lesbar sind */
+      rbox(b-.6,ko-.6,.2,K.dark,0,so+ko/2,zf+.1,g);
+      var y=top;(e.fronten&&e.fronten.length?e.fronten:[ko]).forEach(function(f){f=typeof f==="object"?f:{h:+f};var h=+f.h||0,yc=y-h/2;
+        if(f.t==="offen")rbox(b-2,h,.5,K.korpus,0,yc,zf-1.5,g);
+        else if(f.t==="ofen"&&(a2==="ofen"||a==="ofen"))dev_ofen(g,zf+.4,y-h+.3);
+        else{rbox(b-.4,h-.4,1.9,old?K.korpus:K.front,0,yc,zf+1.15,g,.2);griff(g,gt,0,h>=25?y-4.5:yc,zf+1.9,b)}
+        y-=h});
+      /* Kochfeld: schwarzer Körper, bedruckte Glasfläche obenauf (eine Fläche, kein Material-Array: das Raytracing ordnet sonst falsch zu) */
+      if(a==="kochfeld"){var hz=-d/2+PD-5-25.5;rbox(58,.45,51,K.black,0,top+pt+.22,hz,g);var hob=plane(57.6,50.6,K.hob,g);hob.rotation.x=-Math.PI/2;hob.position.set(0,top+pt+.46,hz)}
+      if(a==="spuele"){var zc=-d/2+30;sink(g,zc,top+pt);holes.push([x.off+b/2,zc+d/2-PD/2,76,48])}
+      place(g,x.r,l)});
+    /* Arbeitsplatte je Abschnitt, mit Ausschnitt für die Spüle */
+    KK.platte(l).forEach(function(seg){var len=seg[1]-seg[0],q=KK.rect(M0,l,seg[0],len,PD);
+      var hs=holes.filter(function(h){return h[0]>seg[0]&&h[0]<seg[1]}).map(function(h){return [h[0]-seg[0]-len/2,h[1],h[2],h[3]]});
+      var gp=new THREE.Group(),m=platte(len,PD,pt,hs);m.position.y=top+pt;gp.add(m);place(gp,q,l)})});
+  /* Licht unter der Decke, nur innen sichtbar (Küche, Rundgang) */
+  if(!klight){klight=new THREE.PointLight(0xfff0dc,.55,700,1.4);klight.castShadow=true;klight.shadow.mapSize.set(1024,1024);klight.shadow.bias=-.002;root.add(klight)}
+  klight.position.set(r.x+r.w/2,H-35,r.y+r.h/2);klight.visible=state.view==="gehen"||state.view==="kueche"}
 
 /* ---------- Ansichten ---------- */
 var walk={x:0,z:0,yaw:0,pitch:0,keys:{}};
@@ -264,11 +426,17 @@ function setView(v){state.view=v;document.querySelectorAll("[data-view]").forEac
   var gehen=v==="gehen";stage.classList.toggle("walk",gehen);
   document.getElementById("pad").style.display=gehen?"grid":"none";
   document.getElementById("hint").textContent=gehen?"Ziehen zum Umschauen · W A S D oder Pfeiltasten zum Gehen":"Raum antippen für Fotos";
-  built.ceil.visible=gehen;built.labels.visible=!gehen;controls.enabled=!gehen;
-  camera.fov=gehen?70:40;camera.near=gehen?2:5;camera.updateProjectionMatrix();
+  var kv=v==="kueche";built.ceil.visible=gehen||kv;built.labels.visible=!gehen&&!kv;controls.enabled=!gehen;if(klight)klight.visible=(gehen||kv)&&!!kpts;
+  document.getElementById("griffe").hidden=!kv;if(kv)document.getElementById("hint").textContent="Ziehen zum Drehen · Mausrad oder Kneifen zum Zoomen";
+  controls.minDistance=kv?30:0;controls.maxDistance=kv?420:Infinity;
+  camera.fov=gehen?70:kv?58:40;camera.near=gehen?2:5;camera.updateProjectionMatrix();
   var fit=SPAN/(2*Math.tan(camera.fov*Math.PI/360))/Math.min(1.4,camera.aspect)*1.08;
   if(v==="haus"){controls.minPolarAngle=0;controls.maxPolarAngle=Math.PI*.42;controls.enableRotate=true;camera.position.set(-SPAN*.15,fit*1.1,fit*.6);controls.target.set(0,0,0)}
   else if(v==="oben"){controls.minPolarAngle=0;controls.maxPolarAngle=0;controls.enableRotate=false;camera.position.set(0,fit*1.12+H,.01);controls.target.set(0,0,0)}
+  else if(kv&&kpts&&kpts.length){var kr=R[KK.roomId(R,KD)],tx=0,tz=0;kpts.forEach(function(p){tx+=p[0];tz+=p[1]});tx/=kpts.length;tz/=kpts.length;
+    /* Blick aus der gegenüberliegenden Ecke auf die Küchenzeilen, Kamera bleibt im Raum */
+    var cx=Math.max(kr.x+30,Math.min(kr.x+kr.w-30,kr.x+kr.w-(tx-kr.x)*.35)),cz=Math.max(kr.y+30,Math.min(kr.y+kr.h-30,kr.y+kr.h-(tz-kr.y)*.35));
+    controls.minPolarAngle=Math.PI*.2;controls.maxPolarAngle=Math.PI*.62;controls.enableRotate=true;controls.target.set(tx-CX,80,tz-CZ);camera.position.set(cx-CX,160,cz-CZ)}
   else{var f=R.flur||R[Object.keys(R)[0]];walk.x=f.x+f.w/2-CX;walk.z=f.y+f.h-70-CZ;walk.yaw=0;walk.pitch=-.03;applyWalk()}
   if(!gehen)controls.update()}
 function applyWalk(){camera.position.set(walk.x,EYE,walk.z);camera.rotation.order="YXZ";camera.rotation.set(walk.pitch,walk.yaw,0)}
@@ -305,7 +473,7 @@ renderer.domElement.addEventListener("pointerdown",function(e){down={x:e.clientX
 renderer.domElement.addEventListener("pointermove",function(e){if(!down||state.view!=="gehen")return;walk.yaw=down.yaw+(e.clientX-down.x)*.005;walk.pitch=Math.max(-1.1,Math.min(1.1,down.pitch+(e.clientY-down.y)*.004));applyWalk()});
 renderer.domElement.addEventListener("pointerup",function(e){if(!down)return;var moved=Math.hypot(e.clientX-down.x,e.clientY-down.y);down=null;if(moved>5)return;
   ptr.set(e.clientX/window.innerWidth*2-1,-(e.clientY/window.innerHeight)*2+1);ray.setFromCamera(ptr,camera);
-  var targets=(built.labels.visible?built.labels.children:[]).concat(built.walls.children,built.floors.children,built.fixed.children);
+  var targets=(built.labels.visible?built.labels.children:[]).concat(built.walls.children,built.floors.children,built.fixed.children,built.kitchen.children);
   var h=ray.intersectObjects(targets,true)[0],o=h&&h.object;while(o&&!o.userData.room)o=o.parent;
   showRoom(o&&o.userData.room)});
 window.addEventListener("keydown",function(e){if(state.view!=="gehen")return;var k=e.key.length===1?e.key.toLowerCase():e.key;if(/^(w|a|s|d|Arrow\w+)$/.test(k)){walk.keys[k]=true;e.preventDefault()}});
@@ -314,6 +482,42 @@ document.querySelectorAll("#pad [data-k]").forEach(function(b){var k=b.dataset.k
   b.addEventListener("pointerdown",function(e){e.preventDefault();walk.keys[k]=true;b.setPointerCapture(e.pointerId)});
   ["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){b.addEventListener(ev,function(){walk.keys[k]=false})})});
 document.querySelectorAll("[data-view]").forEach(function(b){b.addEventListener("click",function(){setView(b.dataset.view)})});
+/* Griffe wählen: baut nur die Küche neu; gespeichert wird über api.onGriff (meta/kueche.griff) */
+var gbar=document.getElementById("griffe");GRIFFE.forEach(function(gg){var b=document.createElement("button");b.type="button";b.dataset.griff=gg[0];b.textContent=gg[1];b.setAttribute("aria-pressed","false");gbar.appendChild(b);
+  b.addEventListener("click",function(){if(!KD)return;KD.griff=gg[0];syncGriff();buildKitchen();if(api.onGriff)api.onGriff(gg[0])})});
+var fb=document.createElement("button");fb.type="button";fb.className="fb";fb.textContent="foto";fb.title="Fotorealistisches Bild rechnen (Raytracing)";gbar.appendChild(fb);fb.addEventListener("click",function(){foto()});
+/* ---------- Foto: Pathtracing (three-gpu-pathtracer) mit eigener three.js-Version, erst beim Klick geladen ----------
+   Die Szene wird als JSON übergeben, das Bild rechnet sich schrittweise schärfer. Licht: Himmel, Sonne durch die Balkontür, Deckenlicht. */
+var FT=null;
+function foto(){var ov=document.getElementById("foto"),cv=ov.querySelector("canvas"),st=document.getElementById("fstat");ov.hidden=false;st.textContent="lädt raytracer …";
+  var run={stop:false};FT=run;
+  Promise.all([import("three"),import("three-gpu-pathtracer")]).then(function(L){if(run.stop)return;var T=L[0],PT=L[1];
+    st.textContent="bereitet szene vor …";
+    /* Umgebungs-Maps (PMREM) lassen sich nicht übergeben, kurz abnehmen */
+    var keep=[];scene.traverse(function(o){[].concat(o.material||[]).forEach(function(m){if(m&&m.envMap){keep.push([m,m.envMap]);m.envMap=null}})});
+    var json;try{json=root.toJSON()}finally{keep.forEach(function(k){k[0].envMap=k[1]})}
+    return new T.ObjectLoader().parseAsync(json).then(function(obj){if(run.stop)return;
+      var sc=new T.Scene(),drop=[];sc.add(obj);
+      /* Gruppen von Box-Geometrien verweisen auf Material 0–5; bei nur einem Material ordnet das Raytracing sonst falsch zu */
+      obj.traverse(function(o){if(o.isMesh&&!Array.isArray(o.material)&&o.geometry.groups.length)o.geometry.clearGroups();
+        if(!o.visible||o.isSprite||o.isHemisphereLight||o.isPointLight)drop.push(o);
+        [].concat(o.material||[]).forEach(function(m){if(!m)return;["map","emissiveMap"].forEach(function(k){if(m[k])m[k].colorSpace=T.SRGBColorSpace});["bumpMap","roughnessMap"].forEach(function(k){if(m[k])m[k].colorSpace=T.NoColorSpace})})});
+      drop.forEach(function(o){if(o.parent)o.parent.remove(o)});
+      var env=new PT.GradientEquirectTexture(256);env.topColor.set(0xcfe0f4);env.bottomColor.set(0x8c8478);env.exponent=2;env.update();
+      sc.environment=env;sc.background=env;sc.environmentIntensity=1;sc.backgroundIntensity=1;sc.environmentRotation=new T.Euler();sc.backgroundRotation=new T.Euler();
+      var kr=R[KK.roomId(R,KD)]||{x:CX,y:CZ,w:300,h:300},s2=new T.DirectionalLight(0xfff0dc,3.2);s2.position.set(kr.x-CX+900,700,kr.y-CZ+200);s2.target.position.set(kr.x-CX+kr.w/2,0,kr.y-CZ+kr.h/2);sc.add(s2,s2.target);
+      var lamp=new T.RectAreaLight(0xffe8cc,10,40,40);lamp.position.set(kr.x-CX+kr.w/2,H-2,kr.y-CZ+kr.h/2);lamp.lookAt(kr.x-CX+kr.w/2,0,kr.y-CZ+kr.h/2);sc.add(lamp);
+      var cam=new T.PerspectiveCamera(camera.fov,camera.aspect,1,20000);cam.position.copy(camera.position);cam.quaternion.copy(camera.quaternion);
+      var rd=new T.WebGLRenderer({canvas:cv,antialias:false,preserveDrawingBuffer:true});rd.setPixelRatio(Math.min(2,window.devicePixelRatio||1));rd.setSize(window.innerWidth,window.innerHeight,false);
+      rd.toneMapping=T.ACESFilmicToneMapping;rd.toneMappingExposure=1.3;rd.outputColorSpace=T.SRGBColorSpace;
+      var pt=new PT.WebGLPathTracer(rd);pt.bounces=6;pt.filterGlossyFactor=.5;pt.minSamples=1;pt.renderDelay=0;pt.fadeDuration=0;pt.tiles.set(3,3);pt.renderScale=window.FOTO_SCALE||1;
+      pt.setScene(sc,cam);run.cleanup=function(){pt.dispose&&pt.dispose();sc.traverse(function(o){if(o.geometry)o.geometry.dispose();[].concat(o.material||[]).forEach(function(m){if(!m)return;Object.keys(m).forEach(function(k){if(m[k]&&m[k].isTexture)m[k].dispose()});m.dispose()})});env.dispose();rd.dispose();rd.forceContextLoss()};
+      (function loop(){if(run.stop)return;pt.renderSample();var n=Math.floor(pt.samples);st.textContent=n<400?"rechnet … "+n+" durchgänge":"fertig · "+n+" durchgänge";if(n<400)requestAnimationFrame(loop)})()})})
+  .catch(function(e){st.textContent="foto geht nicht: "+(e&&e.message||e)})}
+function fotoClose(){var ov=document.getElementById("foto");if(FT){FT.stop=true;if(FT.cleanup)FT.cleanup();FT=null}ov.hidden=true}
+document.querySelector('#foto [data-f="close"]').onclick=fotoClose;
+document.querySelector('#foto [data-f="save"]').onclick=function(){var cv=document.querySelector("#foto canvas");cv.toBlob(function(b){if(!b)return;var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="kueche.png";document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)},"image/png")};
+function syncGriff(){var cur=KD&&KD.griff||"holz";gbar.querySelectorAll("[data-griff]").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.griff===cur)})}
 window.addEventListener("resize",frame);
 
 /* ---------- Aufbau ---------- */
@@ -329,14 +533,16 @@ function build(seed){
   OPEN=[];
   (P.doors||[]).forEach(function(d){var g=opening(d);if(g){g.kind="door";g.room=d.room;OPEN.push(g)}});
   (P.windows||[]).forEach(function(d){var g=opening(d);if(g){g.kind="win";g.room=d.room;OPEN.push(g)}});
+  if(!scene.environment)scene.environment=kmats().env;
   buildFloors();buildWalls();buildFixed();buildKitchen();
+  document.querySelector('[data-view="kueche"]').hidden=!kpts;syncGriff();if(!kpts&&state.view==="kueche")state.view="haus";
   built.ceil.visible=state.view==="gehen";built.labels.visible=state.view!=="gehen";
   if(shown)showRoom(shown);
 }
-frame();build(SEED);setView("haus");
+var api;frame();build(SEED);setView(location.hash==="#kueche"&&kpts?"kueche":"haus");
 var last=performance.now();
 renderer.setAnimationLoop(function(t){var dt=Math.min(.05,(t-last)/1000);last=t;if(state.view==="gehen")stepWalk(dt);else controls.update();renderer.render(scene,camera)});
-var api={update:function(seed){var v=state.view,cam=camera.position.clone(),tg=controls.target.clone();build(seed);if(v!=="gehen"){camera.position.copy(cam);controls.target.copy(tg)}},walk:walk,setView:setView,showRoom:showRoom};
+api={update:function(seed){var v=state.view,cam=camera.position.clone(),tg=controls.target.clone();build(seed);if(v!==state.view)setView(state.view);else if(v!=="gehen"){camera.position.copy(cam);controls.target.copy(tg)}},walk:walk,setView:setView,showRoom:showRoom,onGriff:null};
 window.__w3d=api;return api};
 </script>
 <!--BOOT-->

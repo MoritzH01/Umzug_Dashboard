@@ -22,9 +22,10 @@ function load(){return sb.from("docs").select("coll,id,data").or("coll.eq.rooms,
   r.data.forEach(function(x){if(x.coll==="rooms")S.rooms[x.id]=x.data;else if(x.coll==="meta"&&x.id==="kueche")S.kueche=x.data;else if(x.coll==="meta"&&x.id==="plan")S.plan=x.data});return S})}
 sb.auth.getSession().then(function(r){
   if(!r.data||!r.data.session){say("bitte anmelden",'Die 3D-Ansicht nutzt die Anmeldung des Canvas. <a href="index.html">Zum Canvas</a>');return}
-  load().then(function(S){var view=window.W3D(S),t=null;
+  load().then(function(S){var view=window.W3D(S),t=null,cur=S;
+    view.onGriff=function(g){if(!cur.kueche)return;cur.kueche=Object.assign({},cur.kueche,{griff:g});sb.from("docs").upsert({coll:"meta",id:"kueche",data:cur.kueche,updated_at:new Date().toISOString()}).then(function(x){if(x.error)say("nicht gespeichert",String(x.error.message))})};
     sb.channel("w3d").on("postgres_changes",{event:"*",schema:"public",table:"docs"},function(p){var row=p.new&&p.new.coll?p.new:p.old;
-      if(!row||(row.coll!=="rooms"&&!(row.coll==="meta"&&(row.id==="plan"||row.id==="kueche"))))return;clearTimeout(t);t=setTimeout(function(){load().then(view.update)},400)}).subscribe();
+      if(!row||(row.coll!=="rooms"&&!(row.coll==="meta"&&(row.id==="plan"||row.id==="kueche"))))return;clearTimeout(t);t=setTimeout(function(){load().then(function(S2){cur=S2;view.update(S2)})},400)}).subscribe();
   }).catch(function(e){say("datenbank antwortet nicht",String(e&&e.message||e))})});
 })();
 </script>'''

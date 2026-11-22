@@ -39,6 +39,8 @@ KK.sum=function(a){return (a||[]).reduce(function(s,e){return s+(num(e.b)||0)},0
 KK.find=function(M,id){for(var i=0;i<M.runs.length;i++){var l=M.runs[i];for(var lv of ["unten","oben"]){var j=l[lv].findIndex(function(e){return e.id===id});if(j>=0)return {run:l,lv:lv,e:l[lv][j],i:j}}}return null};
 KK.run=function(M,id){return M.runs.filter(function(l){return l.id===id})[0]||null};
 KK.dev=function(M,e){var it=e&&e.geraet&&M.I[e.geraet];return it&&!it.deleted?it:null};
+/* zweites Gerät im selben Schrank (Backofen unter dem Kochfeld), nur Kopie e.art2 für die 3D-Ansicht */
+KK.art2=function(M,e){var d=e&&e.geraet2&&M.I[e.geraet2];return d&&!d.deleted?(d.art||"sonst"):e&&e.geraet2&&e.art2||null};
 KK.art=function(M,e){var d=KK.dev(M,e);return d?(d.art||"sonst"):e&&e.geraet&&e.art||null};  /* e.art: Kopie für die 3D-Ansicht, die keine Möbel lädt */
 KK.label=function(M,e){var d=KK.dev(M,e);return e.name||(d&&d.name)||KK.ELT[e.typ]||e.typ};
 KK.depth=function(l,e,lv){var r=KK.ras(l);if(lv==="oben")return e.typ==="regal"?25:+r.hsTiefe;return +r.tiefe};
@@ -153,7 +155,7 @@ KK.bom=function(M){var rows=[];
   M.runs.forEach(function(l){var nm=l.name||"Lauf";
     l.unten.concat(l.oben).forEach(function(e){if(e.typ==="luecke")return;
       rows.push({kind:"el",id:e.id,run:nm,name:e.name||KK.ELT[e.typ],b:num(e.b),dec:e.dec==="bestand"?"bestand":"neu",status:e.status||"brauchen",preis:num(e.preis),link:e.link||""});
-      var d=KK.dev(M,e);if(d)rows.push({kind:"dev",id:e.geraet,el:e.id,run:nm,name:d.name||KK.ART[d.art||"sonst"],b:num(d.w),dec:KK.DECNEU[d.dec]?"neu":"bestand",status:d.status||"",preis:num(d.preis),link:d.link||""})});
+      [e.geraet,e.geraet2].forEach(function(gid){var d=gid&&M.I[gid];if(d&&!d.deleted)rows.push({kind:"dev",id:gid,el:e.id,run:nm,name:d.name||KK.ART[d.art||"sonst"],b:num(d.w),dec:KK.DECNEU[d.dec]?"neu":"bestand",status:d.status||"",preis:num(d.preis),link:d.link||""})})});
     var segs=KK.platte(l),p=l.platte||{};
     if(segs.length)rows.push({kind:"platte",id:l.id,run:nm,name:(p.name||"Arbeitsplatte")+" "+segs.map(function(q){return q[1]-q[0]}).join(" + ")+" × "+KK.ras(l).tiefe,b:segs.reduce(function(a,q){return a+q[1]-q[0]},0),dec:p.dec==="bestand"?"bestand":"neu",status:p.status||"brauchen",preis:num(p.preis),link:p.link||""})});
   var neu=rows.filter(function(x){return x.dec==="neu"});
