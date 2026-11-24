@@ -140,6 +140,7 @@ Was für das Umzugs-Dashboard schon entschieden ist. Wer etwas ändert (Mensch o
 - Datum: `due` = fällig bzw. bis, `von` = Anfang eines Zeitraums. In der Zeitleiste Balken ziehen verschiebt, Anfang oder Ende ziehen ändert die Dauer, auf der leeren Zeile einer Aufgabe ohne Datum klicken oder ziehen legt Datum oder Zeitraum fest. Termine und Post-its lassen sich verschieben, Verträge nicht. Im Fenster steht dazu, wie viele Tage vor oder nach dem Umzug das ist.
 - „wartet auf“ (Vorschlag 3): `nach: [id, …]` anderer Aufgaben. Solange eine davon offen ist, steht „⧗ …“ an der Zeile und der Balken ist schraffiert; beginnt die Aufgabe vor dem Ende der anderen, steht ein Hinweis im Fenster. Nur Hinweis, nie blockierend. Wird die andere erledigt, meldet die App, was jetzt losgehen kann.
 - Filter wie bisher: Wer (alle, Moritz, Person 2; „Moritz“ zeigt auch Aufgaben für beide), Art, „erledigte zeigen“. Die Auswahl merkt sich nur der Browser (`zeitFilter`).
+- „Jetzt dran“ hat unter der Liste ebenfalls „+ aufgabe“; es öffnet dasselbe Aufgabenfenster. (24.11.2026)
 - Kalenderdatei, „+ aufgabe“ und „+ termin“ bleiben. Unterpunkte (`sub`) im Fenster abhaken, anlegen, löschen; sind alle abgehakt, fragt die App, ob die Aufgabe erledigt ist.
 - Handy: das Fenster als Liste ohne Zeitleiste, Antippen öffnet die Aufgabe als Vollbild.
 - Der Bereich auf dem Canvas ist mindestens so breit, dass jeder Tag 12 px hat; im Fenster scrollt die Zeitleiste seitlich (mindestens 22 px je Tag), die Liste bleibt stehen.
